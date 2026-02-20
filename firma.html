@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SISTEMA TÁCTICO G6 - COLOMBIA</title>
+    <style>
+        :root {
+            --mil-olive: #2e3516;
+            --fac-yellow: #fcd116;
+            --fac-blue: #003893;
+            --fac-red: #ce1126;
+            --paper-old: #e3d9c6;
+            --ink: #1a1a1a;
+        }
+
+        * { box-sizing: border-box; }
+
+        body {
+            background-color: #0d0e0a;
+            color: var(--ink);
+            font-family: 'Courier New', Courier, monospace;
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            overflow-x: hidden;
+            background-image: 
+                radial-gradient(circle, #1a1c12 0%, #050505 100%);
+        }
+
+        /* --- ANIMACIÓN DE CARGA: ESCANEO DE DOCUMENTO --- */
+        #pantalla-carga {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: #000;
+            z-index: 10000;
+            display: none;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            color: var(--fac-yellow);
+        }
+
+        .scanner-line {
+            width: 300px;
+            height: 2px;
+            background: var(--fac-red);
+            box-shadow: 0 0 15px var(--fac-red);
+            position: absolute;
+            animation: scan 1.5s infinite;
+        }
+
+        @keyframes scan {
+            0% { top: 30%; opacity: 0; }
+            50% { opacity: 1; }
+            100% { top: 70%; opacity: 0; }
+        }
+
+        /* --- CONTENEDOR PRINCIPAL --- */
+        .signature-pad {
+            background: var(--paper-old);
+            width: 95%;
+            max-width: 500px;
+            padding: 40px;
+            border: 8px double var(--mil-olive);
+            box-shadow: 0 0 40px rgba(0,0,0,0.8);
+            position: relative;
+            background-image: url("data:image/svg+xml,%3Csvg width='40' height='40' viewBox='0 0 40 40' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%239C92AC' fill-opacity='0.05' fill-rule='evenodd'%3E%3Cpath d='M0 40L40 0H20L0 20M40 40V20L20 40'/%3E%3C/g%3E%3C/svg%3E");
+        }
+
+        /* Cinta Tricolor Superior */
+        .tricolor-header {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 12px;
+            display: flex;
+        }
+        .tricolor-header div { height: 100%; }
+
+        /* --- DISEÑO DEL DOCUMENTO FIRMADO (SUCCESS) --- */
+        #success-screen {
+            display: none;
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: var(--paper-old);
+            z-index: 200;
+            flex-direction: column;
+            align-items: center;
+            padding: 30px;
+            text-align: center;
+            border: 2px solid #b5a489;
+        }
+
+        .doc-title {
+            font-size: 1.2rem;
+            font-weight: bold;
+            border-bottom: 2px solid var(--mil-olive);
+            margin-bottom: 20px;
+            padding-bottom: 5px;
+            color: var(--mil-olive);
+        }
+
+        .watermark {
+            position: absolute;
+            top: 50%; left: 50%;
+            transform: translate(-50%, -50%) rotate(-30deg);
+            font-size: 4rem;
+            color: rgba(0,0,0,0.03);
+            pointer-events: none;
+            white-space: nowrap;
+            font-weight: bold;
+        }
+
+        .data-box {
+            width: 100%;
+            border: 1px solid rgba(0,0,0,0.2);
+            padding: 15px;
+            background: rgba(255,255,255,0.2);
+            margin: 10px 0;
+            position: relative;
+        }
+
+        /* SELLOS ACTUALIZADOS */
+        .stamp-oficial {
+            width: 120px;
+            height: 120px;
+            border: 4px double var(--fac-blue);
+            border-radius: 50%;
+            color: var(--fac-blue);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 0.7rem;
+            font-weight: bold;
+            transform: rotate(15deg);
+            margin: 20px auto;
+            position: relative;
+            animation: stampIn 0.4s cubic-bezier(.18,.89,.32,1.28) forwards;
+            opacity: 0;
+        }
+
+        @keyframes stampIn {
+            from { transform: scale(4) rotate(0deg); opacity: 0; }
+            to { transform: scale(1) rotate(15deg); opacity: 0.7; }
+        }
+
+        #captured-signature {
+            max-width: 100%;
+            height: 80px;
+            filter: sepia(1) contrast(1.2) opacity(0.8);
+        }
+
+        /* --- BOTONES Y CAMPOS --- */
+        h2 { text-transform: uppercase; letter-spacing: 3px; color: var(--mil-olive); margin-top: 15px; }
+        label { display: block; text-align: left; font-size: 0.7rem; font-weight: bold; margin-top: 10px; color: #444; }
+        
+        input, select {
+            width: 100%; padding: 10px; margin-top: 5px;
+            background: rgba(255,255,255,0.4);
+            border: 1px solid var(--mil-olive);
+            font-family: inherit;
+        }
+
+        .sign-area {
+            border: 1px solid #888;
+            height: 140px; margin-top: 10px;
+            background: #fff; cursor: crosshair;
+        }
+
+        canvas { width: 100%; height: 100%; touch-action: none; }
+
+        .actions { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 20px; }
+        .btn { padding: 12px; border: none; cursor: pointer; font-weight: bold; font-family: inherit; text-transform: uppercase; }
+        .btn-confirm { background: var(--mil-olive); color: var(--fac-yellow); }
+        .btn-clear { background: #8b0000; color: #fff; }
+
+        .footer-tag { font-size: 0.5rem; margin-top: 20px; color: #666; }
+    </style>
+</head>
+<body>
+
+    <div id="pantalla-carga">
+        <div class="scanner-line"></div>
+        <p style="margin-top: 100px;">VERIFICANDO CREDENCIALES G6...</p>
+        <div id="load-status" style="font-size: 0.7rem;">ESPERANDO RESPUESTA...</div>
+    </div>
+
+    <div class="signature-pad">
+        <div class="tricolor-header">
+            <div style="background:var(--fac-yellow); flex:2"></div>
+            <div style="background:var(--fac-blue); flex:1"></div>
+            <div style="background:var(--fac-red); flex:1"></div>
+        </div>
+        
+
+        <div style="text-align: center; margin-top: 10px;">
+            <div style="font-size: 0.6rem; font-weight: bold;">REPÚBLICA DE COLOMBIA</div>
+            <div style="font-size: 0.5rem;">FUERZAS MILITARES - ROLEPLAY</div>
+        </div>
+
+        <h2>Registro de Alistamiento</h2>
+        
+
+        <label>RANGO DE OPERACIONES</label>
+        <select id="rango">
+            <option>RECLUTA (REC)</option>
+            <option>CABO (SLP)</option>
+            <option>SARGENTO (SGT)</option>
+            <option>TENIENTE (TE)</option>
+            <option>MAYOR (MY)</option>
+            <option>CORONEL (CR)</option>
+            <option>GENERAL (GN)</option>
+        </select>
+
+        <label>NOMBRE IC (ENVIAR CAPTURA AL DISCORD AL FIRMAR)</label>
+        <input type="text" id="nombre" placeholder="Ej: Pepe_Perez">
+
+        <label>FIRMA DEL PERSONAL (Holográfica)</label>
+        <div class="sign-area">
+            <canvas id="sig-canvas"></canvas>
+        </div>
+
+        <div class="actions">
+            <button class="btn btn-clear" onclick="clearCanvas()">ANULAR</button>
+            <button class="btn btn-confirm" onclick="iniciarProceso()">VALIDAR</button>
+        </div>
+
+        <div id="success-screen">
+            <div class="watermark">EJÉRCITO COL</div>
+            <div class="doc-title">ACTA DE REGISTRO MILITAR</div>
+            
+            <p style="font-size: 0.7rem; text-align: justify; margin: 10px 0;">
+                Por medio de la presente se certifica que el personal identificado a continuación ha jurado lealtad y cumplido con los protocolos de ingreso al sistema G6.
+            </p>
+
+            <div class="data-box">
+                <div style="font-size: 0.6rem; color: var(--mil-olive); text-align: left;">SUJETO IDENTIFICADO:</div>
+                <div id="resumen" style="font-weight: bold; font-size: 1.1rem; padding: 10px 0;"></div>
+                
+                <div style="font-size: 0.6rem; color: var(--mil-olive); text-align: left; border-top: 1px solid #ccc; padding-top: 5px;">FIRMA REGISTRADA:</div>
+                <img id="captured-signature" src="">
+            </div>
+
+            <div class="stamp-oficial" id="sello">
+                CERTIFICADO<br>OFICIAL<br>G6-COL
+            </div>
+
+            <div style="font-size: 0.5rem; margin-top: 10px;">
+                FECHA DE REGISTRO: <span id="fecha"></span><br>
+                ID DE ARCHIVO: FAC-01   REGISTRO PARA ROLEPLAYVIDEJUEGO MTA GTA SA
+            </div>
+
+            <button onclick="location.reload()" style="margin-top: 20px; background: none; border: 1px solid #aaa; font-size: 0.5rem; cursor: pointer;">GENERAR NUEVO</button>
+            <div class="footer-tag">DESARROLLADO POR: SAM SUKV</div>
+        </div>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('sig-canvas');
+        const ctx = canvas.getContext('2d');
+        let drawing = false;
+
+        function resize() {
+            const rect = canvas.parentElement.getBoundingClientRect();
+            canvas.width = rect.width;
+            canvas.height = rect.height;
+            ctx.strokeStyle = "#001a4d"; // Tinta azul oscuro clásica
+            ctx.lineWidth = 2.5;
+            ctx.lineCap = "round";
+        }
+
+        window.onload = resize;
+
+        function getPos(e) {
+            const rect = canvas.getBoundingClientRect();
+            const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+            const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+            return { x: clientX - rect.left, y: clientY - rect.top };
+        }
+
+        canvas.addEventListener('mousedown', (e) => { drawing = true; ctx.beginPath(); const p = getPos(e); ctx.moveTo(p.x, p.y); });
+        canvas.addEventListener('mousemove', (e) => { if(!drawing) return; const p = getPos(e); ctx.lineTo(p.x, p.y); ctx.stroke(); });
+        window.addEventListener('mouseup', () => drawing = false);
+        canvas.addEventListener('touchstart', (e) => { e.preventDefault(); drawing = true; ctx.beginPath(); const p = getPos(e); ctx.moveTo(p.x, p.y); });
+        canvas.addEventListener('touchmove', (e) => { e.preventDefault(); if(!drawing) return; const p = getPos(e); ctx.lineTo(p.x, p.y); ctx.stroke(); });
+
+        function clearCanvas() { ctx.clearRect(0, 0, canvas.width, canvas.height); }
+
+        function iniciarProceso() {
+            const nom = document.getElementById('nombre').value;
+            if(!nom) return alert("SISTEMA: Ingrese identificación.");
+
+            const carga = document.getElementById('pantalla-carga');
+            const status = document.getElementById('load-status');
+            carga.style.display = 'flex';
+
+            const fases = ["ANALIZANDO FIRMA...", "VERIFICANDO ANTECEDENTES...", "SELLANDO DOCUMENTO..."];
+            let i = 0;
+
+            const timer = setInterval(() => {
+                status.innerText = fases[i];
+                i++;
+                if(i >= fases.length) {
+                    clearInterval(timer);
+                    setTimeout(finalizar, 800);
+                }
+            }, 1000);
+        }
+
+        function finalizar() {
+            const ahora = new Date();
+            document.getElementById('fecha').innerText = ahora.toLocaleString();
+            document.getElementById('pantalla-carga').style.display = 'none';
+            document.getElementById('resumen').innerText = document.getElementById('rango').value + " - " + document.getElementById('nombre').value.toUpperCase();
+            document.getElementById('captured-signature').src = canvas.toDataURL();
+            document.getElementById('success-screen').style.display = 'flex';
+        }
+    </script>
+</body>
+</html>

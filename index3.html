@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SISTEMA TÁCTICO COLOMBIA - NEXT GEN</title>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Rajdhani:wght@300;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --army-green: #c1ff3b;
+            --alert-red: #ff3c3c;
+            --col-yellow: #fcd116;
+            --bg-black: #030504;
+            --panel-glass: rgba(10, 15, 10, 0.8);
+            --neon-glow: 0 0 15px rgba(193, 255, 59, 0.3);
+        }
+
+        * { box-sizing: border-box; }
+
+        body {
+            background-color: var(--bg-black);
+            color: #d1d1d1;
+            font-family: 'Rajdhani', sans-serif;
+            margin: 0;
+            padding: 20px;
+            overflow-x: hidden;
+            /* Rejilla de fondo técnica */
+            background-image: 
+                radial-gradient(circle at 50% 50%, #0a1505 0%, #030504 100%),
+                linear-gradient(rgba(193, 255, 59, 0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(193, 255, 59, 0.03) 1px, transparent 1px);
+            background-size: 100% 100%, 40px 40px, 40px 40px;
+        }
+
+        /* --- ANIMACIÓN DE ENTRADA --- */
+        @keyframes scanIn {
+            0% { opacity: 0; transform: translateY(20px) scale(0.95); filter: blur(10px); }
+            100% { opacity: 1; transform: translateY(0) scale(1); filter: blur(0); }
+        }
+
+        @keyframes glitchLine {
+            0% { top: -100%; }
+            100% { top: 200%; }
+        }
+
+        .header-tactico {
+            position: relative;
+            background: var(--panel-glass);
+            border: 1px solid rgba(193, 255, 59, 0.2);
+            padding: 30px;
+            text-align: center;
+            margin-bottom: 30px;
+            clip-path: polygon(0 0, 100% 0, 100% 70%, 98% 100%, 2% 100%, 0 70%);
+            animation: scanIn 0.8s cubic-bezier(0.2, 1, 0.3, 1);
+        }
+
+        .header-tactico h1 {
+            font-family: 'Orbitron', sans-serif;
+            letter-spacing: 5px;
+            color: var(--army-green);
+            margin: 0;
+            text-shadow: var(--neon-glow);
+        }
+
+        .search-container {
+            max-width: 600px;
+            margin: 0 auto 30px;
+            animation: scanIn 1s ease-out;
+        }
+
+        .search-input {
+            width: 100%;
+            background: rgba(0,0,0,0.6);
+            border: 1px solid var(--army-green);
+            padding: 15px 20px;
+            color: var(--army-green);
+            font-family: 'Orbitron';
+            text-transform: uppercase;
+            font-size: 0.9rem;
+            outline: none;
+            box-shadow: inset 0 0 10px rgba(193, 255, 59, 0.1);
+        }
+
+        .soldier-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+            perspective: 1000px;
+        }
+
+        /* --- TARJETA MODERNA --- */
+        .card-soldado {
+            background: var(--panel-glass);
+            border: 1px solid rgba(193, 255, 59, 0.2);
+            padding: 20px;
+            position: relative;
+            overflow: hidden;
+            backdrop-filter: blur(5px);
+            animation: scanIn 0.5s backwards;
+            transition: all 0.3s ease;
+        }
+
+        .card-soldado:hover {
+            border-color: var(--army-green);
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.5);
+        }
+
+        /* --- ALTO MANDO (HIGHLIGHT) --- */
+        .card-soldado.highlight-red {
+            border: 1px solid var(--alert-red);
+            background: linear-gradient(135deg, rgba(40,10,10,0.9) 0%, rgba(10,10,10,0.95) 100%);
+        }
+
+        .highlight-red::before {
+            content: "";
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 2px;
+            background: var(--alert-red);
+            box-shadow: 0 0 15px var(--alert-red);
+            animation: glitchLine 4s infinite linear;
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .id-badge {
+            font-family: 'Orbitron';
+            background: var(--army-green);
+            color: #000000;
+            padding: 2px 8px;
+            font-size: 0.7rem;
+            font-weight: bold;
+        }
+
+        .highlight-red .id-badge { background: var(--alert-red); }
+
+        .rank-tag {
+            font-size: 0.6rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: #ffffff;
+        }
+
+        .soldado-nombre {
+            font-size: 1.2rem;
+            font-family: 'Orbitron';
+            margin: 5px 0 15px 0;
+            color: #fff;
+        }
+
+        .stats-box {
+            border-left: 2px solid rgba(193, 255, 59, 0.3);
+            padding-left: 15px;
+            margin-bottom: 15px;
+        }
+
+        .highlight-red .stats-box { border-left-color: var(--alert-red); }
+
+        .stat-line {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.8rem;
+            margin-bottom: 5px;
+        }
+
+        .stat-label { color: #888; text-transform: uppercase; font-size: 0.6rem; }
+        
+        .stat-val { color: var(--army-green); font-weight: bold; }
+        .highlight-red .stat-val { color: var(--alert-red); }
+
+        .footer-card {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-top: 1px solid rgba(255,255,255,0.05);
+            padding-top: 10px;
+            font-size: 0.7rem;
+            font-weight: bold;
+            color: #555;
+        }
+
+        /* --- FOOTER LOG --- */
+        .footer-log {
+            margin-top: 50px;
+            padding: 20px;
+            border-top: 1px solid rgba(193, 255, 59, 0.1);
+            text-align: center;
+            font-family: monospace;
+            font-size: 0.7rem;
+            color: #636363;
+            letter-spacing: 2px;
+        }
+
+        /* Animación de retraso para las tarjetas */
+        .card-soldado:nth-child(1) { animation-delay: 0.1s; }
+        .card-soldado:nth-child(2) { animation-delay: 0.2s; }
+        .card-soldado:nth-child(3) { animation-delay: 0.3s; }
+        /* ... se puede automatizar con JS */
+
+    </style>
+</head>
+<body>
+
+    <div class="header-tactico">
+        <div style="display: flex; height: 3px; width: 60px; margin: 0 auto 10px;">
+            <div style="background:var(--col-yellow); flex:1"></div>
+            <div style="background:var(--col-blue); flex:1"></div>
+            <div style="background:var(--col-red); flex:1"></div>
+        </div>
+        <h1>SISTEMA DE CONTROL DE INFANTERÍA</h1>
+        <div style="font-size: 0.6rem; color: #ffffff; margin-top: 10px; letter-spacing: 5px;">COLOMBIA COMMAND & CONTROL</div>
+    </div>
+
+    <div class="search-container">
+        <input type="text" id="filter" class="search-input" placeholder="> IDENTIFICAR PERSONAL..." onkeyup="filterCards()">
+    </div>
+
+    <div class="soldier-grid" id="grid">
+        </div>
+
+    <div class="footer-log">
+        <p>TERMINAL ID: SUKV-2026 // ENCRYPTION: AES-256</p>
+        <p>DESARROLLADO POR SAM SUKV</p>
+    </div>
+
+    <script>
+        const personal = [
+            {id: "000", nombre: "David Fernandez", rango: "Coronel", rol: "Especial Forces", high: true},
+            {id: "001", nombre: "Sam Zuwkv", rango: "Coronel", rol: "Especial Forces", high: true},
+            {id: "002", nombre: "Juan Ávila", rango: "Teniente", rol: "Oficial de Campo"},
+            {id: "004", nombre: "Robert O'Neill", rango: "Sargento Primero", rol: "Fusilero"},
+            {id: "005", nombre: "Fabian Vv", rango: "Sargento Primero", rol: "Fusilero"},
+            {id: "007", nombre: "Jesus DCD", rango: "Sargento Primero", rol: "Fusilero"},
+            {id: "008", nombre: "Blayker Guzmán", rango: "Sargento Primero", rol: "Fusilero"},
+            {id: "013", nombre: "Yara Gutierrez", rango: "Sargento Primero", rol: "Fusilero"},
+            {id: "006", nombre: "Vicente Zambrano", rango: "Sargento Segundo", rol: "Especial Forces"},
+            {id: "003", nombre: "Black Rosse", rango: "Sargento Tercero", rol: "Inf-Aérea"},
+            {id: "015", nombre: "Luigi_21plus", rango: "Cabo Primero", rol: "Fusilero"},
+            {id: "009", nombre: "José Pereira", rango: "Cabo Segundo", rol: "Fusilero"},
+            {id: "010", nombre: "Sugito Atlas", rango: "Cabo Segundo", rol: "Fusilero"},
+            {id: "011", nombre: "Jhon Connor", rango: "Cabo Segundo", rol: "Fusilero"},
+            {id: "012", nombre: "Juan Bermudez", rango: "Cabo Segundo", rol: "Fusilero"},
+            {id: "014", nombre: "Jhon Escobar", rango: "Cabo Segundo", rol: "Fusilero"},
+            {id: "018", nombre: "Jorge Perla", rango: "Cabo Segundo", rol: "Fusilero"},
+            {id: "016", nombre: "Sánchez Jss", rango: "Recluta", rol: "Instrucción"},
+            {id: "017", nombre: "Santiago Escobar", rango: "Recluta", rol: "Instrucción"}
+        ];
+
+        const grid = document.getElementById('grid');
+
+        function renderCards() {
+            grid.innerHTML = personal.map((s, index) => `
+                <div class="card-soldado ${s.high ? 'highlight-red' : ''}" style="animation-delay: ${index * 0.05}s">
+                    <div class="card-header">
+                        <span class="rank-tag">${s.rango}</span>
+                        <span class="id-badge">ID-${s.id}</span>
+                    </div>
+                    <h2 class="soldado-nombre">${s.nombre}</h2>
+                    <div class="stats-box">
+                        <div class="stat-line">
+                            <span class="stat-label">Estado</span>
+                            <span class="stat-val">OPERATIVO</span>
+                        </div>
+                        <div class="stat-line">
+                            <span class="stat-label">Especialidad</span>
+                            <span class="stat-val">${s.rol}</span>
+                        </div>
+                    </div>
+                    <div class="footer-card">
+                        <span>EJERCITO NACIONAL</span>
+                        <span style="color:${s.high ? 'var(--alert-red)' : 'var(--army-green)'}">● ONLINE</span>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function filterCards() {
+            const query = document.getElementById('filter').value.toUpperCase();
+            const cards = document.querySelectorAll('.card-soldado');
+            cards.forEach(card => {
+                const name = card.querySelector('.soldado-nombre').innerText.toUpperCase();
+                card.style.display = name.includes(query) ? "" : "none";
+            });
+        }
+
+        // Inicializar
+        renderCards();
+    </script>
+</body>
+</html>

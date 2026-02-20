@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Faccion guerras Mundiales Rp - SAM SUKV</title>
+    <style>
+        :root {
+            --neon-green: #4eef3a;
+            --neon-blue: #00f2ff;
+            --alert-red: #ff3c3c;
+            --bg-dark: #020502;
+            --panel-alpha: rgba(10, 25, 10, 0.95);
+            --col-y: #fcd116; --col-b: #003893; --col-r: #ce1126;
+        }
+
+        * { box-sizing: border-box; cursor: crosshair; }
+        body, html {
+            margin: 0; padding: 0;
+            background-color: var(--bg-dark);
+            color: var(--neon-green);
+            font-family: 'Courier New', monospace;
+            height: 100vh; overflow: hidden;
+            background-image: 
+                linear-gradient(rgba(18, 16, 16, 0.1) 50%, rgba(0, 0, 0, 0.3) 50%),
+                radial-gradient(circle at 50% 50%, #0a1f0a 0%, #000 100%);
+            background-size: 100% 4px, 100% 100%;
+        }
+
+        .main-hud {
+            display: grid;
+            grid-template-columns: 320px 1fr 280px;
+            grid-template-rows: 90px 1fr 100px;
+            gap: 15px; height: 100vh; padding: 20px;
+        }
+
+        .panel {
+            background: var(--panel-alpha);
+            border: 1px solid rgba(78, 239, 58, 0.2);
+            padding: 15px; position: relative;
+            backdrop-filter: blur(8px);
+        }
+
+        /* --- HEADER --- */
+        .header { grid-column: 1 / 4; display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid var(--neon-green); }
+        .flag { width: 55px; height: 34px; display: flex; flex-direction: column; border: 1px solid #333; }
+        .y { flex: 2; background: var(--col-y); } .b { flex: 1; background: var(--col-b); } .r { flex: 1; background: var(--col-r); }
+
+        /* --- NAVEGACIÓN (SEGÚN TU IMAGEN) --- */
+        .sidebar { grid-row: 2 / 4; display: flex; flex-direction: column; overflow-y: auto; }
+        .nav-section { font-size: 0.75rem; color: #ff9d00; margin: 15px 0 8px 0; border-left: 3px solid #ff9d00; padding-left: 10px; text-transform: uppercase; letter-spacing: 1px; }
+        
+        .btn {
+            display: flex; align-items: center; padding: 12px; margin-bottom: 6px;
+            background: rgba(255,255,255,0.03); border: 1px solid rgba(78, 239, 58, 0.1);
+            color: #fff; text-decoration: none; font-size: 0.85rem; transition: 0.3s;
+        }
+        .btn:hover { background: rgba(78, 239, 58, 0.1); border-color: var(--neon-green); color: var(--neon-green); }
+        .btn i { margin-right: 12px; font-style: normal; }
+        
+        /* CNOE - FUERZAS ESPECIALES */
+        .btn-elite { border-left: 4px solid var(--alert-red); background: rgba(255,0,0,0.05); color: #ffcccc; animation: pulse-elite 2s infinite; }
+        @keyframes pulse-elite { 0%, 100% { border-color: var(--alert-red); } 50% { border-color: #600; } }
+
+        /* --- ESCÁNER CENTRAL --- */
+        .viewport { grid-column: 2; display: flex; flex-direction: column; gap: 10px; }
+        .scanner-box {
+            flex-grow: 1; background: rgba(0, 30, 0, 0.2); border: 1px solid rgba(0, 242, 255, 0.1);
+            position: relative; overflow: hidden; display: flex; justify-content: center; align-items: center;
+        }
+        .radar-circle { width: 280px; height: 280px; border: 1px solid rgba(0, 242, 255, 0.2); border-radius: 50%; position: absolute; animation: radar-pulse 4s infinite linear; }
+        .scan-grid { width: 100%; height: 100%; position: absolute; background: repeating-linear-gradient(0deg, transparent, transparent 39px, rgba(78, 239, 58, 0.05) 40px), repeating-linear-gradient(90deg, transparent, transparent 39px, rgba(78, 239, 58, 0.05) 40px); }
+        .target { position: absolute; width: 8px; height: 8px; background: var(--alert-red); border-radius: 50%; box-shadow: 0 0 10px var(--alert-red); animation: blink 1s infinite; }
+
+        /* --- ANIMACIONES --- */
+        @keyframes radar-pulse { from { transform: scale(0.5); opacity: 1; } to { transform: scale(1.4); opacity: 0; } }
+        @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0.2; } }
+
+    </style>
+</head>
+<body>
+
+<div class="main-hud">
+    <header class="panel header">
+        <div>
+            <h1 style="margin:0; font-size: 1.2rem;">Faccion RP // SAM SUKV</h1>
+            <div style="font-size: 0.6rem; color: var(--neon-blue);">INTERFAZ DE ROL TÁCTICO // COLOMBIA</div>
+        </div>
+        <div style="display: flex; align-items: center; gap: 20px;">
+            <div style="text-align: right;">
+                <div id="clock" style="font-size: 1.3rem; font-weight: bold; color: #fff;">00:00:00</div>
+                <div style="font-size: 0.7rem; opacity: 0.7;">BOGOTÁ COLOMBIA</div>
+            </div>
+            <div class="flag"><div class="y"></div><div class="b"></div><div class="r"></div></div>
+        </div>
+    </header>
+
+    <nav class="panel sidebar">
+        <div class="nav-section">Personal y Comando</div>
+        <a href="index3.html" class="btn"><i>📋</i> Gestión de Ascensos</a>
+        <a href="FuerzaAE.html" class="btn"><i>✈️</i> Aviación de Facción</a>
+        <a href="FE.html" class="btn btn-elite"><i>💀</i> CNOE - OPERACIONES ESPECIALES</a>
+
+        <div class="nav-section">Operaciones Tácticas</div>
+        <a href="Codigos.html" class="btn"><i>📻</i> Frecuencias y Códigos</a>
+        <a href="mapa_tactico.html" class="btn"><i>📡</i> Radar de Operaciones</a>
+
+        <div class="nav-section">Reglamento y Ley</div>
+        <a href="ReglaInterna.html" class="btn"><i>📜</i> Régimen Interno</a>
+        <a href="Rangos.html" class="btn"><i>🏅</i> Jerarquía de Facción</a>
+        <a href="Armas.html" class="btn"><i>🔫</i> Equipamiento Clasificado</a>
+    </nav>
+
+    <main class="panel viewport">
+        <div style="font-size: 0.7rem;">> REGISTROS_LORE_ACTIVO</div>
+        <div class="scanner-box">
+            <div class="scan-grid"></div>
+            <div class="radar-circle" style="animation-delay: 0s;"></div>
+            <div class="radar-circle" style="animation-delay: 2s;"></div>
+            
+            <div class="target" style="top: 30%; left: 40%;"></div>
+            <div class="target" style="top: 65%; left: 70%;"></div>
+            <div class="target" style="top: 50%; left: 20%;"></div>
+
+            <div style="position: absolute; bottom: 10px; left: 10px; font-size: 0.5rem; color: var(--neon-blue);">
+                GEOLOC: 4.711 // -74.072<br>SINCRO: ESTABLE
+            </div>
+        </div>
+        <div style="height: 30px; background: rgba(0,0,0,0.4); display: flex; align-items: center; border: 1px solid rgba(78,239,58,0.1);">
+            <marquee scrollamount="4" style="font-size: 0.8rem;">BIENVENIDO  // CARGANDO MAPA DE OPERACIONES // MANTENER PROTOCOLO DE ROL EN RADIO // </marquee>
+        </div>
+    </main>
+
+    <aside class="panel">
+        <div style="font-size: 0.7rem; border-bottom: 1px solid #333; padding-bottom: 5px; margin-bottom: 10px;">ESTADO_USER</div>
+        <div style="font-size: 0.6rem;">ESCUDO</div>
+        <div style="height:8px; background:#111; margin: 5px 0;"><div style="width:100%; height:100%; background:var(--neon-blue);"></div></div>
+        <div style="font-size: 0.6rem;">SALUD</div>
+        <div style="height:8px; background:#111; margin: 5px 0;"><div style="width:85%; height:100%; background:var(--neon-green);"></div></div>
+        <div style="font-size: 0.6rem; margin-top:10px;">PULSO: <span id="bpm">72</span> BPM</div>
+    </aside>
+
+    <footer class="panel" style="grid-column: 2;">
+        <div id="notif" style="font-size: 0.8rem; color: #fff;">> AGUARDANDO ÓRDENES DE COMANDO...</div>
+    </footer>
+</div>
+
+<script>
+    function update() {
+        document.getElementById('clock').innerText = new Date().toLocaleTimeString();
+        document.getElementById('bpm').innerText = Math.floor(Math.random() * (78 - 65) + 65);
+    }
+    const msgs = [
+        "> UNIDAD ALPHA INICIANDO PATRULLA IC.",
+        "> ACTUALIZANDO BASE DE DATOS DE ASCENSOS.",
+        "> FRECUENCIA TÁCTICA 1 ACTIVADA.",
+        "> SAM SUKV: DESAROLLADOR"
+    ];
+    function rotate() {
+        document.getElementById('notif').innerText = msgs[Math.floor(Math.random() * msgs.length)];
+    }
+    setInterval(update, 1000);
+    setInterval(rotate, 6000);
+    update();
+</script>
+
+</body>
+</html>

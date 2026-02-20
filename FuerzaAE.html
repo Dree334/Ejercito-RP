@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FAC - AIR COMMAND TERMINAL</title>
+    <style>
+        /* Protocolo Seguro HTTPS para fuentes */
+        @import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap');
+
+        :root {
+            --fac-blue: #002b5c;
+            --fac-neon: #00d4ff;
+            --fac-warning: #ff3c00;
+            --fac-gold: #fcd116;
+            --col-yellow: #fcd116;
+            --col-blue: #003893;
+            --col-red: #ce1126;
+        }
+
+        body {
+            background-color: #05080a;
+            color: var(--fac-neon);
+            font-family: 'Share Tech Mono', monospace;
+            margin: 0;
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        /* --- BANDERA DE COLOMBIA SUPERIOR --- */
+        .colombia-bar {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 5px;
+            display: flex;
+            z-index: 100;
+        }
+        .bar-y { background: var(--col-yellow); flex: 2; box-shadow: 0 0 10px var(--col-yellow); }
+        .bar-b { background: var(--col-blue); flex: 1; }
+        .bar-r { background: var(--col-red); flex: 1; }
+
+        /* --- MARCO DE CABINA (COCKPIT) --- */
+        .cockpit-frame {
+            width: 95vw;
+            height: 85vh;
+            border: 2px solid rgba(0, 212, 255, 0.2);
+            position: relative;
+            background: radial-gradient(circle at center, #0a141d 0%, #05080a 100%);
+            box-shadow: inset 0 0 100px rgba(0,0,0,0.8);
+            display: flex;
+            flex-direction: column;
+            margin-top: 10px;
+        }
+
+        /* --- RADAR GIRATORIO --- */
+        .radar-bg {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 400px;
+            height: 400px;
+            border: 1px solid rgba(0, 212, 255, 0.1);
+            border-radius: 50%;
+            pointer-events: none;
+        }
+
+        .radar-bg::after {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: conic-gradient(from 0deg, rgba(0, 212, 255, 0.1), transparent 40%);
+            animation: rotateRadar 4s linear infinite;
+            border-radius: 50%;
+        }
+
+        @keyframes rotateRadar { to { transform: rotate(360deg); } }
+
+        /* --- PUNTO ALEATORIO (BLIP) --- */
+        .radar-blip {
+            position: absolute;
+            width: 8px;
+            height: 8px;
+            background: var(--fac-gold);
+            border-radius: 50%;
+            box-shadow: 0 0 15px var(--fac-gold);
+            z-index: 2;
+            animation: blipFade 2s forwards;
+        }
+
+        @keyframes blipFade {
+            0% { opacity: 0; transform: scale(0.5); }
+            20% { opacity: 1; transform: scale(1.2); }
+            100% { opacity: 0.4; transform: scale(1); }
+        }
+
+        /* --- HEADER --- */
+        .header-tactico {
+            padding: 15px;
+            border-bottom: 1px solid var(--fac-neon);
+            display: flex;
+            justify-content: space-between;
+            background: rgba(0, 43, 92, 0.6);
+            z-index: 5;
+        }
+
+        .logo-section { display: flex; align-items: center; gap: 15px; }
+        .logo-fac { font-size: 1.5rem; filter: drop-shadow(0 0 5px var(--fac-gold)); }
+
+        /* --- GRID CONTAINER --- */
+        .grid-container {
+            display: grid;
+            grid-template-columns: 280px 1fr 280px;
+            flex-grow: 1;
+            padding: 15px;
+            gap: 15px;
+            z-index: 5;
+        }
+
+        .pilot-list {
+            background: rgba(0, 0, 0, 0.7);
+            border: 1px solid rgba(0, 212, 255, 0.2);
+            padding: 10px;
+            overflow-y: auto;
+        }
+
+        .pilot-entry {
+            padding: 12px;
+            border-bottom: 1px solid rgba(0, 212, 255, 0.1);
+            cursor: pointer;
+            transition: 0.2s;
+            font-size: 0.75rem;
+            color: #8da6b5;
+        }
+
+        .pilot-entry:hover { background: rgba(0, 212, 255, 0.1); color: #fff; }
+        .pilot-entry.elite { border-left: 3px solid var(--fac-gold); }
+
+        .target-view {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+        }
+
+        .target-cross {
+            width: 180px;
+            height: 180px;
+            border: 2px solid var(--fac-warning);
+            position: relative;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); opacity: 0.6; }
+            50% { transform: scale(1.05); opacity: 1; }
+        }
+
+        .info-panel {
+            background: rgba(0, 0, 0, 0.85);
+            border: 1px solid var(--fac-neon);
+            padding: 15px;
+        }
+
+        /* MODIFICACIÓN: DISEÑO TÉCNICO EN LUGAR DE FOTO */
+        .pilot-photo {
+            width: 100%;
+            height: 140px;
+            border: 1px solid var(--fac-neon);
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: linear-gradient(rgba(0, 212, 255, 0.05) 1px, transparent 1px),
+                        linear-gradient(90deg, rgba(0, 212, 255, 0.05) 1px, transparent 1px);
+            background-size: 10px 10px; /* Efecto rejilla */
+            position: relative;
+            overflow: hidden;
+        }
+
+        .pilot-photo svg {
+            width: 70%;
+            height: 70%;
+            fill: var(--fac-neon);
+            filter: drop-shadow(0 0 8px var(--fac-neon));
+        }
+
+        .footer-tactico {
+            padding: 8px;
+            background: var(--col-red);
+            color: white;
+            font-weight: bold;
+            text-align: center;
+            letter-spacing: 3px;
+            font-size: 0.8rem;
+        }
+
+        .btn-return {
+            display: block;
+            text-align: center;
+            border: 1px solid var(--fac-neon);
+            color: var(--fac-neon);
+            padding: 8px;
+            text-decoration: none;
+            margin-top: 15px;
+            font-size: 0.8rem;
+        }
+
+        .btn-return:active { background: var(--fac-neon); color: black; }
+
+        @media (max-width: 800px) {
+            .grid-container { grid-template-columns: 1fr; overflow-y: auto; }
+            .target-view { display: none; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="colombia-bar">
+        <div class="bar-y"></div>
+        <div class="bar-b"></div>
+        <div class="bar-r"></div>
+    </div>
+
+    <div class="cockpit-frame" id="cockpit">
+        <div class="radar-bg" id="radar-area"></div>
+
+        <header class="header-tactico">
+            <div class="logo-section">
+                <div class="logo-fac">🦅</div>
+                <div>
+                    <div style="font-size: 1.1rem; color: var(--fac-gold); font-weight: bold;">FUERZA AÉREA DE COLOMBIA</div>
+                    <div style="font-size: 0.7rem;">COMANDO ESTRATÉGICO - OP: CÓNDOR</div>
+                </div>
+            </div>
+            <div style="text-align: right;">
+                <div id="clock" style="font-size: 1.1rem;">00:00:00</div>
+                <div style="font-size: 0.5rem; color: var(--fac-gold);">BOGOTÁ, DC - SECTOR G6</div>
+            </div>
+        </header>
+
+        <div class="grid-container">
+            <div class="pilot-list">
+                <div style="font-size: 0.65rem; color: var(--fac-gold); margin-bottom: 10px;">> CONTACTOS IDENTIFICADOS</div>
+                
+                <div class="pilot-entry elite" onclick="updatePilot('SAM SUKV', 'Coronel Superior', 'F-16 Falcon')">
+                    [ECO-024] SAM SUKV - PILOTO ACTIVO
+                </div>
+                <div class="pilot-entry elite" onclick="updatePilot('BLACK ROSSE', 'Piloto Oficial', 'F-22 Raptor')">
+                    [ECO-001] BLACK ROSSE - PILOTO ACTIVO
+                </div>
+
+                <div class="pilot-entry" onclick="updatePilot('ROBERT NOEIL', 'Cadete', 'F-22 RAPTOR')">
+                    [CDT-A02] ROBERT NOEIL - ACTIVO
+                </div>
+                 <div class="pilot-entry" onclick="updatePilot('JUAN BERMUDEZ', 'Cadete', 'Ala-Rotatoria')">
+                    [CDT-034] JUAN BERMUDEZ - ACTIVO
+                </div>
+                 <div class="pilot-entry" onclick="updatePilot('JHON CONNOR', 'Cadete', 'Ala-Rotatoria')">
+                    [CDT-027] JHON CONNOR - ACTIVO
+                </div>
+                 <div class="pilot-entry" onclick="updatePilot('JOSE PEREIRA', 'Cadete', 'Ala-Rotatoria')">
+                    [CDT-052] JOSE PEREIRA - ACTIVO
+                </div>
+                <div class="pilot-entry" onclick="updatePilot('JORGUE PERLA', 'Cadete', 'Ala-Rotatoria')">
+                    [CDT-052] JORGUE PERLA - ACTIVO
+                </div>
+            </div>
+
+            <div class="target-view">
+                <div class="target-cross"></div>
+                <div style="margin-top: 15px; font-size: 0.75rem; letter-spacing: 2px;">ADQUISICIÓN: <span id="target-name" style="color:white">---</span></div>
+            </div>
+
+            <div class="info-panel">
+                <div id="p-img-container" class="pilot-photo">
+                    <svg viewBox="0 0 24 24">
+                        <path d="M21,16L14,11.5V5A1.5,1.5 0 0,0 12.5,3.5A1.5,1.5 0 0,0 11,5V11.5L4,16V18L11,15.75V20.5L9,22V23.5L12.5,22.5L16,23.5V22L14,20.5V15.75L21,18V16Z" />
+                    </svg>
+                </div>
+                
+                <h3 id="p-name" style="margin: 0; color: var(--fac-gold); font-size: 1.1rem;">SELECCIONE PILOTO</h3>
+                <p id="p-rank" style="font-size: 0.75rem; margin: 5px 0;">Esperando datos...</p>
+                <hr style="border: 0; border-top: 1px solid rgba(0, 212, 255, 0.2);">
+                <div style="font-size: 0.65rem;">
+                    <p>ESTADO: <span style="color: #0f0;">ENCRIPTADO</span></p>
+                    <p>ASIGNACIÓN: <span id="p-role">---</span></p>
+                    <p>RADAR: <span style="color: var(--fac-gold);">MONITOREO ACTIVO</span></p>
+                </div>
+                <a href="index1.html" class="btn-return">VOLVER AL MANDO</a>
+            </div>
+        </div>
+
+        <footer class="footer-tactico">
+            SISTEMA DE DEFENSA NACIONAL - ACCESO RESTRINGIDO
+        </footer>
+    </div>
+
+    <script>
+        function updateClock() {
+            const now = new Date();
+            document.getElementById('clock').innerText = now.getHours().toString().padStart(2, '0') + ":" + 
+                now.getMinutes().toString().padStart(2, '0') + ":" + 
+                now.getSeconds().toString().padStart(2, '0');
+        }
+        setInterval(updateClock, 1000);
+
+        function updatePilot(name, rank, role) {
+            document.getElementById('p-name').innerText = name;
+            document.getElementById('target-name').innerText = name;
+            document.getElementById('p-rank').innerText = rank;
+            document.getElementById('p-role').innerText = role;
+            
+            // Efecto visual en la mira
+            document.querySelector('.target-cross').style.borderColor = '#0f0';
+            setTimeout(() => {
+                document.querySelector('.target-cross').style.borderColor = '#ff3c00';
+            }, 400);
+
+            // Generar punto en el radar
+            spawnRadarBlip();
+        }
+
+        function spawnRadarBlip() {
+            const radarArea = document.getElementById('cockpit'); 
+            const blip = document.createElement('div');
+            blip.className = 'radar-blip';
+            
+            const centerX = window.innerWidth / 2;
+            const centerY = window.innerHeight / 2;
+            
+            const randomX = centerX + (Math.random() - 0.5) * 300;
+            const randomY = centerY + (Math.random() - 0.5) * 300;
+
+            blip.style.left = randomX + 'px';
+            blip.style.top = randomY + 'px';
+
+            radarArea.appendChild(blip);
+            setTimeout(() => { blip.remove(); }, 2000);
+        }
+    </script>
+</body>
+</html>

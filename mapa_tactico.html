@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SISTEMA RESTRINGIDO - SAM SUKV</title>
+    <style>
+        :root {
+            --fac-gold: #fcd116;
+            --fac-blue: #003893;
+            --fac-red: #ce1126;
+            --terminal: #00ff41;
+            --bg: #020302;
+        }
+
+        body, html {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            background-color: var(--bg);
+            color: #fff;
+            font-family: 'Courier New', Courier, monospace;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+        }
+
+        /* Fondo de Radar Animado */
+        .radar-container {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1;
+            opacity: 0.3;
+        }
+
+        .radar-circle {
+            position: absolute;
+            border: 1px solid var(--terminal);
+            border-radius: 50%;
+            animation: ripple 4s linear infinite;
+        }
+
+        @keyframes ripple {
+            0% { width: 0; height: 0; opacity: 1; }
+            100% { width: 1000px; height: 1000px; opacity: 0; }
+        }
+
+        /* Contenedor Principal */
+        .card {
+            position: relative;
+            z-index: 10;
+            text-align: center;
+            padding: 50px;
+            border: 1px solid rgba(0, 255, 65, 0.2);
+            background: rgba(0, 5, 0, 0.9);
+            box-shadow: 0 0 50px rgba(0, 255, 65, 0.1);
+        }
+
+        .card::before {
+            content: "";
+            position: absolute;
+            top: 0; left: 0; width: 10px; height: 10px;
+            border-top: 2px solid var(--terminal);
+            border-left: 2px solid var(--terminal);
+        }
+
+        .card::after {
+            content: "";
+            position: absolute;
+            bottom: 0; right: 0; width: 10px; height: 10px;
+            border-bottom: 2px solid var(--terminal);
+            border-right: 2px solid var(--terminal);
+        }
+
+        /* Bandera */
+        .flag {
+            display: flex;
+            justify-content: center;
+            height: 4px;
+            width: 100px;
+            margin: 0 auto 20px;
+        }
+        .f-y { background: var(--fac-gold); flex: 2; }
+        .f-b { background: var(--fac-blue); flex: 1; }
+        .f-r { background: var(--fac-red); flex: 1; }
+
+        .dev-tag {
+            font-size: 0.75rem;
+            color: var(--fac-gold);
+            letter-spacing: 5px;
+            margin-bottom: 5px;
+            text-transform: uppercase;
+        }
+
+        h1 {
+            font-size: clamp(1.5rem, 6vw, 4rem);
+            margin: 10px 0;
+            font-weight: bold;
+            letter-spacing: -1px;
+        }
+
+        .author {
+            color: var(--terminal);
+            font-weight: bold;
+            font-size: 1.2rem;
+            border-right: 2px solid var(--terminal);
+            padding-right: 5px;
+            animation: blink-cursor 0.8s step-end infinite;
+        }
+
+        @keyframes blink-cursor {
+            from, to { border-color: transparent }
+            50% { border-color: var(--terminal) }
+        }
+
+        .footer {
+            position: absolute;
+            bottom: 20px;
+            font-size: 0.6rem;
+            color: rgba(0, 255, 65, 0.5);
+            width: 100%;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="radar-container">
+        <div class="radar-circle" style="animation-delay: 0s;"></div>
+        <div class="radar-circle" style="animation-delay: 1s;"></div>
+        <div class="radar-circle" style="animation-delay: 2s;"></div>
+    </div>
+
+    <div class="card">
+        <div class="flag">
+            <div class="f-y"></div><div class="f-b"></div><div class="f-r"></div>
+        </div>
+        <div class="dev-tag">Sistema en Desarrollo</div>
+        <h1>PRÓXIMAMENTE</h1>
+        <div style="margin-top: 20px;">
+            BY: <span class="author" id="typewriter"></span>
+        </div>
+    </div>
+
+    <div class="footer">
+        SECURITY LEVEL: 5 // ENCRYPTION: ACTIVE // 2026
+    </div>
+
+    <script>
+        const nameText = "SAM SUKV";
+        let charIndex = 0;
+        const speed = 150;
+
+        function type() {
+            if (charIndex < nameText.length) {
+                document.getElementById("typewriter").innerHTML += nameText.charAt(charIndex);
+                charIndex++;
+                setTimeout(type, speed);
+            }
+        }
+
+        // Iniciar efecto al cargar
+        window.onload = type;
+    </script>
+</body>
+</html>

@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>REGLAMENTO EJÉRCITO RP - CLASIFICADO</title>
+    <style>
+        /* Estética militar de GTA SA - 100% Segura sin conexiones externas */
+        :root {
+            --mil-olive: #2a2e1a;
+            --army-green: #4b5332;
+            --fac-yellow: #ffcc00;
+            --fac-red: #880000;
+            --paper: #d1c7b7;
+            --ink: #1a1a1a;
+        }
+
+        body {
+            background-color: #0f100d;
+            color: var(--ink);
+            font-family: 'Courier New', Courier, monospace;
+            margin: 0;
+            padding: 15px;
+            display: flex;
+            justify-content: center;
+        }
+
+        /* --- CARPETA DE EXPEDIENTE --- */
+        .folder {
+            max-width: 750px;
+            width: 100%;
+            background: var(--paper);
+            padding: 35px;
+            position: relative;
+            box-shadow: 0 0 40px rgba(0,0,0,0.8);
+            border: 1px solid #9c9180;
+            margin: 10px 0;
+            border-top: 12px solid var(--mil-olive);
+        }
+
+        /* Detalle decorativo de archivo clasificado */
+        .folder::after {
+            content: "CONFIDENCIAL";
+            position: absolute;
+            top: 50px;
+            right: -30px;
+            background: rgba(136, 0, 0, 0.1);
+            color: var(--fac-red);
+            border: 3px solid var(--fac-red);
+            padding: 5px 15px;
+            font-weight: bold;
+            transform: rotate(45deg);
+            font-size: 1.2rem;
+            pointer-events: none;
+            opacity: 0.3;
+        }
+
+        .header-box {
+            border: 3px double var(--ink);
+            padding: 15px;
+            margin-bottom: 25px;
+            text-align: center;
+            background: rgba(255,255,255,0.1);
+        }
+
+        .header-box h1 {
+            margin: 0;
+            font-size: 1.6rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        /* --- SECCIONES TÁCTICAS --- */
+        .section-box {
+            margin-bottom: 8px;
+            border: 1px solid rgba(0,0,0,0.2);
+            background: rgba(0,0,0,0.03);
+        }
+
+        .section-header {
+            background: var(--army-green);
+            color: #fff;
+            padding: 12px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            font-weight: bold;
+            text-transform: uppercase;
+            font-size: 0.9rem;
+        }
+
+        .num-tag {
+            background: var(--fac-yellow);
+            color: #000;
+            padding: 0 8px;
+            margin-right: 12px;
+            border: 1px solid #000;
+        }
+
+        .section-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.4s ease;
+            background: rgba(255,255,255,0.3);
+        }
+
+        .section-content p {
+            padding: 15px;
+            margin: 0;
+            font-size: 0.85rem;
+            line-height: 1.5;
+            border-left: 5px solid var(--army-green);
+        }
+
+        /* Clase para abrir acordeón via JS */
+        .show-content { max-height: 800px !important; }
+
+        /* --- SELLOS Y FIRMAS --- */
+        .stamp-area {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 40px;
+            border-top: 1px solid rgba(0,0,0,0.1);
+            padding-top: 20px;
+        }
+
+        .stamp {
+            border: 2px solid #003893;
+            color: #003893;
+            padding: 10px;
+            text-align: center;
+            font-size: 0.7rem;
+            font-weight: bold;
+            transform: rotate(-3deg);
+            opacity: 0.6;
+        }
+
+        .motto {
+            text-align: center;
+            font-size: 1.4rem;
+            font-weight: bold;
+            color: var(--fac-red);
+            margin: 30px 0;
+            letter-spacing: 5px;
+        }
+
+        .btn-confirm {
+            display: block;
+            width: 100%;
+            background: var(--mil-olive);
+            color: var(--fac-yellow);
+            border: 2px solid #000;
+            padding: 15px;
+            font-weight: bold;
+            text-transform: uppercase;
+            cursor: pointer;
+            text-decoration: none;
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        .btn-confirm:hover {
+            background: #1a1d10;
+        }
+    </style>
+</head>
+<body>
+
+<div class="folder">
+    <div style="text-align: right; font-size: 0.7rem; color: var(--army-green); font-weight: bold;">
+        EJÉRCITO ROLEPLAY // GTA:SA - 2026
+    </div>
+
+    <div class="header-box">
+        <h1>REGLAMENTO INTERNO</h1>
+        <div style="font-size: 0.8rem; font-weight: bold;">FUERZAS MILITARES - SAN ANDREAS</div>
+    </div>
+
+    <div class="section-box">
+        <div class="section-header" onclick="toggleSection(this)">
+            <span class="num-tag">01</span> REGLAS PRINCIPALES (OBLIGATORIAS)
+        </div>
+        <div class="section-content">
+            <p>
+                • Prohibido colocar sacos de arena o carpas que obstruyan el paso vehicular/peatonal.<br>
+                • Prohibido usarlos como escalera para acceder a zonas no autorizadas.<br>
+                • <b>Respeto total al Staff:</b> Cualquier falta será considerada falta grave.<br>
+                • Asistencia obligatoria: Confirmar en canales de anuncios o entrenamiento.<br>
+                • Prohibido explotar vehículos dentro de base.<br>
+                • Prohibido trasladar secuestrados a la base militar.<br>
+                • Prohibido invadir bases enemigas sin autorización oficial.
+            </p>
+        </div>
+    </div>
+
+    <div class="section-box">
+        <div class="section-header" onclick="toggleSection(this)">
+            <span class="num-tag">02</span> DISCIPLINA GENERAL
+        </div>
+        <div class="section-content">
+            <p>
+                • Respeto absoluto a la cadena de mando.<br>
+                • Prohibido desobedecer órdenes directas de un superior.<br>
+                • Mantener respeto mutuo dentro y fuera de operaciones.<br>
+                • Prohibido generar conflictos internos.<br>
+                • Uso correcto de uniforme y armamento en servicio.
+            </p>
+        </div>
+    </div>
+
+    <div class="section-box">
+        <div class="section-header" onclick="toggleSection(this)">
+            <span class="num-tag">03</span> CONDUCTA EN OPERACIONES
+        </div>
+        <div class="section-content">
+            <p>
+                • Prohibido abandonar operaciones sin autorización.<br>
+                • No disparar sin orden en operativos organizados.<br>
+                • Mantener formación y estrategia establecida.<br>
+                • Prohibido revelar información táctica en chats públicos.
+            </p>
+        </div>
+    </div>
+
+    <div class="section-box">
+        <div class="section-header" onclick="toggleSection(this)">
+            <span class="num-tag">04</span> PRINCIPIOS FUNDAMENTALES
+        </div>
+        <div class="section-content">
+            <p>
+                • Actuar con Honor, Disciplina y Lealtad.<br>
+                • El incumplimiento no exime de sanción.<br>
+                • Mantener la imagen de la facción dentro y fuera de servicio.
+            </p>
+        </div>
+    </div>
+
+    <div class="section-box">
+        <div class="section-header" onclick="toggleSection(this)">
+            <span class="num-tag">05</span> JERARQUÍA Y AUTORIDAD
+        </div>
+        <div class="section-content">
+            <p>
+                • Cumplimiento de órdenes sin discusión en combate.<br>
+                • Desacuerdos se tratan en privado y con respeto.<br>
+                • Prohibido el abuso de rango para beneficio personal.<br>
+                • Ascensos y expulsiones solo por el <b>Alto Mando</b>.
+            </p>
+        </div>
+    </div>
+
+    <div class="motto">“HONOR Y LEALTAD”</div>
+
+    <div class="stamp-area">
+        <div class="stamp">
+            REVISADO Y APROBADO<br>CMDTE. DAVID FERNANDEZ<br>CORONEL SAM SUKV
+        </div>
+        <div style="text-align: right; font-size: 0.6rem; font-weight: bold;">
+            DEPARTAMENTO DE DEFENSA<br>SAN ANDREAS ROLEPLAY<br>DOCUMENTO #7712-B
+        </div>
+    </div>
+
+      <a href="firma.html" class="btn-confirm" onclick="return confirmarSalida()">ACEPTAR Y PROCEDER A FIRMA</a>
+
+    <div style="text-align: center; font-size: 0.6rem; margin-top: 25px; opacity: 0.5;">
+        SISTEMA DE GESTIÓN MILITAR - SAM SUKV RP
+    </div>
+</div>
+
+<script>
+    function toggleSection(element) {
+        const content = element.nextElementSibling;
+        content.classList.toggle('show-content');
+    }
+
+    function firmar() {
+        alert("REGLAMENTO FIRMADO.\nHas jurado lealtad al Ejército RP San Andreas.");
+    }
+</script>
+
+</body>
+</html>

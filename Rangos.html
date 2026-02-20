@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SISTEMA DE RANGOS ROLEPLAY - RP MILITAR</title>
+    <style>
+        /* Estética de terminal segura sin fuentes externas */
+        :root {
+            --primary: #00ff41; /* Verde neón terminal */
+            --danger: #ff3e3e;
+            --warning: #fcd116;
+            --bg: #0a0c0a;
+            --panel: #141814;
+            --border: #2d3423;
+        }
+
+        body {
+            background-color: var(--bg);
+            color: #ffffff;
+            font-family: 'Courier New', Courier, monospace;
+            margin: 0;
+            padding: 15px;
+            display: flex;
+            justify-content: center;
+            background-image: radial-gradient(var(--border) 0.5px, transparent 0.5px);
+            background-size: 20px 20px;
+        }
+
+        .mando-container {
+            width: 100%;
+            max-width: 600px;
+            background: var(--panel);
+            border: 1px solid var(--border);
+            padding: 20px;
+            position: relative;
+            box-shadow: 0 0 20px rgba(0,0,0,0.8);
+        }
+
+        /* Líneas de escaneo CRT */
+        .mando-container::before {
+            content: " ";
+            position: absolute;
+            top: 0; left: 0; bottom: 0; right: 0;
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.1) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.02), rgba(0, 255, 0, 0.01), rgba(0, 0, 255, 0.02));
+            z-index: 10;
+            background-size: 100% 2px, 2px 100%;
+            pointer-events: none;
+        }
+
+        header {
+            text-align: center;
+            border-bottom: 2px solid var(--primary);
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+        }
+
+        .auth-info {
+            font-size: 10px;
+            display: flex;
+            justify-content: space-between;
+            color: var(--warning);
+            margin-bottom: 5px;
+        }
+
+        h1 {
+            font-size: 1.2rem;
+            letter-spacing: 3px;
+            margin: 5px 0;
+            color: var(--primary);
+        }
+
+        .search-box {
+            width: 100%;
+            background: #000;
+            border: 1px solid var(--border);
+            color: var(--primary);
+            padding: 12px;
+            font-family: inherit;
+            box-sizing: border-box;
+            outline: none;
+            margin-bottom: 20px;
+        }
+
+        /* Secciones de Jerarquía */
+        .rank-category {
+            margin-bottom: 10px;
+            border: 1px solid rgba(0, 255, 65, 0.1);
+        }
+
+        .category-title {
+            background: rgba(0, 255, 65, 0.05);
+            padding: 10px;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.9rem;
+            font-weight: bold;
+            color: var(--warning);
+        }
+
+        .category-title:hover {
+            background: rgba(0, 255, 65, 0.15);
+        }
+
+        .rank-list {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.4s ease-out;
+            background: #000;
+        }
+
+        .rank-item {
+            padding: 8px 15px;
+            border-bottom: 1px solid rgba(0, 255, 65, 0.05);
+            font-size: 0.8rem;
+            display: flex;
+            align-items: center;
+        }
+
+        .rank-item::before {
+            content: ">>";
+            margin-right: 10px;
+            color: var(--primary);
+            font-size: 0.6rem;
+        }
+
+        /* Footer y Bio-Scan */
+        .scanner-section {
+            margin-top: 25px;
+            padding: 15px;
+            border: 1px dashed var(--primary);
+            text-align: center;
+            cursor: pointer;
+        }
+
+        #scan-text {
+            font-size: 0.7rem;
+            color: var(--primary);
+            letter-spacing: 2px;
+        }
+
+        .footer-nav {
+            margin-top: 20px;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+
+        .nav-btn {
+            background: transparent;
+            border: 1px solid var(--primary);
+            color: #fff;
+            padding: 10px;
+            text-decoration: none;
+            font-size: 0.7rem;
+            text-align: center;
+        }
+
+        .nav-btn:hover {
+            background: var(--primary);
+            color: #000;
+        }
+
+        .nav-btn.red { border-color: var(--danger); color: var(--danger); }
+        .nav-btn.red:hover { background: var(--danger); color: #fff; }
+
+    </style>
+</head>
+<body>
+
+<div class="mando-container">
+    <header>
+        <div class="auth-info">
+            <span>DEV: SAM SUKV</span>
+            <span>SEC-LEVEL: 05</span>
+        </div>
+        <h1>EJÉRCITO RP - RANGOS</h1>
+    </header>
+
+    <input type="text" id="search" class="search-box" placeholder="> FILTRAR RANGO..." onkeyup="filterRanks()">
+
+    <div id="hierarchy">
+        <div class="rank-category">
+            <div class="category-title" onclick="toggle(this)">ALTO MANDO <span>[+]</span></div>
+            <div class="rank-list">
+                <div class="rank-item">COMANDANTE GENERAL</div>
+                <div class="rank-item">MAYOR GENERAL</div>
+                <div class="rank-item">GENERAL DE BRIGADA</div>
+            </div>
+        </div>
+
+        <div class="rank-category">
+            <div class="category-title" onclick="toggle(this)">OFICIALES SUPERIORES <span>[+]</span></div>
+            <div class="rank-list">
+                <div class="rank-item">CORONEL</div>
+                <div class="rank-item">TENIENTE CORONEL</div>
+                <div class="rank-item">MAYOR</div>
+                <div class="rank-item">CAPITÁN</div>
+            </div>
+        </div>
+
+        <div class="rank-category">
+            <div class="category-title" onclick="toggle(this)">OFICIALES SUBALTERNOS <span>[+]</span></div>
+            <div class="rank-list">
+                <div class="rank-item">TENIENTE</div>
+                <div class="rank-item">SUBTENIENTE</div>
+            </div>
+        </div>
+
+        <div class="rank-category">
+            <div class="category-title" onclick="toggle(this)">SUBOFICIALES <span>[+]</span></div>
+            <div class="rank-list">
+                <div class="rank-item">SARGENTO MAYOR DE COMANDO</div>
+                <div class="rank-item">SARGENTO MAYOR</div>
+                <div class="rank-item">SARGENTO PRIMERO</div>
+                <div class="rank-item">SARGENTO SEGUNDO</div>
+                <div class="rank-item">SARGENTO TERCERO</div>
+            </div>
+        </div>
+
+        <div class="rank-category">
+            <div class="category-title" onclick="toggle(this)">TROPA <span>[+]</span></div>
+            <div class="rank-list">
+                <div class="rank-item">CABO PRIMERO</div>
+                <div class="rank-item">CABO SEGUNDO</div>
+                <div class="rank-item">CABO TERCERO</div>
+            </div>
+        </div>
+
+        <div class="rank-category">
+            <div class="category-title" onclick="toggle(this)">INGRESO <span>[+]</span></div>
+            <div class="rank-list">
+                <div class="rank-item">RECLUTA</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="scanner-section" onclick="runScan()">
+        <span id="scan-text">INICIAR ESCANEO BIOMÉTRICO</span>
+    </div>
+
+    <div class="footer-nav">
+        <a href="index1.html" class="nav-btn">CENTRO DE CONTROL</a>
+        <a href="FE.html" class="nav-btn red">FUERZA  RP TACTICA</a>
+    </div>
+</div>
+
+<script>
+    function toggle(element) {
+        const list = element.nextElementSibling;
+        const span = element.querySelector('span');
+        
+        // Cerrar otros para limpieza
+        document.querySelectorAll('.rank-list').forEach(el => {
+            if(el !== list) {
+                el.style.maxHeight = null;
+                el.previousElementSibling.querySelector('span').innerText = '[+]';
+            }
+        });
+
+        if (list.style.maxHeight) {
+            list.style.maxHeight = null;
+            span.innerText = '[+]';
+        } else {
+            list.style.maxHeight = list.scrollHeight + "px";
+            span.innerText = '[-]';
+        }
+    }
+
+    function filterRanks() {
+        let input = document.getElementById('search').value.toUpperCase();
+        let items = document.querySelectorAll('.rank-item');
+        
+        items.forEach(item => {
+            if (item.innerText.toUpperCase().indexOf(input) > -1) {
+                item.style.display = "";
+            } else {
+                item.style.display = "none";
+            }
+        });
+    }
+
+    function runScan() {
+        const txt = document.getElementById('scan-text');
+        txt.innerText = "IDENTIFICANDO...";
+        txt.style.color = "var(--warning)";
+        
+        setTimeout(() => {
+            txt.innerText = "ACCESO PERMITIDO: SAM SUKV";
+            txt.style.color = "var(--primary)";
+        }, 1500);
+    }
+</script>
+
+</body>
+</html>

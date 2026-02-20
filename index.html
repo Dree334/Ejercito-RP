@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
+    <title>SISTEMA DE MANDO - SAM SUKV</title>
+    <style>
+        :root {
+            --army-green: #2d3423;
+            --combat-gold: #c5a059;
+            --alert-red: #ce1126;
+            --glow: #a2c523;
+            --halo-blue: #00f2ff;
+            --bg-dark: #0a0c08;
+        }
+
+        body, html {
+            margin: 0; padding: 0; height: 100vh;
+            background-color: var(--bg-dark);
+            font-family: 'Courier New', monospace;
+            color: var(--glow);
+            overflow: hidden;
+            display: flex; align-items: center; justify-content: center;
+        }
+
+        /* --- PANTALLA DE CARGA HALO --- */
+        #loader-screen {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: radial-gradient(circle, #10151a 0%, #000 100%);
+            z-index: 1000;
+            display: none; flex-direction: column; align-items: center; justify-content: center;
+        }
+
+        .halo-shield-container { width: 400px; position: relative; text-align: center; }
+        .shield-label { color: var(--halo-blue); font-size: 0.7rem; letter-spacing: 3px; margin-bottom: 10px; text-shadow: 0 0 10px var(--halo-blue); font-weight: bold; }
+        .shield-frame { width: 100%; height: 20px; border: 2px solid rgba(0, 242, 255, 0.3); padding: 3px; position: relative; transform: skewX(-20deg); background: rgba(0, 0, 0, 0.5); }
+        .shield-fill { height: 100%; width: 0%; background: linear-gradient(90deg, #0084ff, var(--halo-blue)); box-shadow: 0 0 20px var(--halo-blue); transition: width 0.1s ease-out; position: relative; }
+        .shield-status { margin-top: 15px; font-size: 0.8rem; color: #fff; text-shadow: 0 0 5px #fff; }
+
+        /* --- INTERFAZ PRINCIPAL --- */
+        .scanline { position: fixed; top: 0; left: 0; width: 100%; height: 5px; background: rgba(162, 197, 35, 0.1); z-index: 10; animation: moveScan 4s linear infinite; pointer-events: none; }
+        
+        .welcome-card {
+            background: rgba(15, 20, 12, 0.95);
+            border: 2px solid var(--army-green);
+            padding: 40px; text-align: center;
+            position: relative; z-index: 5;
+            max-width: 450px; width: 90%;
+            box-shadow: 0 0 50px rgba(0,0,0,1);
+            clip-path: polygon(10% 0, 100% 0, 100% 90%, 90% 100%, 0 100%, 0 10%);
+        }
+
+        .welcome-card::after { content: ""; position: absolute; top: 0; left: 0; width: 100%; height: 4px; background: linear-gradient(90deg, #fcd116 33%, #003893 33%, #003893 66%, #ce1126 66%); }
+        .header-logo { font-size: 4rem; margin-bottom: 10px; filter: drop-shadow(0 0 15px var(--glow)); }
+        h1 { margin: 0; font-size: 1.4rem; letter-spacing: 2px; color: #fff; }
+        .sub-header { color: var(--combat-gold); font-size: 0.75rem; font-weight: bold; margin-bottom: 25px; }
+
+        .terminal-text { background: rgba(0,0,0,0.8); padding: 15px; border: 1px solid var(--army-green); font-size: 0.8rem; margin-bottom: 30px; min-height: 80px; color: var(--glow); text-align: left; }
+        
+        .btn-continue { display: inline-block; background: var(--army-green); color: #fff; padding: 12px 40px; text-decoration: none; font-weight: bold; border: 1px solid var(--glow); transition: 0.3s; clip-path: polygon(15% 0, 100% 0, 85% 100%, 0 100%); cursor: pointer; }
+        .btn-continue.locked { filter: grayscale(1); opacity: 0.5; pointer-events: none; }
+        .btn-continue:hover { background: var(--glow); color: #000; box-shadow: 0 0 20px var(--glow); }
+
+        @keyframes moveScan { from { top: -5%; } to { top: 105%; } }
+        @keyframes shieldFlash { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
+        .charging { animation: shieldFlash 0.3s infinite; }
+    </style>
+</head>
+<body onclick="initAudio()">
+
+    <div id="loader-screen">
+        <div class="halo-shield-container">
+            <div class="shield-label">RECARGANDO ESCUDOS DE ENERGÍA</div>
+            <div class="shield-frame">
+                <div id="progress" class="shield-fill"></div>
+            </div>
+            <div id="load-msg" class="shield-status">INICIANDO...</div>
+            <div id="load-pc" style="color: var(--halo-blue); font-size: 1.2rem; margin-top: 10px; font-weight: bold;">0%</div>
+        </div>
+    </div>
+
+    <div class="scanline"></div>
+
+    <div class="welcome-card" id="main-card">
+        <div class="header-logo">🦅</div>
+        <h1>EJÉRCITO ROLEPLAY COL</h1>
+        <p class="sub-header">GUERRAS MUNDIALES RP | INFORMACION FAC COL</p>
+        
+        <div class="terminal-text" id="typewriter"></div>
+
+        <div id="nav-btn" class="btn-continue locked" onclick="triggerLoading()">ESPERANDO SEÑAL...</div>
+
+        <div style="margin-top: 25px; font-size: 0.55rem; color: var(--combat-gold); text-align: left; opacity: 0.8;">
+            SISTEMA: SAM SUKV [SECURE MODE]<br>
+            ESTADO: ENCRIPTADO - COL
+        </div>
+    </div>
+
+    <audio id="click-sound" src="https://www.soundjay.com/communication/sounds/teletype-01.mp3"></audio>
+    <audio id="radio-static" src="https://www.soundjay.com/mechanical/sounds/radio-static-1.mp3" loop></audio>
+
+    <script>
+        const terminal = document.getElementById("typewriter");
+        const btn = document.getElementById("nav-btn");
+        const audioClick = document.getElementById("click-sound");
+        const radio = document.getElementById("radio-static");
+        
+        const sequence = [
+            { text: "> ACCEDIENDO A RED PRIVADA...", delay: 600 },
+            { text: "> CARGANDO HUD DE COMBATE...", delay: 800 },
+            { text: "> [SISTEMA] HAS SIDO AUTORIZADO POR SAM SUKV.", delay: 500 },
+            { text: "> BIENVENIDO, SOLDADO.", delay: 500 }
+        ];
+
+        let seqIdx = 0;
+        let audioStarted = false;
+
+        function initAudio() { 
+            if(!audioStarted) {
+                radio.volume = 0.05; 
+                radio.play().catch(() => {});
+                audioStarted = true;
+            }
+        }
+
+        function typeLine(lineObj) {
+            let i = 0;
+            const p = document.createElement("div");
+            terminal.appendChild(p);
+            function charByChar() {
+                if (i < lineObj.text.length) {
+                    p.innerHTML += lineObj.text.charAt(i);
+                    i++;
+                    audioClick.currentTime = 0; 
+                    audioClick.play().catch(() => {});
+                    setTimeout(charByChar, 25);
+                } else {
+                    setTimeout(() => {
+                        seqIdx++;
+                        if (seqIdx < sequence.length) typeLine(sequence[seqIdx]);
+                        else unlockButton();
+                    }, lineObj.delay);
+                }
+            }
+            charByChar();
+        }
+
+        function unlockButton() {
+            btn.classList.remove("locked");
+            btn.innerHTML = "INICIAR DESPLIEGUE";
+        }
+
+        function triggerLoading() {
+            document.getElementById("main-card").style.display = "none";
+            document.getElementById("loader-screen").style.display = "flex";
+            const bar = document.getElementById("progress");
+            bar.classList.add("charging");
+
+            let p = 0;
+            const pc = document.getElementById("load-pc");
+            const msg = document.getElementById("load-msg");
+            const msgs = ["REESTABLECIENDO ESCUDOS...", "SINCRONIZANDO ARMADURA...", "SOFTWARE LISTO.", "¡ESCUDOS AL 100%!"];
+
+            const interval = setInterval(() => {
+                p += Math.floor(Math.random() * 8) + 2;
+                if (p >= 100) {
+                    p = 100;
+                    clearInterval(interval);
+                    bar.classList.remove("charging");
+                    setTimeout(() => { window.location.href = "index1.html"; }, 800);
+                }
+                bar.style.width = p + "%";
+                pc.innerHTML = p + "%";
+                if (p > 20) msg.innerHTML = msgs[0];
+                if (p > 50) msg.innerHTML = msgs[1];
+                if (p > 80) msg.innerHTML = msgs[2];
+                if (p >= 100) msg.innerHTML = msgs[3];
+            }, 100);
+        }
+
+        window.onload = () => {
+            setTimeout(() => typeLine(sequence[0]), 1000);
+        };
+    </script>
+</body>
+</html>
