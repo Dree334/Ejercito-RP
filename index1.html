@@ -3,14 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>SAM SUKV - Móvil</title>
+    <title>SISTEMA TÁCTICO - SAM SUKV</title>
     <style>
         :root {
             --neon-green: #4eef3a;
             --neon-blue: #00f2ff;
             --alert-red: #ff3c3c;
-            --bg-dark: #050805;
-            --panel-bg: rgba(20, 30, 20, 0.8);
+            --bg-dark: #020502;
+            --panel-alpha: rgba(10, 25, 10, 0.9);
             --col-y: #fcd116; --col-b: #003893; --col-r: #ce1126;
         }
 
@@ -20,190 +20,170 @@
             margin: 0; padding: 0;
             background-color: var(--bg-dark);
             color: #fff;
-            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-            height: 100%;
-            overflow-x: hidden;
-            background-image: radial-gradient(circle at center, #0a1f0a 0%, #000 100%);
-        }
-
-        /* --- CONTENEDOR TIPO APP --- */
-        .app-container {
-            display: flex;
-            flex-direction: column;
+            font-family: 'Courier New', monospace;
             height: 100vh;
-            max-width: 500px;
-            margin: 0 auto;
-            border: 1px solid rgba(78, 239, 58, 0.1);
+            overflow: hidden;
+            background-image: 
+                linear-gradient(rgba(18, 16, 16, 0.1) 50%, rgba(0, 0, 0, 0.3) 50%),
+                radial-gradient(circle at 50% 50%, #0a1f0a 0%, #000 100%);
+            background-size: 100% 4px, 100% 100%;
         }
 
-        /* --- HEADER TÁCTICO --- */
-        .app-header {
+        /* --- CONTENEDOR PRINCIPAL --- */
+        .main-hud {
+            display: grid;
+            grid-template-columns: 350px 1fr;
+            grid-template-rows: 80px 1fr 40px;
+            gap: 15px;
+            height: 100vh;
             padding: 20px;
-            background: linear-gradient(180deg, rgba(78, 239, 58, 0.1) 0%, transparent 100%);
-            border-bottom: 1px solid var(--neon-green);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
         }
 
-        .user-info h2 { margin: 0; font-size: 1.1rem; letter-spacing: 1px; color: var(--neon-green); }
-        .user-info span { font-size: 0.65rem; color: var(--neon-blue); font-weight: bold; }
+        .panel {
+            background: var(--panel-alpha);
+            border: 1px solid rgba(78, 239, 58, 0.2);
+            padding: 15px;
+            backdrop-filter: blur(10px);
+            position: relative;
+        }
 
-        .flag-mini { width: 30px; height: 20px; display: flex; flex-direction: column; border: 1px solid #444; }
+        /* --- HEADER --- */
+        .header { 
+            grid-column: 1 / 3; 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+            border-bottom: 2px solid var(--neon-green); 
+        }
+        .flag { width: 50px; height: 30px; display: flex; flex-direction: column; border: 1px solid #333; }
         .y { flex: 2; background: var(--col-y); } .b { flex: 1; background: var(--col-b); } .r { flex: 1; background: var(--col-r); }
 
-        /* --- SCROLLABLE CONTENT --- */
-        .menu-content {
-            flex: 1;
-            overflow-y: auto;
-            padding: 15px;
+        /* --- MENÚ / SIDEBAR --- */
+        .sidebar { 
+            grid-row: 2; 
+            display: flex; 
+            flex-direction: column; 
+            overflow-y: auto; 
+        }
+        .nav-section { 
+            font-size: 0.75rem; 
+            color: #ff9d00; 
+            margin: 15px 0 8px 0; 
+            border-left: 3px solid #ff9d00; 
+            padding-left: 10px; 
+            text-transform: uppercase; 
         }
 
-        .section-title {
-            font-size: 0.7rem;
-            color: #ff9d00;
-            text-transform: uppercase;
-            margin: 15px 0 10px 5px;
-            letter-spacing: 2px;
-            border-left: 2px solid #ff9d00;
-            padding-left: 8px;
+        .btn {
+            display: flex; align-items: center; padding: 12px; margin-bottom: 8px;
+            background: rgba(255,255,255,0.03); border: 1px solid rgba(78, 239, 58, 0.1);
+            color: #fff; text-decoration: none; font-size: 0.85rem; transition: 0.3s;
+            border-radius: 4px;
+        }
+        .btn:hover, .btn:active { background: rgba(78, 239, 58, 0.15); border-color: var(--neon-green); color: var(--neon-green); }
+        .btn i { margin-right: 12px; font-style: normal; font-size: 1.1rem; }
+        
+        .btn-elite { border-left: 4px solid var(--alert-red); color: #ffcccc; background: rgba(255,0,0,0.05); }
+
+        /* --- VIEWPORT (RADAR/PC) --- */
+        .viewport { 
+            grid-row: 2; 
+            display: flex; 
+            flex-direction: column; 
+            justify-content: center; 
+            align-items: center; 
+        }
+        .radar {
+            width: 300px; height: 300px;
+            border: 2px solid rgba(78, 239, 58, 0.2);
+            border-radius: 50%;
+            position: relative;
+            background: radial-gradient(circle, rgba(78, 239, 58, 0.05) 0%, transparent 70%);
+        }
+        .radar::after {
+            content: ""; position: absolute; width: 100%; height: 100%;
+            border-radius: 50%; border: 1px solid var(--neon-green);
+            animation: pulse 3s infinite;
         }
 
-        /* --- GRID DE BOTONES --- */
-        .menu-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 12px;
-            margin-bottom: 20px;
+        /* --- FOOTER --- */
+        .footer { grid-column: 1 / 3; display: flex; align-items: center; font-size: 0.8rem; color: var(--neon-green); }
+
+        /* -------------------------------------------
+           ADAPTACIÓN PARA ANDROID (MÓVIL)
+        ------------------------------------------- */
+        @media (max-width: 768px) {
+            body { overflow-y: auto; height: auto; }
+            .main-hud {
+                display: flex;
+                flex-direction: column;
+                padding: 10px;
+                height: auto;
+            }
+            .viewport { display: none; } /* Ocultamos radar en móvil para priorizar menú */
+            .sidebar { overflow: visible; }
+            .header { padding: 10px; }
+            .header h1 { font-size: 1rem; }
+            .btn { padding: 18px; font-size: 1rem; } /* Botones más grandes para dedos */
         }
 
-        .menu-item {
-            background: var(--panel-bg);
-            border: 1px solid rgba(78, 239, 58, 0.2);
-            padding: 20px 10px;
-            border-radius: 8px;
-            text-decoration: none;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            text-align: center;
-            transition: 0.2s;
-        }
-
-        .menu-item:active {
-            background: rgba(78, 239, 58, 0.2);
-            transform: scale(0.95);
-            border-color: var(--neon-green);
-        }
-
-        .menu-item i { font-size: 1.5rem; margin-bottom: 8px; display: block; }
-        .menu-item span { font-size: 0.75rem; color: #eee; font-weight: 500; }
-
-        /* Botón Especial CNOE */
-        .full-width { grid-column: 1 / 3; border: 1px solid var(--alert-red); background: rgba(255, 0, 0, 0.05); }
-        .full-width span { color: #ffcccc; }
-
-        /* --- MONITOR DE ESTADO --- */
-        .status-bar {
-            background: #000;
-            padding: 10px 20px;
-            font-size: 0.7rem;
-            display: flex;
-            justify-content: space-between;
-            border-top: 1px solid rgba(78, 239, 58, 0.3);
-            color: var(--neon-green);
-        }
-
-        .blink { animation: blinker 1.5s linear infinite; }
-        @keyframes blinker { 50% { opacity: 0; } }
-
+        @keyframes pulse { 0% { transform: scale(0.5); opacity: 1; } 100% { transform: scale(1.2); opacity: 0; } }
     </style>
 </head>
 <body>
 
-<div class="app-container">
-    <header class="app-header">
-        <div class="user-info">
-            <span>OPERADOR AUTORIZADO</span>
-            <h2>SAM SUKV // COL</h2>
+<div class="main-hud">
+    <header class="panel header">
+        <div>
+            <h1 style="margin:0;">SISTEMA RP // SAM SUKV</h1>
+            <div style="font-size: 0.6rem; color: var(--neon-blue);">COMANDO CENTRAL - COLOMBIA</div>
         </div>
-        <div style="text-align: right">
-            <div id="clock" style="font-weight: bold; font-family: monospace;">00:00</div>
-            <div class="flag-mini"><div class="y"></div><div class="b"></div><div class="r"></div></div>
+        <div style="display: flex; align-items: center; gap: 15px;">
+            <div style="text-align: right;">
+                <div id="clock" style="font-size: 1.2rem; font-weight: bold; font-family: monospace;">00:00:00</div>
+            </div>
+            <div class="flag"><div class="y"></div><div class="b"></div><div class="r"></div></div>
         </div>
     </header>
 
-    <main class="menu-content">
-        
-        <div class="section-title">Comando Central</div>
-        <div class="menu-grid">
-            <a href="index3.html" class="menu-item">
-                <i>📋</i>
-                <span>Gestión de<br>Ascensos</span>
-            </a>
-            <a href="FuerzaAE.html" class="menu-item">
-                <i>✈️</i>
-                <span>Aviación de<br>Facción</span>
-            </a>
-            <a href="FE.html" class="menu-item full-width">
-                <i style="color: var(--alert-red);">💀</i>
-                <span style="letter-spacing: 1px;">CNOE - OPERACIONES ESPECIALES</span>
-            </a>
-        </div>
+    <nav class="panel sidebar">
+        <div class="nav-section">Personal y Comando</div>
+        <a href="index3.html" class="btn"><i>📋</i> Gestión de Ascensos</a>
+        <a href="FuerzaAE.html" class="btn"><i>✈️</i> Aviación de Facción</a>
+        <a href="FE.html" class="btn btn-elite"><i>💀</i> CNOE - OP. ESPECIALES</a>
 
-        <div class="section-title">Inteligencia</div>
-        <div class="menu-grid">
-            <a href="Codigos.html" class="menu-item">
-                <i>📻</i>
-                <span>Frecuencias<br>& Códigos</span>
-            </a>
-            <a href="mapa_tactico.html" class="menu-item">
-                <i>📡</i>
-                <span>Radar de<br>Misión</span>
-            </a>
-        </div>
+        <div class="nav-section">Operaciones Tácticas</div>
+        <a href="Codigos.html" class="btn"><i>📻</i> Frecuencias y Códigos</a>
+        <a href="mapa_tactico.html" class="btn"><i>📡</i> Radar de Misión</a>
 
-        <div class="section-title">Protocolos</div>
-        <div class="menu-grid">
-            <a href="ReglaInterna.html" class="menu-item">
-                <i>📜</i>
-                <span>Régimen<br>Interno</span>
-            </a>
-            <a href="Rangos.html" class="menu-item">
-                <i>🏅</i>
-                <span>Jerarquía<br>Militar</span>
-            </a>
-        </div>
+        <div class="nav-section">Reglamento</div>
+        <a href="ReglaInterna.html" class="btn"><i>📜</i> Régimen Interno</a>
+        <a href="Rangos.html" class="btn"><i>🏅</i> Jerarquía Militar</a>
+    </nav>
 
+    <main class="panel viewport">
+        <div style="margin-bottom: 20px; font-size: 0.7rem; color: var(--neon-blue);">[ SEÑAL SATELITAL ACTIVA ]</div>
+        <div class="radar">
+            <div style="position: absolute; top: 50%; left: 50%; width: 4px; height: 4px; background: red; border-radius: 50%;"></div>
+        </div>
+        <div style="margin-top: 20px; font-size: 0.8rem; text-align: center;">
+            COORD: 4.711 // -74.072<br>
+            <span style="color: var(--neon-green);">SINCRO ESTABLE</span>
+        </div>
     </main>
 
-    <footer class="status-bar">
-        <div><span class="blink">●</span> SISTEMA: ONLINE</div>
-        <div id="notif">ESPERANDO ÓRDENES...</div>
+    <footer class="panel footer">
+        <marquee scrollamount="5">> CONEXIÓN ESTABLE... BIENVENIDO OPERADOR... REVISA EL RÉGIMEN INTERNO ANTES DE INICIAR PATRULLA...</marquee>
     </footer>
 </div>
 
 <script>
-    // Actualizar Reloj
-    function updateClock() {
+    function update() {
         const now = new Date();
-        const time = now.getHours().toString().padStart(2, '0') + ":" + 
-                     now.getMinutes().toString().padStart(2, '0');
-        document.getElementById('clock').innerText = time;
+        document.getElementById('clock').innerText = now.toLocaleTimeString();
     }
-
-    // Rotar Mensajes
-    const msgs = ["RED ENCRIPTADA", "GPS: ACTIVO", "SAM SUKV DEV", "SIN NOVEDAD"];
-    let i = 0;
-    function rotateMsgs() {
-        document.getElementById('notif').innerText = msgs[i];
-        i = (i + 1) % msgs.length;
-    }
-
-    setInterval(updateClock, 1000);
-    setInterval(rotateMsgs, 4000);
-    updateClock();
+    setInterval(update, 1000);
+    update();
 </script>
 
 </body>
