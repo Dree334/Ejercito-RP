@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SISTEMA TÁCTICO G6 - SAM SUKV</title>
+    <style>
+        :root {
+            --faction-y: #fcd116;
+            --faction-b: #003893;
+            --faction-r: #ce1126;
+            --hud-cyan: #00f2ff;
+            --hud-bg: #020502;
+            --alert-red: #ff3c3c;
+        }
+
+        * { box-sizing: border-box; }
+
+        body {
+            background-color: var(--hud-bg);
+            color: #fff;
+            font-family: 'Courier New', Courier, monospace;
+            margin: 0;
+            padding: 10px;
+            background-image: linear-gradient(rgba(0, 242, 255, 0.02) 1px, transparent 1px),
+                              linear-gradient(90deg, rgba(0, 242, 255, 0.02) 1px, transparent 1px);
+            background-size: 25px 25px;
+        }
+
+        .faction-banner {
+            height: 10px;
+            display: flex;
+            width: 100%;
+            border-bottom: 1px solid rgba(0, 242, 255, 0.2);
+        }
+        .b-y { background: var(--faction-y); flex: 2; }
+        .b-b { background: var(--faction-b); flex: 1; }
+        .b-r { background: var(--faction-r); flex: 1; }
+
+        .terminal-container {
+            max-width: 1000px;
+            margin: 15px auto;
+            border: 1px solid var(--hud-cyan);
+            background: rgba(5, 15, 5, 0.95);
+            position: relative;
+            box-shadow: 0 0 20px rgba(0, 242, 255, 0.1);
+        }
+
+        .terminal-header {
+            background: rgba(0, 242, 255, 0.1);
+            padding: 15px;
+            border-bottom: 2px solid var(--faction-y);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .terminal-title {
+            color: var(--faction-y);
+            font-weight: bold;
+            font-size: 1.1rem;
+            margin: 0;
+            letter-spacing: 2px;
+        }
+
+        .data-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 15px;
+            padding: 20px;
+        }
+
+        .data-module {
+            border: 1px solid rgba(0, 242, 255, 0.2);
+            background: rgba(255, 255, 255, 0.02);
+            padding-bottom: 10px;
+        }
+
+        .module-label {
+            background: var(--faction-b);
+            color: white;
+            padding: 4px 12px;
+            font-size: 0.7rem;
+            font-weight: bold;
+            display: block;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+        }
+
+        .entry {
+            display: flex;
+            padding: 8px 12px;
+            border-bottom: 1px solid rgba(0, 242, 255, 0.05);
+            font-size: 0.85rem;
+            transition: 0.2s;
+        }
+
+        .entry:hover {
+            background: rgba(0, 242, 255, 0.1);
+            color: var(--hud-cyan);
+            cursor: default;
+        }
+
+        .e-code { color: var(--faction-y); font-weight: bold; min-width: 65px; }
+
+        /* --- MÓDULO DE COMBATE (ALERTA ROJA) --- */
+        .combat-module { border: 1px solid var(--alert-red); }
+        .combat-module .module-label { background: var(--alert-red); }
+        .combat-module .e-code { color: var(--alert-red); }
+
+        .radar-box {
+            position: absolute;
+            top: 60px;
+            right: 15px;
+            width: 60px;
+            height: 60px;
+            border: 1px solid rgba(0, 242, 255, 0.3);
+            border-radius: 50%;
+            overflow: hidden;
+            opacity: 0.6;
+        }
+        .radar-sweep {
+            width: 100%; height: 100%;
+            background: conic-gradient(from 0deg, transparent 80%, var(--hud-cyan));
+            animation: spin 4s linear infinite;
+        }
+
+        @keyframes spin { 100% { transform: rotate(360deg); } }
+
+        footer {
+            text-align: center;
+            padding: 25px;
+            border-top: 1px solid rgba(0, 242, 255, 0.1);
+            margin-top: 20px;
+        }
+
+        .dev-tag {
+            color: var(--faction-y);
+            font-weight: bold;
+            letter-spacing: 2px;
+            font-size: 0.9rem;
+        }
+
+        .secure-info {
+            font-size: 0.6rem;
+            color: var(--hud-cyan);
+            opacity: 0.7;
+            margin-top: 5px;
+            text-transform: uppercase;
+        }
+
+    </style>
+</head>
+<body>
+
+    <div class="faction-banner">
+        <div class="b-y"></div><div class="b-b"></div><div class="b-r"></div>
+    </div>
+
+    <div class="terminal-container">
+        <div class="radar-box"><div class="radar-sweep"></div></div>
+
+        <header class="terminal-header">
+            <div>
+                <h2 class="terminal-title">TERMINAL TÁCTICA  - MÓDULO RP</h2>
+                <div style="font-size: 0.65rem; color: var(--hud-cyan);">ENCRIPTACIÓN DE LORE ACTIVA // SEGURO</div>
+            </div>
+            <div id="clock" style="font-size: 0.8rem; font-weight: bold; color: var(--hud-cyan);">00:00:00</div>
+        </header>
+
+        <div class="data-grid">
+            
+            <div class="data-module combat-module">
+                <div class="module-label">⚠️ PROTOCOLOS DE COMBATE</div>
+                <div class="entry"><span class="e-code">10-44</span> <span>Permiso para Disparar</span></div>
+                <div class="entry"><span class="e-code">10-13</span> <span>Apoyo Aéreo Requerido</span></div>
+                <div class="entry"><span class="e-code">10-18</span> <span>Refuerzos Inmediatos</span></div>
+                <div class="entry"><span class="e-code">10-71</span> <span>Hostigamiento en Zona</span></div>
+                <div class="entry"><span class="e-code">10-33</span> <span>EMERGENCIA CRÍTICA</span></div>
+            </div>
+
+            <div class="data-module">
+                <div class="module-label">📡 COMUNICACIONES RADIALES</div>
+                <div class="entry"><span class="e-code">10-1</span> <span>Mala Recepción</span></div>
+                <div class="entry"><span class="e-code">10-2</span> <span>Buena Recepción</span></div>
+                <div class="entry"><span class="e-code">10-4</span> <span>Entendido / QSL</span></div>
+                <div class="entry"><span class="e-code">10-9</span> <span>Repetir Mensaje</span></div>
+                <div class="entry"><span class="e-code">10-20</span> <span>Posición Actual</span></div>
+            </div>
+
+            <div class="data-module">
+                <div class="module-label">📦 LOGÍSTICA Y STATUS</div>
+                <div class="entry"><span class="e-code">10-7</span> <span>Unidad fuera de Red</span></div>
+                <div class="entry"><span class="e-code">10-8</span> <span>Unidad Operativa</span></div>
+                <div class="entry"><span class="e-code">10-23</span> <span>En el Objetivo (QTH)</span></div>
+                <div class="entry"><span class="e-code">10-97</span> <span>En ruta al punto</span></div>
+                <div class="entry"><span class="e-code">10-99</span> <span>Situación Bajo Control</span></div>
+            </div>
+
+        </div>
+    </div>
+
+    <footer>
+        <div class="dev-tag">PROGRAMADOR: SAM SUKV</div>
+        <div class="secure-info">SISTEMA INTEGRAL DE ROL TÁCTICO // 2026 // BOG-DATABASE</div>
+    </footer>
+
+    <script>
+        function updateClock() {
+            const now = new Date();
+            const timeStr = now.getHours().toString().padStart(2, '0') + ":" + 
+                            now.getMinutes().toString().padStart(2, '0') + ":" + 
+                            now.getSeconds().toString().padStart(2, '0');
+            document.getElementById('clock').innerText = "T-SYNC: " + timeStr;
+        }
+        setInterval(updateClock, 1000);
+        updateClock();
+    </script>
+
+</body>
+</html>
