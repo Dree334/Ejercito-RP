@@ -2,166 +2,208 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Faccion guerras Mundiales Rp - SAM SUKV</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>SAM SUKV - Móvil</title>
     <style>
         :root {
             --neon-green: #4eef3a;
             --neon-blue: #00f2ff;
             --alert-red: #ff3c3c;
-            --bg-dark: #020502;
-            --panel-alpha: rgba(10, 25, 10, 0.95);
+            --bg-dark: #050805;
+            --panel-bg: rgba(20, 30, 20, 0.8);
             --col-y: #fcd116; --col-b: #003893; --col-r: #ce1126;
         }
 
-        * { box-sizing: border-box; cursor: crosshair; }
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        
         body, html {
             margin: 0; padding: 0;
             background-color: var(--bg-dark);
-            color: var(--neon-green);
-            font-family: 'Courier New', monospace;
-            height: 100vh; overflow: hidden;
-            background-image: 
-                linear-gradient(rgba(18, 16, 16, 0.1) 50%, rgba(0, 0, 0, 0.3) 50%),
-                radial-gradient(circle at 50% 50%, #0a1f0a 0%, #000 100%);
-            background-size: 100% 4px, 100% 100%;
+            color: #fff;
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            height: 100%;
+            overflow-x: hidden;
+            background-image: radial-gradient(circle at center, #0a1f0a 0%, #000 100%);
         }
 
-        .main-hud {
-            display: grid;
-            grid-template-columns: 320px 1fr 280px;
-            grid-template-rows: 90px 1fr 100px;
-            gap: 15px; height: 100vh; padding: 20px;
+        /* --- CONTENEDOR TIPO APP --- */
+        .app-container {
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            max-width: 500px;
+            margin: 0 auto;
+            border: 1px solid rgba(78, 239, 58, 0.1);
         }
 
-        .panel {
-            background: var(--panel-alpha);
-            border: 1px solid rgba(78, 239, 58, 0.2);
-            padding: 15px; position: relative;
-            backdrop-filter: blur(8px);
+        /* --- HEADER TÁCTICO --- */
+        .app-header {
+            padding: 20px;
+            background: linear-gradient(180deg, rgba(78, 239, 58, 0.1) 0%, transparent 100%);
+            border-bottom: 1px solid var(--neon-green);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
         }
 
-        /* --- HEADER --- */
-        .header { grid-column: 1 / 4; display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid var(--neon-green); }
-        .flag { width: 55px; height: 34px; display: flex; flex-direction: column; border: 1px solid #333; }
+        .user-info h2 { margin: 0; font-size: 1.1rem; letter-spacing: 1px; color: var(--neon-green); }
+        .user-info span { font-size: 0.65rem; color: var(--neon-blue); font-weight: bold; }
+
+        .flag-mini { width: 30px; height: 20px; display: flex; flex-direction: column; border: 1px solid #444; }
         .y { flex: 2; background: var(--col-y); } .b { flex: 1; background: var(--col-b); } .r { flex: 1; background: var(--col-r); }
 
-        /* --- NAVEGACIÓN (SEGÚN TU IMAGEN) --- */
-        .sidebar { grid-row: 2 / 4; display: flex; flex-direction: column; overflow-y: auto; }
-        .nav-section { font-size: 0.75rem; color: #ff9d00; margin: 15px 0 8px 0; border-left: 3px solid #ff9d00; padding-left: 10px; text-transform: uppercase; letter-spacing: 1px; }
-        
-        .btn {
-            display: flex; align-items: center; padding: 12px; margin-bottom: 6px;
-            background: rgba(255,255,255,0.03); border: 1px solid rgba(78, 239, 58, 0.1);
-            color: #fff; text-decoration: none; font-size: 0.85rem; transition: 0.3s;
+        /* --- SCROLLABLE CONTENT --- */
+        .menu-content {
+            flex: 1;
+            overflow-y: auto;
+            padding: 15px;
         }
-        .btn:hover { background: rgba(78, 239, 58, 0.1); border-color: var(--neon-green); color: var(--neon-green); }
-        .btn i { margin-right: 12px; font-style: normal; }
-        
-        /* CNOE - FUERZAS ESPECIALES */
-        .btn-elite { border-left: 4px solid var(--alert-red); background: rgba(255,0,0,0.05); color: #ffcccc; animation: pulse-elite 2s infinite; }
-        @keyframes pulse-elite { 0%, 100% { border-color: var(--alert-red); } 50% { border-color: #600; } }
 
-        /* --- ESCÁNER CENTRAL --- */
-        .viewport { grid-column: 2; display: flex; flex-direction: column; gap: 10px; }
-        .scanner-box {
-            flex-grow: 1; background: rgba(0, 30, 0, 0.2); border: 1px solid rgba(0, 242, 255, 0.1);
-            position: relative; overflow: hidden; display: flex; justify-content: center; align-items: center;
+        .section-title {
+            font-size: 0.7rem;
+            color: #ff9d00;
+            text-transform: uppercase;
+            margin: 15px 0 10px 5px;
+            letter-spacing: 2px;
+            border-left: 2px solid #ff9d00;
+            padding-left: 8px;
         }
-        .radar-circle { width: 280px; height: 280px; border: 1px solid rgba(0, 242, 255, 0.2); border-radius: 50%; position: absolute; animation: radar-pulse 4s infinite linear; }
-        .scan-grid { width: 100%; height: 100%; position: absolute; background: repeating-linear-gradient(0deg, transparent, transparent 39px, rgba(78, 239, 58, 0.05) 40px), repeating-linear-gradient(90deg, transparent, transparent 39px, rgba(78, 239, 58, 0.05) 40px); }
-        .target { position: absolute; width: 8px; height: 8px; background: var(--alert-red); border-radius: 50%; box-shadow: 0 0 10px var(--alert-red); animation: blink 1s infinite; }
 
-        /* --- ANIMACIONES --- */
-        @keyframes radar-pulse { from { transform: scale(0.5); opacity: 1; } to { transform: scale(1.4); opacity: 0; } }
-        @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0.2; } }
+        /* --- GRID DE BOTONES --- */
+        .menu-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .menu-item {
+            background: var(--panel-bg);
+            border: 1px solid rgba(78, 239, 58, 0.2);
+            padding: 20px 10px;
+            border-radius: 8px;
+            text-decoration: none;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            transition: 0.2s;
+        }
+
+        .menu-item:active {
+            background: rgba(78, 239, 58, 0.2);
+            transform: scale(0.95);
+            border-color: var(--neon-green);
+        }
+
+        .menu-item i { font-size: 1.5rem; margin-bottom: 8px; display: block; }
+        .menu-item span { font-size: 0.75rem; color: #eee; font-weight: 500; }
+
+        /* Botón Especial CNOE */
+        .full-width { grid-column: 1 / 3; border: 1px solid var(--alert-red); background: rgba(255, 0, 0, 0.05); }
+        .full-width span { color: #ffcccc; }
+
+        /* --- MONITOR DE ESTADO --- */
+        .status-bar {
+            background: #000;
+            padding: 10px 20px;
+            font-size: 0.7rem;
+            display: flex;
+            justify-content: space-between;
+            border-top: 1px solid rgba(78, 239, 58, 0.3);
+            color: var(--neon-green);
+        }
+
+        .blink { animation: blinker 1.5s linear infinite; }
+        @keyframes blinker { 50% { opacity: 0; } }
 
     </style>
 </head>
 <body>
 
-<div class="main-hud">
-    <header class="panel header">
-        <div>
-            <h1 style="margin:0; font-size: 1.2rem;">Faccion RP // SAM SUKV</h1>
-            <div style="font-size: 0.6rem; color: var(--neon-blue);">INTERFAZ DE ROL TÁCTICO // COLOMBIA</div>
+<div class="app-container">
+    <header class="app-header">
+        <div class="user-info">
+            <span>OPERADOR AUTORIZADO</span>
+            <h2>SAM SUKV // COL</h2>
         </div>
-        <div style="display: flex; align-items: center; gap: 20px;">
-            <div style="text-align: right;">
-                <div id="clock" style="font-size: 1.3rem; font-weight: bold; color: #fff;">00:00:00</div>
-                <div style="font-size: 0.7rem; opacity: 0.7;">BOGOTÁ COLOMBIA</div>
-            </div>
-            <div class="flag"><div class="y"></div><div class="b"></div><div class="r"></div></div>
+        <div style="text-align: right">
+            <div id="clock" style="font-weight: bold; font-family: monospace;">00:00</div>
+            <div class="flag-mini"><div class="y"></div><div class="b"></div><div class="r"></div></div>
         </div>
     </header>
 
-    <nav class="panel sidebar">
-        <div class="nav-section">Personal y Comando</div>
-        <a href="index3.html" class="btn"><i>📋</i> Gestión de Ascensos</a>
-        <a href="FuerzaAE.html" class="btn"><i>✈️</i> Aviación de Facción</a>
-        <a href="FE.html" class="btn btn-elite"><i>💀</i> CNOE - OPERACIONES ESPECIALES</a>
-
-        <div class="nav-section">Operaciones Tácticas</div>
-        <a href="Codigos.html" class="btn"><i>📻</i> Frecuencias y Códigos</a>
-        <a href="mapa_tactico.html" class="btn"><i>📡</i> Radar de Operaciones</a>
-
-        <div class="nav-section">Reglamento y Ley</div>
-        <a href="ReglaInterna.html" class="btn"><i>📜</i> Régimen Interno</a>
-        <a href="Rangos.html" class="btn"><i>🏅</i> Jerarquía de Facción</a>
-        <a href="Armas.html" class="btn"><i>🔫</i> Equipamiento Clasificado</a>
-    </nav>
-
-    <main class="panel viewport">
-        <div style="font-size: 0.7rem;">> REGISTROS_LORE_ACTIVO</div>
-        <div class="scanner-box">
-            <div class="scan-grid"></div>
-            <div class="radar-circle" style="animation-delay: 0s;"></div>
-            <div class="radar-circle" style="animation-delay: 2s;"></div>
-            
-            <div class="target" style="top: 30%; left: 40%;"></div>
-            <div class="target" style="top: 65%; left: 70%;"></div>
-            <div class="target" style="top: 50%; left: 20%;"></div>
-
-            <div style="position: absolute; bottom: 10px; left: 10px; font-size: 0.5rem; color: var(--neon-blue);">
-                GEOLOC: 4.711 // -74.072<br>SINCRO: ESTABLE
-            </div>
+    <main class="menu-content">
+        
+        <div class="section-title">Comando Central</div>
+        <div class="menu-grid">
+            <a href="index3.html" class="menu-item">
+                <i>📋</i>
+                <span>Gestión de<br>Ascensos</span>
+            </a>
+            <a href="FuerzaAE.html" class="menu-item">
+                <i>✈️</i>
+                <span>Aviación de<br>Facción</span>
+            </a>
+            <a href="FE.html" class="menu-item full-width">
+                <i style="color: var(--alert-red);">💀</i>
+                <span style="letter-spacing: 1px;">CNOE - OPERACIONES ESPECIALES</span>
+            </a>
         </div>
-        <div style="height: 30px; background: rgba(0,0,0,0.4); display: flex; align-items: center; border: 1px solid rgba(78,239,58,0.1);">
-            <marquee scrollamount="4" style="font-size: 0.8rem;">BIENVENIDO  // CARGANDO MAPA DE OPERACIONES // MANTENER PROTOCOLO DE ROL EN RADIO // </marquee>
+
+        <div class="section-title">Inteligencia</div>
+        <div class="menu-grid">
+            <a href="Codigos.html" class="menu-item">
+                <i>📻</i>
+                <span>Frecuencias<br>& Códigos</span>
+            </a>
+            <a href="mapa_tactico.html" class="menu-item">
+                <i>📡</i>
+                <span>Radar de<br>Misión</span>
+            </a>
         </div>
+
+        <div class="section-title">Protocolos</div>
+        <div class="menu-grid">
+            <a href="ReglaInterna.html" class="menu-item">
+                <i>📜</i>
+                <span>Régimen<br>Interno</span>
+            </a>
+            <a href="Rangos.html" class="menu-item">
+                <i>🏅</i>
+                <span>Jerarquía<br>Militar</span>
+            </a>
+        </div>
+
     </main>
 
-    <aside class="panel">
-        <div style="font-size: 0.7rem; border-bottom: 1px solid #333; padding-bottom: 5px; margin-bottom: 10px;">ESTADO_USER</div>
-        <div style="font-size: 0.6rem;">ESCUDO</div>
-        <div style="height:8px; background:#111; margin: 5px 0;"><div style="width:100%; height:100%; background:var(--neon-blue);"></div></div>
-        <div style="font-size: 0.6rem;">SALUD</div>
-        <div style="height:8px; background:#111; margin: 5px 0;"><div style="width:85%; height:100%; background:var(--neon-green);"></div></div>
-        <div style="font-size: 0.6rem; margin-top:10px;">PULSO: <span id="bpm">72</span> BPM</div>
-    </aside>
-
-    <footer class="panel" style="grid-column: 2;">
-        <div id="notif" style="font-size: 0.8rem; color: #fff;">> AGUARDANDO ÓRDENES DE COMANDO...</div>
+    <footer class="status-bar">
+        <div><span class="blink">●</span> SISTEMA: ONLINE</div>
+        <div id="notif">ESPERANDO ÓRDENES...</div>
     </footer>
 </div>
 
 <script>
-    function update() {
-        document.getElementById('clock').innerText = new Date().toLocaleTimeString();
-        document.getElementById('bpm').innerText = Math.floor(Math.random() * (78 - 65) + 65);
+    // Actualizar Reloj
+    function updateClock() {
+        const now = new Date();
+        const time = now.getHours().toString().padStart(2, '0') + ":" + 
+                     now.getMinutes().toString().padStart(2, '0');
+        document.getElementById('clock').innerText = time;
     }
-    const msgs = [
-        "> UNIDAD ALPHA INICIANDO PATRULLA IC.",
-        "> ACTUALIZANDO BASE DE DATOS DE ASCENSOS.",
-        "> FRECUENCIA TÁCTICA 1 ACTIVADA.",
-        "> SAM SUKV: DESAROLLADOR"
-    ];
-    function rotate() {
-        document.getElementById('notif').innerText = msgs[Math.floor(Math.random() * msgs.length)];
+
+    // Rotar Mensajes
+    const msgs = ["RED ENCRIPTADA", "GPS: ACTIVO", "SAM SUKV DEV", "SIN NOVEDAD"];
+    let i = 0;
+    function rotateMsgs() {
+        document.getElementById('notif').innerText = msgs[i];
+        i = (i + 1) % msgs.length;
     }
-    setInterval(update, 1000);
-    setInterval(rotate, 6000);
-    update();
+
+    setInterval(updateClock, 1000);
+    setInterval(rotateMsgs, 4000);
+    updateClock();
 </script>
 
 </body>
