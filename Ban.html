@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>S.U.K.V. TITAN | SISTEMA PERMANENTE</title>
+    <style>
+        :root {
+            --red: #ff3c3c;
+            --dark-red: #440000;
+            --bg: #050505;
+            --glass: rgba(20, 10, 10, 0.95);
+            --border: rgba(255, 60, 60, 0.2);
+            --terminal: #1a0505;
+        }
+
+        * { box-sizing: border-box; font-family: 'Consolas', monospace; }
+        
+        body { 
+            background: var(--bg); color: #fff; margin: 0; 
+            height: 100vh; overflow: hidden;
+            background-image: radial-gradient(circle at center, #1a0505 0%, #050505 100%);
+        }
+
+        /* --- LOGIN OVERLAY --- */
+        #login-screen {
+            position: fixed; top:0; left:0; width: 100%; height: 100%;
+            background: #000; display: flex; justify-content: center; align-items: center;
+            z-index: 9999; flex-direction: column;
+        }
+
+        .login-box {
+            width: 350px; padding: 40px; border: 1px solid var(--red);
+            background: #0a0000; text-align: center;
+            box-shadow: 0 0 50px rgba(255, 0, 0, 0.2);
+        }
+
+        /* --- SISTEMA PRINCIPAL --- */
+        #main-system { display: none; opacity: 0; transition: opacity 0.5s; }
+
+        .os-wrapper { display: grid; grid-template-rows: 60px 1fr 180px 40px; height: 100vh; }
+
+        .top-bar {
+            background: #000; border-bottom: 2px solid var(--red);
+            display: flex; justify-content: space-between; align-items: center; padding: 0 25px;
+        }
+
+        .workspace { display: grid; grid-template-columns: 400px 1fr; gap: 20px; padding: 20px; overflow: hidden; }
+
+        .glass-panel {
+            background: var(--glass); border: 1px solid var(--border); border-radius: 5px;
+            padding: 20px; display: flex; flex-direction: column; gap: 10px;
+        }
+
+        h2 { font-size: 0.9rem; color: var(--red); text-transform: uppercase; border-left: 4px solid var(--red); padding-left: 10px; margin: 0; }
+
+        .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+        .full-width { grid-column: span 2; }
+
+        label { font-size: 0.6rem; color: var(--red); text-transform: uppercase; font-weight: bold; }
+        
+        input, select, textarea {
+            width: 100%; background: #000; border: 1px solid #440000;
+            padding: 8px; color: #ff9999; border-radius: 3px; outline: none; font-size: 0.8rem;
+        }
+        
+        textarea { height: 60px; resize: none; }
+
+        .btn-ban {
+            padding: 12px; background: var(--red); border: none; border-radius: 3px; 
+            color: #000; font-weight: 900; cursor: pointer; text-transform: uppercase;
+            transition: 0.3s; width: 100%;
+        }
+        .btn-ban:hover { background: #fff; box-shadow: 0 0 20px var(--red); }
+
+        .table-area { display: flex; flex-direction: column; gap: 10px; overflow: hidden; }
+        .table-scroll {
+            background: rgba(0,0,0,0.8); border: 1px solid var(--border);
+            overflow-y: auto; flex: 1; border-radius: 5px;
+        }
+
+        table { width: 100%; border-collapse: collapse; }
+        th { position: sticky; top: 0; background: #220000; padding: 12px; text-align: left; font-size: 0.65rem; color: var(--red); text-transform: uppercase; }
+        td { padding: 10px 12px; font-size: 0.75rem; border-bottom: 1px solid #220000; }
+
+        .console-wrapper {
+            background: var(--terminal); margin: 0 20px 10px 20px;
+            border: 1px solid #330000; border-radius: 5px; padding: 10px;
+            overflow-y: auto; display: flex; flex-direction: column; gap: 4px;
+        }
+        .console-line { font-size: 0.75rem; color: #888; }
+
+        .action-btns { display: flex; gap: 5px; }
+        .mini-btn { padding: 4px 6px; font-size: 0.6rem; cursor: pointer; background: transparent; border: 1px solid #444; color: #888; border-radius: 3px; }
+
+        .bottom-bar { background: #000; border-top: 1px solid var(--red); display: flex; align-items: center; padding: 0 25px; font-size: 0.7rem; }
+        
+        canvas { display: none; }
+
+        /* Estilo para los botones de backup nuevos */
+        .backup-zone { display: flex; gap: 5px; margin-top: 5px; }
+        .btn-secondary { background: #1a0000; border: 1px solid #440000; color: #666; font-size: 0.55rem; padding: 5px; cursor: pointer; flex: 1; text-transform: uppercase; }
+        .btn-secondary:hover { color: var(--red); border-color: var(--red); }
+    </style>
+</head>
+<body>
+
+    <div id="login-screen">
+        <div class="login-box">
+            <div style="color:var(--red); font-size: 2rem; margin-bottom: 10px;">☣</div>
+            <h3 style="color:#fff; margin: 0 0 20px 0; letter-spacing: 2px;">S.U.K.V. LOGIN</h3>
+            <input type="password" id="pass_input" placeholder="CONTRASEÑA" style="text-align: center; margin-bottom: 20px;">
+            <button class="btn-ban" onclick="tryLogin()">DESBLOQUEAR SISTEMA</button>
+            <p id="error-msg" style="color: var(--red); font-size: 0.6rem; margin-top: 15px; visibility: hidden;">ERROR: LLAVE INVÁLIDA</p>
+        </div>
+    </div>
+
+    <div id="main-system">
+        <div class="os-wrapper">
+            <nav class="top-bar">
+                <div style="color: var(--red); font-size: 0.7rem;">ADMINISTRADOR: CONECTADO</div>
+                <div style="font-weight: 900; letter-spacing: 5px; color: #fff;">SANCIONES MTA:RP</div>
+                <div id="clock" style="color: var(--red);">00:00:00</div>
+            </nav>
+
+            <div class="workspace">
+                <aside class="glass-panel">
+                    <h2>Registrar Sanción</h2>
+                    <div class="form-grid">
+                        <div class="full-width">
+                            <label>Nombre Completo IC</label>
+                            <input type="text" id="b_name" placeholder="Ej: Juan_Perez">
+                        </div>
+                        <div>
+                            <label>ID / Placa</label>
+                            <input type="text" id="b_placa" placeholder="ID-000">
+                        </div>
+                        <div>
+                            <label>Discord</label>
+                            <input type="text" id="b_discord" placeholder="user#0000">
+                        </div>
+                        <div class="full-width">
+                            <label>Gravedad</label>
+                            <select id="b_time">
+                                <option>STRIKE 1</option>
+                                <option>STRIKE 2</option>
+                                <option>BANEO TEMPORAL</option>
+                                <option>BANEO 7 DÍAS</option>
+                                <option>BANEO PERMANENTE</option>
+                                <option>BLACKLIST TOTAL</option>
+                            </select>
+                        </div>
+                        <div class="full-width">
+                            <label>Razón Legal</label>
+                            <textarea id="b_reason" placeholder="Describa la falta..."></textarea>
+                        </div>
+                    </div>
+                    <button class="btn-ban" onclick="ejecutarSancion()">EJECUTAR PROTOCOLO</button>
+                    
+                    <div class="backup-zone">
+                        <button class="btn-secondary" onclick="exportData()">Guardar Respaldo</button>
+                        <button class="btn-secondary" onclick="document.getElementById('importInput').click()">Cargar Respaldo</button>
+                        <input type="file" id="importInput" style="display:none" onchange="importData(event)">
+                    </div>
+                </aside>
+
+                <main class="table-area">
+                    <div class="table-scroll">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Sujeto</th>
+                                    <th>ID</th>
+                                    <th>Sanción</th>
+                                    <th>Razón</th>
+                                    <th>Acción</th>
+                                </tr>
+                            </thead>
+                            <tbody id="ban-list"></tbody>
+                        </table>
+                    </div>
+                </main>
+            </div>
+
+            <div class="console-wrapper" id="console">
+                <div class="console-line">[SYS] Base de datos sincronizada.</div>
+            </div>
+
+            <footer class="bottom-bar">
+                <span style="color: var(--red);">DEV:</span> 
+                <span style="margin-left: 10px; color: #666;">SAM SUKV</span>
+                <button onclick="logout()" style="margin-left: auto; background: none; border: 1px solid #ff3c3c; color: #ff3c3c; cursor: pointer; font-size: 0.6rem; padding: 2px 10px;">CERRAR SESIÓN</button>
+            </footer>
+        </div>
+    </div>
+
+    <canvas id="c_ban" width="500" height="400"></canvas>
+
+    <script>
+        const MASTER_KEY = "Adm666";
+        let banDB = JSON.parse(localStorage.getItem('Panel_Admin')) || [];
+
+        // VERIFICACIÓN INICIAL DE SESIÓN
+        window.onload = () => {
+            const session = localStorage.getItem('sukv_session');
+            if(session === "active") {
+                showSystem();
+            }
+            setInterval(() => {
+                document.getElementById('clock').innerText = new Date().toLocaleTimeString();
+            }, 1000);
+        };
+
+        function tryLogin() {
+            const val = document.getElementById('pass_input').value;
+            if(val === MASTER_KEY) {
+                localStorage.setItem('sukv_session', 'active');
+                showSystem();
+            } else {
+                const err = document.getElementById('error-msg');
+                err.style.visibility = 'visible';
+                setTimeout(() => { err.style.visibility = 'hidden'; }, 2000);
+            }
+        }
+
+        function logout() {
+            localStorage.removeItem('sukv_session');
+            location.reload();
+        }
+
+        function showSystem() {
+            document.getElementById('login-screen').style.display = 'none';
+            document.getElementById('main-system').style.display = 'block';
+            setTimeout(() => { document.getElementById('main-system').style.opacity = '1'; }, 50);
+            renderTable();
+            pushConsole("Autenticación permanente activa.", "success");
+        }
+
+        function pushConsole(msg, type = 'info') {
+            const con = document.getElementById('console');
+            const line = document.createElement('div');
+            line.style.color = type === 'success' ? '#00ff88' : (type === 'warn' ? '#ff3c3c' : '#888');
+            line.className = 'console-line';
+            line.innerHTML = `> ${msg}`;
+            con.appendChild(line);
+            con.scrollTop = con.scrollHeight;
+        }
+
+        function ejecutarSancion() {
+            const nom = document.getElementById('b_name').value;
+            const pla = document.getElementById('b_placa').value;
+            const raz = document.getElementById('b_reason').value;
+
+            if(!nom || !pla || !raz) {
+                pushConsole("ERROR: Campos incompletos.", "warn");
+                return;
+            }
+
+            const baneo = {
+                id: Date.now(),
+                nombre: nom,
+                placa: pla,
+                discord: document.getElementById('b_discord').value || "N/A",
+                tiempo: document.getElementById('b_time').value,
+                razon: raz,
+                fecha: new Date().toLocaleString()
+            };
+
+            banDB.push(baneo);
+            save();
+            pushConsole(`REGISTRO: ${pla} procesado correctamente.`, "success");
+            
+            document.getElementById('b_name').value = "";
+            document.getElementById('b_placa').value = "";
+            document.getElementById('b_reason').value = "";
+        }
+
+        function renderTable() {
+            const list = document.getElementById('ban-list');
+            list.innerHTML = banDB.map(b => `
+                <tr>
+                    <td><b>${b.nombre}</b></td>
+                    <td><code style="color:var(--red)">${b.placa}</code></td>
+                    <td>${b.tiempo}</td>
+                    <td style="font-size: 0.65rem; color: #aaa;">${b.razon}</td>
+                    <td class="action-btns">
+                        <button class="mini-btn" onclick="exportarFicha(${b.id})">PNG</button>
+                        <button class="mini-btn" style="color:var(--red);" onclick="revocar(${b.id})">DEL</button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        function revocar(id) {
+            if(confirm("¿ELIMINAR ESTE REGISTRO PERMANENTEMENTE?")) {
+                banDB = banDB.filter(x => x.id !== id);
+                save();
+                pushConsole("Registro eliminado.", "warn");
+            }
+        }
+
+        function save() {
+            localStorage.setItem('Panel_Admin', JSON.stringify(banDB));
+            renderTable();
+        }
+
+        // --- NUEVAS FUNCIONES DE DATOS ---
+        function exportData() {
+            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(banDB));
+            const downloadAnchorNode = document.createElement('a');
+            downloadAnchorNode.setAttribute("href", dataStr);
+            downloadAnchorNode.setAttribute("download", "SUKV_BACKUP_" + Date.now() + ".json");
+            document.body.appendChild(downloadAnchorNode);
+            downloadAnchorNode.click();
+            downloadAnchorNode.remove();
+            pushConsole("Respaldo descargado.", "success");
+        }
+
+        function importData(event) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const imported = JSON.parse(e.target.result);
+                    if(Array.isArray(imported)) {
+                        banDB = imported;
+                        save();
+                        pushConsole("Base de datos importada con éxito.", "success");
+                    }
+                } catch(err) {
+                    pushConsole("Error al importar archivo.", "warn");
+                }
+            };
+            reader.readAsText(event.target.files[0]);
+        }
+        // -------------------------------
+
+        function exportarFicha(id) {
+            const b = banDB.find(x => x.id === id);
+            const can = document.getElementById('c_ban');
+            const ctx = can.getContext('2d');
+            ctx.fillStyle = "#050000"; ctx.fillRect(0,0,500,400);
+            ctx.strokeStyle = "#ff3c3c"; ctx.lineWidth = 10; ctx.strokeRect(0,0,500,400);
+            ctx.fillStyle = "#ff3c3c"; ctx.font = "bold 20px Courier New";
+            ctx.fillText("S.U.K.V. BLACKLIST SYSTEM", 30, 50);
+            ctx.font = "16px Courier New"; ctx.fillStyle = "#fff";
+            ctx.fillText("SUJETO: " + b.nombre, 40, 100);
+            ctx.fillText("ID/PLACA: " + b.placa, 40, 130);
+            ctx.fillText("SANCION: " + b.tiempo, 40, 160);
+            ctx.fillText("RAZÓN: " + b.razon.substring(0, 35) + "...", 40, 200);
+            
+            const l = document.createElement('a');
+            l.download = `SANCION_${b.placa}.png`;
+            l.href = can.toDataURL();
+            l.click();
+        }
+
+        document.getElementById('pass_input').addEventListener("keyup", (e) => {
+            if (e.key === "Enter") tryLogin();
+        });
+    </script>
+</body>
+</html>
