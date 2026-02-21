@@ -1,349 +1,934 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FAC - AIR COMMAND TERMINAL</title>
-    <style>
-        /* Protocolo Seguro HTTPS para fuentes */
-        @import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap');
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>FAC - MTA:SA GUERRAS MUNDIALES RP</title>
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Share+Tech+Mono&display=swap" rel="stylesheet"/>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; image-rendering: pixelated; }
 
-        :root {
-            --fac-blue: #002b5c;
-            --fac-neon: #00d4ff;
-            --fac-warning: #ff3c00;
-            --fac-gold: #fcd116;
-            --col-yellow: #fcd116;
-            --col-blue: #003893;
-            --col-red: #ce1126;
-        }
+    :root {
+      --sa-black:   #000000;
+      --sa-dark:    #0a0a0a;
+      --sa-panel:   rgba(0,0,0,0.82);
+      --sa-orange:  #ff8c00;
+      --sa-yellow:  #f5e642;
+      --sa-green:   #55e043;
+      --sa-red:     #e03030;
+      --sa-blue:    #4488ff;
+      --sa-cyan:    #00d4ff;
+      --sa-white:   #ffffff;
+      --sa-grey:    #888888;
+      --sa-hp:      #e03030;
+      --sa-armor:   #5599ff;
+      --sa-money:   #55e043;
+      --col-y: #fcd116; --col-b: #003893; --col-r: #ce1126;
+    }
 
-        body {
-            background-color: #05080a;
-            color: var(--fac-neon);
-            font-family: 'Share Tech Mono', monospace;
-            margin: 0;
-            overflow: hidden;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-        }
+    html, body {
+      width: 100%; height: 100%;
+      background: var(--sa-black);
+      color: var(--sa-white);
+      font-family: 'Share Tech Mono', monospace;
+      overflow: hidden;
+    }
 
-        /* --- BANDERA DE COLOMBIA SUPERIOR --- */
-        .colombia-bar {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 5px;
-            display: flex;
-            z-index: 100;
-        }
-        .bar-y { background: var(--col-yellow); flex: 2; box-shadow: 0 0 10px var(--col-yellow); }
-        .bar-b { background: var(--col-blue); flex: 1; }
-        .bar-r { background: var(--col-red); flex: 1; }
+    /* ── CITY BACKGROUND ─────────────────────── */
+    .city-bg {
+      position: fixed; inset: 0; z-index: 0;
+      background:
+        linear-gradient(180deg,
+          #0a0f1a 0%,
+          #0d1520 30%,
+          #121a10 60%,
+          #0a0c08 100%);
+    }
 
-        /* --- MARCO DE CABINA (COCKPIT) --- */
-        .cockpit-frame {
-            width: 95vw;
-            height: 85vh;
-            border: 2px solid rgba(0, 212, 255, 0.2);
-            position: relative;
-            background: radial-gradient(circle at center, #0a141d 0%, #05080a 100%);
-            box-shadow: inset 0 0 100px rgba(0,0,0,0.8);
-            display: flex;
-            flex-direction: column;
-            margin-top: 10px;
-        }
+    /* Stars */
+    .city-bg::before {
+      content: '';
+      position: absolute; inset: 0;
+      background-image:
+        radial-gradient(1px 1px at 10% 15%, rgba(255,255,255,0.6) 0%, transparent 100%),
+        radial-gradient(1px 1px at 25% 8%,  rgba(255,255,255,0.4) 0%, transparent 100%),
+        radial-gradient(1px 1px at 40% 20%, rgba(255,255,255,0.5) 0%, transparent 100%),
+        radial-gradient(1px 1px at 60% 5%,  rgba(255,255,255,0.7) 0%, transparent 100%),
+        radial-gradient(1px 1px at 75% 12%, rgba(255,255,255,0.4) 0%, transparent 100%),
+        radial-gradient(1px 1px at 90% 18%, rgba(255,255,255,0.6) 0%, transparent 100%),
+        radial-gradient(1px 1px at 15% 25%, rgba(255,255,255,0.3) 0%, transparent 100%),
+        radial-gradient(1px 1px at 50% 10%, rgba(255,255,255,0.5) 0%, transparent 100%),
+        radial-gradient(1px 1px at 82% 7%,  rgba(255,255,255,0.4) 0%, transparent 100%);
+    }
 
-        /* --- RADAR GIRATORIO --- */
-        .radar-bg {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            width: 400px;
-            height: 400px;
-            border: 1px solid rgba(0, 212, 255, 0.1);
-            border-radius: 50%;
-            pointer-events: none;
-        }
+    /* Pixel city skyline SVG via CSS */
+    .city-bg::after {
+      content: '';
+      position: absolute; bottom: 0; left: 0; right: 0;
+      height: 35%;
+      background:
+        /* buildings silhouette */
+        linear-gradient(transparent 0%, transparent 100%) center/100% 100%,
+        repeating-linear-gradient(90deg,
+          #0d1208 0px, #0d1208 30px,
+          transparent 30px, transparent 4px,
+          #0f1a0a 34px, #0f1a0a 80px,
+          transparent 80px, transparent 4px,
+          #0a1006 84px, #0a1006 50px,
+          transparent 134px, transparent 4px
+        );
+    }
 
-        .radar-bg::after {
-            content: '';
-            position: absolute;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: conic-gradient(from 0deg, rgba(0, 212, 255, 0.1), transparent 40%);
-            animation: rotateRadar 4s linear infinite;
-            border-radius: 50%;
-        }
+    /* Flying plane animation */
+    .plane-fx {
+      position: fixed; top: 18%; left: -80px;
+      font-size: 28px; z-index: 1;
+      animation: flyPlane 18s linear infinite;
+      filter: drop-shadow(0 0 6px rgba(0,212,255,0.5));
+    }
 
-        @keyframes rotateRadar { to { transform: rotate(360deg); } }
+    @keyframes flyPlane {
+      from { left: -80px; top: 18%; }
+      to   { left: 110%; top: 12%; }
+    }
 
-        /* --- PUNTO ALEATORIO (BLIP) --- */
-        .radar-blip {
-            position: absolute;
-            width: 8px;
-            height: 8px;
-            background: var(--fac-gold);
-            border-radius: 50%;
-            box-shadow: 0 0 15px var(--fac-gold);
-            z-index: 2;
-            animation: blipFade 2s forwards;
-        }
+    /* Scanlines */
+    .scanlines {
+      position: fixed; inset: 0; z-index: 1;
+      background: repeating-linear-gradient(
+        0deg,
+        transparent,
+        transparent 2px,
+        rgba(0,0,0,0.15) 2px,
+        rgba(0,0,0,0.15) 4px
+      );
+      pointer-events: none;
+    }
 
-        @keyframes blipFade {
-            0% { opacity: 0; transform: scale(0.5); }
-            20% { opacity: 1; transform: scale(1.2); }
-            100% { opacity: 0.4; transform: scale(1); }
-        }
+    /* Colombia stripe */
+    .colombia-bar {
+      position: fixed; top: 0; left: 0; width: 100%; height: 4px;
+      display: flex; z-index: 100;
+    }
+    .f-y{flex:2;background:var(--col-y);box-shadow:0 0 6px var(--col-y)}
+    .f-b{flex:1;background:var(--col-b)}
+    .f-r{flex:1;background:var(--col-r);box-shadow:0 0 4px var(--col-r)}
 
-        /* --- HEADER --- */
-        .header-tactico {
-            padding: 15px;
-            border-bottom: 1px solid var(--fac-neon);
-            display: flex;
-            justify-content: space-between;
-            background: rgba(0, 43, 92, 0.6);
-            z-index: 5;
-        }
+    /* ── MAIN LAYOUT ─────────────────────────── */
+    .hud-root {
+      position: relative; z-index: 10;
+      width: 100vw; height: 100vh;
+      display: grid;
+      grid-template-rows: 52px 1fr 72px;
+      grid-template-columns: 280px 1fr 260px;
+      padding: 8px;
+      gap: 6px;
+    }
 
-        .logo-section { display: flex; align-items: center; gap: 15px; }
-        .logo-fac { font-size: 1.5rem; filter: drop-shadow(0 0 5px var(--fac-gold)); }
+    /* ── SA PANEL BASE ───────────────────────── */
+    .sa-panel {
+      background: var(--sa-panel);
+      border: 2px solid rgba(255,255,255,0.08);
+      position: relative;
+      overflow: hidden;
+    }
 
-        /* --- GRID CONTAINER --- */
-        .grid-container {
-            display: grid;
-            grid-template-columns: 280px 1fr 280px;
-            flex-grow: 1;
-            padding: 15px;
-            gap: 15px;
-            z-index: 5;
-        }
+    /* pixel corner brackets */
+    .sa-panel::before, .sa-panel::after {
+      content: '';
+      position: absolute;
+      width: 10px; height: 10px;
+      border-color: var(--sa-orange);
+      border-style: solid;
+    }
 
-        .pilot-list {
-            background: rgba(0, 0, 0, 0.7);
-            border: 1px solid rgba(0, 212, 255, 0.2);
-            padding: 10px;
-            overflow-y: auto;
-        }
+    .sa-panel::before { top: 3px; left: 3px; border-width: 2px 0 0 2px; }
+    .sa-panel::after  { bottom: 3px; right: 3px; border-width: 0 2px 2px 0; }
 
-        .pilot-entry {
-            padding: 12px;
-            border-bottom: 1px solid rgba(0, 212, 255, 0.1);
-            cursor: pointer;
-            transition: 0.2s;
-            font-size: 0.75rem;
-            color: #8da6b5;
-        }
+    /* ── TOPBAR ──────────────────────────────── */
+    .topbar {
+      grid-column: 1 / 4;
+      display: flex; align-items: center; gap: 10px;
+      padding: 0 12px;
+    }
 
-        .pilot-entry:hover { background: rgba(0, 212, 255, 0.1); color: #fff; }
-        .pilot-entry.elite { border-left: 3px solid var(--fac-gold); }
+    .sa-logo {
+      font-family: 'Press Start 2P', monospace;
+      font-size: 9px; color: var(--sa-orange);
+      text-shadow: 2px 2px 0 rgba(255,100,0,0.4);
+      letter-spacing: 0.05em; white-space: nowrap;
+      line-height: 1.4;
+    }
 
-        .target-view {
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            position: relative;
-        }
+    .sa-logo span { color: var(--sa-yellow); display: block; font-size: 7px; margin-top: 2px; }
 
-        .target-cross {
-            width: 180px;
-            height: 180px;
-            border: 2px solid var(--fac-warning);
-            position: relative;
-            animation: pulse 2s infinite;
-        }
+    .top-divider {
+      width: 2px; height: 30px; background: var(--sa-orange); flex-shrink: 0;
+    }
 
-        @keyframes pulse {
-            0%, 100% { transform: scale(1); opacity: 0.6; }
-            50% { transform: scale(1.05); opacity: 1; }
-        }
+    .wanted-stars {
+      display: flex; gap: 3px; align-items: center; margin-left: 4px;
+    }
 
-        .info-panel {
-            background: rgba(0, 0, 0, 0.85);
-            border: 1px solid var(--fac-neon);
-            padding: 15px;
-        }
+    .star {
+      font-size: 14px; color: var(--sa-grey);
+      filter: drop-shadow(0 0 0px transparent);
+      transition: all 0.3s;
+    }
 
-        /* MODIFICACIÓN: DISEÑO TÉCNICO EN LUGAR DE FOTO */
-        .pilot-photo {
-            width: 100%;
-            height: 140px;
-            border: 1px solid var(--fac-neon);
-            margin-bottom: 10px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            background: linear-gradient(rgba(0, 212, 255, 0.05) 1px, transparent 1px),
-                        linear-gradient(90deg, rgba(0, 212, 255, 0.05) 1px, transparent 1px);
-            background-size: 10px 10px; /* Efecto rejilla */
-            position: relative;
-            overflow: hidden;
-        }
+    .star.lit {
+      color: var(--sa-yellow);
+      filter: drop-shadow(0 0 4px var(--sa-yellow));
+    }
 
-        .pilot-photo svg {
-            width: 70%;
-            height: 70%;
-            fill: var(--fac-neon);
-            filter: drop-shadow(0 0 8px var(--fac-neon));
-        }
+    .top-spacer { flex: 1; }
 
-        .footer-tactico {
-            padding: 8px;
-            background: var(--col-red);
-            color: white;
-            font-weight: bold;
-            text-align: center;
-            letter-spacing: 3px;
-            font-size: 0.8rem;
-        }
+    .clock-sa {
+      font-family: 'Press Start 2P', monospace;
+      font-size: 11px; color: var(--sa-yellow);
+      text-shadow: 0 0 8px rgba(245,230,66,0.5);
+      letter-spacing: 0.05em;
+    }
 
-        .btn-return {
-            display: block;
-            text-align: center;
-            border: 1px solid var(--fac-neon);
-            color: var(--fac-neon);
-            padding: 8px;
-            text-decoration: none;
-            margin-top: 15px;
-            font-size: 0.8rem;
-        }
+    .server-tag {
+      font-size: 8px; color: var(--sa-orange);
+      border: 1px solid rgba(255,140,0,0.4);
+      padding: 3px 8px; font-family: 'Share Tech Mono', monospace;
+      letter-spacing: 0.1em;
+    }
 
-        .btn-return:active { background: var(--fac-neon); color: black; }
+    /* ── LEFT PANEL: PILOT LIST ──────────────── */
+    .left-panel {
+      grid-row: 2;
+      display: flex; flex-direction: column; padding: 8px 6px; gap: 4px;
+    }
 
-        @media (max-width: 800px) {
-            .grid-container { grid-template-columns: 1fr; overflow-y: auto; }
-            .target-view { display: none; }
-        }
-    </style>
+    .panel-title-sa {
+      font-family: 'Press Start 2P', monospace;
+      font-size: 7px; color: var(--sa-orange);
+      letter-spacing: 0.08em; padding: 6px 8px;
+      border-bottom: 1px solid rgba(255,140,0,0.3);
+      margin-bottom: 4px;
+      text-shadow: 1px 1px 0 rgba(255,100,0,0.5);
+    }
+
+    .pilot-row {
+      display: flex; align-items: center; gap: 8px;
+      padding: 8px 8px; cursor: pointer;
+      border: 1px solid transparent;
+      transition: all 0.15s; position: relative;
+    }
+
+    .pilot-row:hover, .pilot-row.active {
+      background: rgba(255,140,0,0.1);
+      border-color: rgba(255,140,0,0.4);
+    }
+
+    .pilot-row.active::before {
+      content: '▶';
+      position: absolute; left: -2px;
+      color: var(--sa-orange); font-size: 8px;
+    }
+
+    .pilot-row.elite { border-left: 3px solid var(--sa-yellow); }
+
+    .pilot-avatar-sa {
+      width: 28px; height: 28px; flex-shrink: 0;
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.1);
+      display: grid; place-items: center;
+      font-size: 14px;
+    }
+
+    .pilot-info-sa { flex: 1; min-width: 0; }
+
+    .pilot-id {
+      font-family: 'Press Start 2P', monospace;
+      font-size: 6px; color: var(--sa-cyan); margin-bottom: 2px;
+    }
+
+    .pilot-name-sa {
+      font-size: 10px; color: var(--sa-white); letter-spacing: 0.05em;
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    }
+
+    .pilot-aircraft {
+      font-size: 8px; color: var(--sa-grey); margin-top: 1px;
+    }
+
+    .online-dot {
+      width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0;
+      animation: dotBlink 1.5s infinite;
+    }
+
+    .dot-green { background: var(--sa-green); box-shadow: 0 0 5px var(--sa-green); }
+    .dot-gold  { background: var(--sa-yellow); box-shadow: 0 0 5px var(--sa-yellow); }
+
+    @keyframes dotBlink { 0%,100%{opacity:1} 50%{opacity:0.3} }
+
+    .divider-sa {
+      height: 1px; background: rgba(255,255,255,0.06); margin: 4px 0;
+    }
+
+    .section-label-sa {
+      font-family: 'Press Start 2P', monospace;
+      font-size: 6px; color: var(--sa-grey);
+      padding: 4px 8px; letter-spacing: 0.1em;
+    }
+
+    /* ── CENTER: PILOT PROFILE ───────────────── */
+    .center-panel {
+      grid-row: 2;
+      display: flex; flex-direction: column; padding: 10px 14px; gap: 10px;
+    }
+
+    /* Big aircraft display */
+    .aircraft-display {
+      flex: 1;
+      background: rgba(0,0,0,0.6);
+      border: 1px solid rgba(255,140,0,0.2);
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      position: relative; overflow: hidden;
+      min-height: 200px;
+    }
+
+    /* Grid background */
+    .aircraft-display::before {
+      content: '';
+      position: absolute; inset: 0;
+      background:
+        linear-gradient(rgba(0,212,255,0.04) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0,212,255,0.04) 1px, transparent 1px);
+      background-size: 20px 20px;
+    }
+
+    /* Corner crosshairs */
+    .aircraft-display::after {
+      content: '';
+      position: absolute;
+      top: 50%; left: 50%; transform: translate(-50%,-50%);
+      width: 60px; height: 60px;
+      border: 1px solid rgba(255,140,0,0.3);
+      border-radius: 50%;
+      box-shadow:
+        0 0 0 1px rgba(255,140,0,0.1),
+        inset 0 0 20px rgba(255,140,0,0.05);
+    }
+
+    .plane-icon-big {
+      font-size: 72px;
+      filter: drop-shadow(0 0 20px rgba(0,212,255,0.6));
+      z-index: 1;
+      animation: hover3d 3s ease-in-out infinite;
+    }
+
+    @keyframes hover3d {
+      0%,100% { transform: translateY(0) rotate(-2deg); }
+      50%      { transform: translateY(-8px) rotate(2deg); }
+    }
+
+    .target-label {
+      position: absolute; bottom: 12px;
+      font-family: 'Press Start 2P', monospace;
+      font-size: 6px; color: var(--sa-orange);
+      letter-spacing: 0.15em; text-align: center;
+    }
+
+    .target-label span { color: var(--sa-white); }
+
+    /* Corner reticles */
+    .reticle {
+      position: absolute; width: 16px; height: 16px;
+      border-color: rgba(255,140,0,0.5); border-style: solid;
+    }
+    .r-tl { top: 8px; left: 8px; border-width: 2px 0 0 2px; }
+    .r-tr { top: 8px; right: 8px; border-width: 2px 2px 0 0; }
+    .r-bl { bottom: 8px; left: 8px; border-width: 0 0 2px 2px; }
+    .r-br { bottom: 8px; right: 8px; border-width: 0 2px 2px 0; }
+
+    /* Pilot name display */
+    .pilot-name-display {
+      font-family: 'Press Start 2P', monospace;
+      font-size: 12px; color: var(--sa-yellow);
+      text-shadow: 2px 2px 0 rgba(200,150,0,0.4), 0 0 15px rgba(245,230,66,0.4);
+      letter-spacing: 0.08em; text-align: center;
+    }
+
+    .pilot-rank-display {
+      font-size: 11px; color: var(--sa-orange); text-align: center;
+      letter-spacing: 0.1em; margin-top: 2px;
+    }
+
+    /* SA-style stats bars */
+    .stats-grid {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 8px;
+    }
+
+    .stat-item { display: flex; flex-direction: column; gap: 4px; }
+
+    .stat-header {
+      display: flex; justify-content: space-between; align-items: center;
+    }
+
+    .stat-name {
+      font-family: 'Press Start 2P', monospace;
+      font-size: 5px; color: var(--sa-grey); letter-spacing: 0.06em;
+    }
+
+    .stat-val {
+      font-family: 'Press Start 2P', monospace;
+      font-size: 7px; color: var(--sa-white);
+    }
+
+    .stat-bar {
+      height: 8px; background: rgba(0,0,0,0.6);
+      border: 1px solid rgba(255,255,255,0.1);
+      position: relative; overflow: hidden;
+    }
+
+    .stat-fill {
+      height: 100%;
+      transition: width 1s ease;
+    }
+
+    .fill-hp     { background: linear-gradient(90deg, #cc2222, #ff4444); box-shadow: 0 0 6px rgba(220,50,50,0.5); }
+    .fill-armor  { background: linear-gradient(90deg, #2244cc, #4488ff); box-shadow: 0 0 6px rgba(68,136,255,0.5); }
+    .fill-skill  { background: linear-gradient(90deg, #cc8800, var(--sa-yellow)); box-shadow: 0 0 6px rgba(245,230,66,0.5); }
+    .fill-wanted { background: linear-gradient(90deg, #cc4400, var(--sa-orange)); box-shadow: 0 0 6px rgba(255,140,0,0.5); }
+
+    /* ── RIGHT PANEL: RADAR + DATA ───────────── */
+    .right-panel {
+      grid-row: 2;
+      display: flex; flex-direction: column; gap: 6px; padding: 8px 6px;
+    }
+
+    /* SA minimap */
+    .minimap-wrap {
+      position: relative;
+      width: 100%; padding-top: 100%;
+    }
+
+    .minimap {
+      position: absolute; inset: 0;
+      border: 2px solid rgba(255,255,255,0.15);
+      border-radius: 50%;
+      overflow: hidden;
+      background:
+        radial-gradient(circle, #1a2810 0%, #0d1508 60%, #05080a 100%);
+    }
+
+    /* Map grid lines */
+    .minimap::before {
+      content: '';
+      position: absolute; inset: 0;
+      background:
+        linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px);
+      background-size: 20% 20%;
+      border-radius: 50%;
+    }
+
+    /* Radar sweep */
+    .minimap::after {
+      content: '';
+      position: absolute; inset: 0;
+      background: conic-gradient(from 0deg, rgba(255,140,0,0.2) 0deg, transparent 50deg);
+      border-radius: 50%;
+      animation: sweep 4s linear infinite;
+    }
+
+    @keyframes sweep { from{transform:rotate(0deg)} to{transform:rotate(360deg)} }
+
+    /* Roads */
+    .map-road {
+      position: absolute; background: rgba(255,255,255,0.1);
+    }
+
+    /* Blips */
+    .map-blip {
+      position: absolute;
+      border-radius: 50%;
+      transform: translate(-50%, -50%);
+    }
+
+    .blip-player {
+      width: 8px; height: 8px;
+      background: var(--sa-cyan);
+      box-shadow: 0 0 8px var(--sa-cyan);
+      top: 50%; left: 50%;
+    }
+
+    .blip-pilot {
+      width: 6px; height: 6px;
+      background: var(--sa-yellow);
+      box-shadow: 0 0 6px var(--sa-yellow);
+    }
+
+    .blip-target {
+      width: 5px; height: 5px;
+      background: var(--sa-red);
+      box-shadow: 0 0 6px var(--sa-red);
+      animation: dotBlink 0.8s infinite;
+    }
+
+    .minimap-label {
+      font-family: 'Press Start 2P', monospace;
+      font-size: 5px; color: var(--sa-grey);
+      text-align: center; margin-top: 5px;
+      letter-spacing: 0.1em;
+    }
+
+    /* Data rows */
+    .data-row-sa {
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 5px 6px; border-bottom: 1px solid rgba(255,255,255,0.05);
+    }
+
+    .dr-key {
+      font-size: 8px; color: var(--sa-grey); letter-spacing: 0.05em;
+    }
+
+    .dr-val {
+      font-family: 'Press Start 2P', monospace;
+      font-size: 6px; color: var(--sa-orange);
+    }
+
+    .dr-val.green { color: var(--sa-green); }
+    .dr-val.cyan  { color: var(--sa-cyan); }
+    .dr-val.red   { color: var(--sa-red); }
+
+    /* Return button */
+    .btn-sa {
+      display: flex; align-items: center; justify-content: center;
+      padding: 8px; margin-top: 4px;
+      background: rgba(255,140,0,0.1);
+      border: 1px solid rgba(255,140,0,0.4);
+      color: var(--sa-orange);
+      font-family: 'Press Start 2P', monospace;
+      font-size: 6px; letter-spacing: 0.1em;
+      text-decoration: none; cursor: pointer;
+      transition: all 0.2s; text-transform: uppercase;
+    }
+
+    .btn-sa:hover { background: rgba(255,140,0,0.25); box-shadow: 0 0 10px rgba(255,140,0,0.2); }
+
+    /* ── BOTTOM HUD ──────────────────────────── */
+    .bottom-hud {
+      grid-column: 1 / 4;
+      display: grid;
+      grid-template-columns: 240px 1fr 240px;
+      align-items: center;
+      padding: 0 12px; gap: 12px;
+    }
+
+    /* HP + Armor bars (SA style) */
+    .hud-bars { display: flex; flex-direction: column; gap: 6px; }
+
+    .bar-row {
+      display: flex; align-items: center; gap: 8px;
+    }
+
+    .bar-icon { font-size: 14px; width: 20px; text-align: center; }
+
+    .bar-track {
+      flex: 1; height: 10px;
+      background: rgba(0,0,0,0.7);
+      border: 1px solid rgba(255,255,255,0.15);
+      position: relative; overflow: hidden;
+    }
+
+    .bar-fill {
+      height: 100%; position: relative;
+    }
+
+    .bar-fill::after {
+      content: '';
+      position: absolute; right: 0; top: 0; bottom: 0;
+      width: 3px; background: rgba(255,255,255,0.4);
+    }
+
+    .hp-fill    { width: 87%; background: linear-gradient(90deg, #8b0000, #e03030); box-shadow: 0 0 6px rgba(220,50,50,0.4); }
+    .armor-fill { width: 100%; background: linear-gradient(90deg, #003099, #4488ff); box-shadow: 0 0 6px rgba(68,136,255,0.4); }
+
+    .bar-num {
+      font-family: 'Press Start 2P', monospace;
+      font-size: 8px; color: var(--sa-white); width: 28px; text-align: right;
+    }
+
+    /* Money */
+    .hud-money {
+      text-align: center;
+    }
+
+    .money-val {
+      font-family: 'Press Start 2P', monospace;
+      font-size: 13px; color: var(--sa-money);
+      text-shadow: 0 0 10px rgba(85,224,67,0.4), 1px 1px 0 rgba(0,80,0,0.5);
+      letter-spacing: 0.05em;
+    }
+
+    .money-label {
+      font-size: 8px; color: var(--sa-grey); margin-top: 3px; letter-spacing: 0.1em;
+    }
+
+    /* Weapon slot */
+    .hud-weapon {
+      display: flex; align-items: center; justify-content: flex-end; gap: 10px;
+    }
+
+    .weapon-icon { font-size: 28px; filter: drop-shadow(0 0 6px rgba(255,140,0,0.4)); }
+
+    .weapon-info { text-align: right; }
+
+    .weapon-name {
+      font-family: 'Press Start 2P', monospace;
+      font-size: 7px; color: var(--sa-white); letter-spacing: 0.05em;
+    }
+
+    .weapon-ammo {
+      font-family: 'Press Start 2P', monospace;
+      font-size: 9px; color: var(--sa-orange); margin-top: 3px;
+    }
+
+    /* Ticker */
+    .sa-ticker {
+      position: fixed; bottom: 0; left: 0; right: 0;
+      height: 20px;
+      background: rgba(255,140,0,0.9);
+      z-index: 50;
+      display: flex; align-items: center; overflow: hidden;
+    }
+
+    .ticker-tag {
+      background: rgba(0,0,0,0.6); padding: 0 10px;
+      font-family: 'Press Start 2P', monospace;
+      font-size: 6px; color: var(--sa-yellow);
+      white-space: nowrap; height: 100%;
+      display: flex; align-items: center; flex-shrink: 0;
+      border-right: 1px solid rgba(0,0,0,0.3);
+    }
+
+    .ticker-text {
+      font-family: 'Press Start 2P', monospace;
+      font-size: 6px; color: #000;
+      white-space: nowrap;
+      animation: scroll 25s linear infinite;
+      letter-spacing: 0.06em;
+    }
+
+    @keyframes scroll {
+      from { transform: translateX(100vw); }
+      to   { transform: translateX(-100%); }
+    }
+
+    /* ── NOTIFICATION ────────────────────────── */
+    .sa-notif {
+      position: fixed; top: 70px; right: 16px; z-index: 200;
+      background: rgba(0,0,0,0.85);
+      border-left: 3px solid var(--sa-orange);
+      padding: 10px 14px;
+      font-family: 'Press Start 2P', monospace;
+      font-size: 7px; color: var(--sa-white);
+      max-width: 240px; line-height: 1.8;
+      display: none;
+      animation: notifSlide 0.3s ease;
+    }
+
+    @keyframes notifSlide {
+      from { transform: translateX(100%); opacity: 0; }
+      to   { transform: translateX(0); opacity: 1; }
+    }
+
+    .notif-title { color: var(--sa-yellow); margin-bottom: 4px; font-size: 8px; }
+
+    /* Mobile */
+    @media (max-width: 768px) {
+      .hud-root {
+        grid-template-columns: 1fr;
+        grid-template-rows: auto;
+        overflow-y: auto;
+        height: auto;
+      }
+      .topbar { grid-column: 1; }
+      .bottom-hud { grid-column: 1; grid-template-columns: 1fr; }
+      body { overflow-y: auto; height: auto; }
+    }
+  </style>
 </head>
 <body>
 
-    <div class="colombia-bar">
-        <div class="bar-y"></div>
-        <div class="bar-b"></div>
-        <div class="bar-r"></div>
+<!-- Colombia -->
+<div class="colombia-bar"><div class="f-y"></div><div class="f-b"></div><div class="f-r"></div></div>
+
+<!-- City BG -->
+<div class="city-bg"></div>
+<div class="scanlines"></div>
+<div class="plane-fx">✈️</div>
+
+<!-- Notification popup -->
+<div class="sa-notif" id="notif">
+  <div class="notif-title">★ PILOTO SELECCIONADO</div>
+  <div id="notif-text">---</div>
+</div>
+
+<!-- ══ HUD ROOT ═══════════════════════════════════════ -->
+<div class="hud-root">
+
+  <!-- ── TOPBAR ──────────────────────────────────── -->
+  <div class="sa-panel topbar">
+    <div class="sa-logo">
+      ✈ FAC · GUERRAS MUNDIALES RP
+      <span>FUERZA AEREA ROLEPLAY COLOMBIA</span>
+    </div>
+    <div class="top-divider"></div>
+    <div class="wanted-stars">
+      <span class="star lit" title="ÉLITE">★</span>
+      <span class="star lit" title="ACTIVO">★</span>
+      <span class="star lit" title="VETERANO">★</span>
+      <span class="star" title="">★</span>
+      <span class="star" title="">★</span>
+      <span class="star" title="">★</span>
+    </div>
+    <div class="top-spacer"></div>
+    <div class="server-tag">MTA:SA GUERRAS MUNDIALES RP</div>
+    <div class="clock-sa" id="clock">00:00:00</div>
+  </div>
+
+  <!-- ── LEFT: PILOT LIST ────────────────────────── -->
+  <div class="sa-panel left-panel">
+    <div class="panel-title-sa">▶ CONTACTOS ID.</div>
+
+    <div class="section-label-sa">── PILOTOS ÉLITE ──</div>
+
+    <div class="pilot-row elite active" onclick="selectPilot(this,'SAM SUKV','Coronel Superior','F-16 Falcon','ECO-024',87,100,95,72)">
+      <div class="pilot-avatar-sa">🦅</div>
+      <div class="pilot-info-sa">
+        <div class="pilot-id">[ECO-024]</div>
+        <div class="pilot-name-sa">SAM SUKV</div>
+        <div class="pilot-aircraft">F-16 FALCON</div>
+      </div>
+      <div class="online-dot dot-gold"></div>
     </div>
 
-    <div class="cockpit-frame" id="cockpit">
-        <div class="radar-bg" id="radar-area"></div>
-
-        <header class="header-tactico">
-            <div class="logo-section">
-                <div class="logo-fac">🦅</div>
-                <div>
-                    <div style="font-size: 1.1rem; color: var(--fac-gold); font-weight: bold;">FUERZA AÉREA DE COLOMBIA</div>
-                    <div style="font-size: 0.7rem;">COMANDO ESTRATÉGICO - OP: CÓNDOR</div>
-                </div>
-            </div>
-            <div style="text-align: right;">
-                <div id="clock" style="font-size: 1.1rem;">00:00:00</div>
-                <div style="font-size: 0.5rem; color: var(--fac-gold);">BOGOTÁ, DC - SECTOR G6</div>
-            </div>
-        </header>
-
-        <div class="grid-container">
-            <div class="pilot-list">
-                <div style="font-size: 0.65rem; color: var(--fac-gold); margin-bottom: 10px;">> CONTACTOS IDENTIFICADOS</div>
-                
-                <div class="pilot-entry elite" onclick="updatePilot('SAM SUKV', 'Coronel Superior', 'F-16 Falcon')">
-                    [ECO-024] SAM SUKV - PILOTO ACTIVO
-                </div>
-                <div class="pilot-entry elite" onclick="updatePilot('BLACK ROSSE', 'Piloto Oficial', 'F-22 Raptor')">
-                    [ECO-001] BLACK ROSSE - PILOTO ACTIVO
-                </div>
-
-                <div class="pilot-entry" onclick="updatePilot('ROBERT NOEIL', 'Cadete', 'F-22 RAPTOR')">
-                    [CDT-A02] ROBERT NOEIL - ACTIVO
-                </div>
-                 <div class="pilot-entry" onclick="updatePilot('JUAN BERMUDEZ', 'Cadete', 'Ala-Rotatoria')">
-                    [CDT-034] JUAN BERMUDEZ - ACTIVO
-                </div>
-                 <div class="pilot-entry" onclick="updatePilot('JHON CONNOR', 'Cadete', 'Ala-Rotatoria')">
-                    [CDT-027] JHON CONNOR - ACTIVO
-                </div>
-                 <div class="pilot-entry" onclick="updatePilot('JOSE PEREIRA', 'Cadete', 'Ala-Rotatoria')">
-                    [CDT-052] JOSE PEREIRA - ACTIVO
-                </div>
-                <div class="pilot-entry" onclick="updatePilot('JORGUE PERLA', 'Cadete', 'Ala-Rotatoria')">
-                    [CDT-052] JORGUE PERLA - ACTIVO
-                </div>
-            </div>
-
-            <div class="target-view">
-                <div class="target-cross"></div>
-                <div style="margin-top: 15px; font-size: 0.75rem; letter-spacing: 2px;">ADQUISICIÓN: <span id="target-name" style="color:white">---</span></div>
-            </div>
-
-            <div class="info-panel">
-                <div id="p-img-container" class="pilot-photo">
-                    <svg viewBox="0 0 24 24">
-                        <path d="M21,16L14,11.5V5A1.5,1.5 0 0,0 12.5,3.5A1.5,1.5 0 0,0 11,5V11.5L4,16V18L11,15.75V20.5L9,22V23.5L12.5,22.5L16,23.5V22L14,20.5V15.75L21,18V16Z" />
-                    </svg>
-                </div>
-                
-                <h3 id="p-name" style="margin: 0; color: var(--fac-gold); font-size: 1.1rem;">SELECCIONE PILOTO</h3>
-                <p id="p-rank" style="font-size: 0.75rem; margin: 5px 0;">Esperando datos...</p>
-                <hr style="border: 0; border-top: 1px solid rgba(0, 212, 255, 0.2);">
-                <div style="font-size: 0.65rem;">
-                    <p>ESTADO: <span style="color: #0f0;">ENCRIPTADO</span></p>
-                    <p>ASIGNACIÓN: <span id="p-role">---</span></p>
-                    <p>RADAR: <span style="color: var(--fac-gold);">MONITOREO ACTIVO</span></p>
-                </div>
-                <a href="index1.html" class="btn-return">VOLVER AL MANDO</a>
-            </div>
-        </div>
-
-        <footer class="footer-tactico">
-            SISTEMA DE DEFENSA NACIONAL - ACCESO RESTRINGIDO
-        </footer>
+    <div class="pilot-row elite" onclick="selectPilot(this,'BLACK ROSSE','Piloto Oficial','F-22 Raptor','ECO-001',100,100,88,60)">
+      <div class="pilot-avatar-sa">🦅</div>
+      <div class="pilot-info-sa">
+        <div class="pilot-id">[ECO-001]</div>
+        <div class="pilot-name-sa">BLACK ROSSE</div>
+        <div class="pilot-aircraft">F-22 RAPTOR</div>
+      </div>
+      <div class="online-dot dot-gold"></div>
     </div>
 
-    <script>
-        function updateClock() {
-            const now = new Date();
-            document.getElementById('clock').innerText = now.getHours().toString().padStart(2, '0') + ":" + 
-                now.getMinutes().toString().padStart(2, '0') + ":" + 
-                now.getSeconds().toString().padStart(2, '0');
-        }
-        setInterval(updateClock, 1000);
+    <div class="divider-sa"></div>
+    <div class="section-label-sa">── CADETES ──</div>
 
-        function updatePilot(name, rank, role) {
-            document.getElementById('p-name').innerText = name;
-            document.getElementById('target-name').innerText = name;
-            document.getElementById('p-rank').innerText = rank;
-            document.getElementById('p-role').innerText = role;
-            
-            // Efecto visual en la mira
-            document.querySelector('.target-cross').style.borderColor = '#0f0';
-            setTimeout(() => {
-                document.querySelector('.target-cross').style.borderColor = '#ff3c00';
-            }, 400);
+    <div class="pilot-row" onclick="selectPilot(this,'ROBERT NOEIL','Cadete','F-22 Raptor','CDT-A02',75,80,50,20)">
+      <div class="pilot-avatar-sa">🪖</div>
+      <div class="pilot-info-sa">
+        <div class="pilot-id">[CDT-A02]</div>
+        <div class="pilot-name-sa">ROBERT NOEIL</div>
+        <div class="pilot-aircraft">F-22 RAPTOR</div>
+      </div>
+      <div class="online-dot dot-green"></div>
+    </div>
 
-            // Generar punto en el radar
-            spawnRadarBlip();
-        }
+    <div class="pilot-row" onclick="selectPilot(this,'JUAN BERMUDEZ','Cadete','Ala-Rotatoria','CDT-034',60,65,40,10)">
+      <div class="pilot-avatar-sa">🪖</div>
+      <div class="pilot-info-sa">
+        <div class="pilot-id">[CDT-034]</div>
+        <div class="pilot-name-sa">JUAN BERMUDEZ</div>
+        <div class="pilot-aircraft">ALA-ROTATORIA</div>
+      </div>
+      <div class="online-dot dot-green"></div>
+    </div>
 
-        function spawnRadarBlip() {
-            const radarArea = document.getElementById('cockpit'); 
-            const blip = document.createElement('div');
-            blip.className = 'radar-blip';
-            
-            const centerX = window.innerWidth / 2;
-            const centerY = window.innerHeight / 2;
-            
-            const randomX = centerX + (Math.random() - 0.5) * 300;
-            const randomY = centerY + (Math.random() - 0.5) * 300;
+    <div class="pilot-row" onclick="selectPilot(this,'JHON CONNOR','Cadete','Ala-Rotatoria','CDT-027',70,70,45,15)">
+      <div class="pilot-avatar-sa">🪖</div>
+      <div class="pilot-info-sa">
+        <div class="pilot-id">[CDT-027]</div>
+        <div class="pilot-name-sa">JHON CONNOR</div>
+        <div class="pilot-aircraft">ALA-ROTATORIA</div>
+      </div>
+      <div class="online-dot dot-green"></div>
+    </div>
 
-            blip.style.left = randomX + 'px';
-            blip.style.top = randomY + 'px';
+    <div class="pilot-row" onclick="selectPilot(this,'JOSE PEREIRA','Cadete','Ala-Rotatoria','CDT-052',65,60,38,8)">
+      <div class="pilot-avatar-sa">🪖</div>
+      <div class="pilot-info-sa">
+        <div class="pilot-id">[CDT-052]</div>
+        <div class="pilot-name-sa">JOSE PEREIRA</div>
+        <div class="pilot-aircraft">ALA-ROTATORIA</div>
+      </div>
+      <div class="online-dot dot-green"></div>
+    </div>
 
-            radarArea.appendChild(blip);
-            setTimeout(() => { blip.remove(); }, 2000);
-        }
-    </script>
+    <div class="pilot-row" onclick="selectPilot(this,'JORGUE PERLA','Cadete','Ala-Rotatoria','CDT-055',68,72,42,12)">
+      <div class="pilot-avatar-sa">🪖</div>
+      <div class="pilot-info-sa">
+        <div class="pilot-id">[CDT-055]</div>
+        <div class="pilot-name-sa">JORGUE PERLA</div>
+        <div class="pilot-aircraft">ALA-ROTATORIA</div>
+      </div>
+      <div class="online-dot dot-green"></div>
+    </div>
+  </div>
+
+  <!-- ── CENTER: PILOT PROFILE ───────────────────── -->
+  <div class="sa-panel center-panel">
+
+    <!-- Aircraft view -->
+    <div class="aircraft-display">
+      <div class="reticle r-tl"></div>
+      <div class="reticle r-tr"></div>
+      <div class="reticle r-bl"></div>
+      <div class="reticle r-br"></div>
+      <div class="plane-icon-big" id="plane-icon">✈️</div>
+      <div class="target-label">
+        AERONAVE: <span id="aircraft-label">F-16 FALCON</span>
+      </div>
+    </div>
+
+    <!-- Pilot name -->
+    <div style="text-align:center">
+      <div class="pilot-name-display" id="pilot-name-big">SAM SUKV</div>
+      <div class="pilot-rank-display" id="pilot-rank-big">CORONEL SUPERIOR · ECO-024</div>
+    </div>
+
+   
+
+    <a href="index1.html" class="btn-sa">← VOLVER AL MANDO CENTRAL</a>
+  </div>
+
+  <!-- ── RIGHT: RADAR + INFO ─────────────────────── -->
+  <div class="sa-panel right-panel">
+    <div class="panel-title-sa">▶ RADAR TÁCTICO</div>
+
+    <!-- Minimap SA style -->
+    <div class="minimap-wrap">
+      <div class="minimap">
+        <!-- Roads -->
+        <div class="map-road" style="width:1px;top:10%;bottom:10%;left:45%;"></div>
+        <div class="map-road" style="height:1px;left:10%;right:10%;top:48%;"></div>
+        <div class="map-road" style="width:1px;top:20%;bottom:30%;left:65%;"></div>
+        <!-- Blips -->
+        <div class="map-blip blip-pilot" style="top:35%;left:60%"></div>
+        <div class="map-blip blip-pilot" style="top:55%;left:35%"></div>
+        <div class="map-blip blip-target" style="top:28%;left:72%"></div>
+        <div class="map-blip blip-target" style="top:68%;left:25%"></div>
+        <div class="map-blip blip-player"></div>
+      </div>
+      <div class="minimap-label">COORD: 4.711 // -74.072 · G6</div>
+    </div>
+
+    <!-- Data -->
+    <div style="margin-top:4px">
+      <div class="data-row-sa">
+        <span class="dr-key">SERVIDOR</span>
+        <span class="dr-val cyan">GUERRAS MUNDIALES RP</span>
+      </div>
+      <div class="data-row-sa">
+        <span class="dr-key">MISIÓN</span>
+        <span class="dr-val green">TOMAR LS Y SF</span>
+      </div>
+      
+      <div class="data-row-sa">
+        <span class="dr-key">FACCIÓN</span>
+        <span class="dr-val cyan">FAC COL</span>
+      </div>
+      <div class="data-row-sa">
+        <span class="dr-key">SEÑAL</span>
+        <span class="dr-val green">ESTABLE</span>
+      </div>
+      <div class="data-row-sa">
+        <span class="dr-key">ESTADO</span>
+        <span class="dr-val red">⬤ ENCRIPTADO</span>
+      </div>
+    </div>
+  </div>
+
+
+
+    <!-- Money -->
+    <div class="hud-money">
+      <div class="money-val">PERSONAL ACTIVO</div>
+      <div class="money-label">DESAROLLADOR SAMK SUKV</div>
+    </div>
+
+    <!-- Weapon -->
+    <div class="hud-weapon">
+      <div class="weapon-info">
+        <div class="weapon-name">HYDRA JET</div>
+        <div class="weapon-ammo">∞ MISILES</div>
+      </div>
+      <div class="weapon-icon">🚀</div>
+    </div>
+  </div>
+
+</div>
+
+<!-- SA Ticker -->
+<div class="sa-ticker">
+  <div class="ticker-tag">★ FAC COL</div>
+  <div class="ticker-text">
+    ★ GUERRAS MUNDIALES RP · SERVIDOR MTA:SA #1 ·  
+    ★ SISTEMA FICTISIO PARA VIDEJUEGOS
+    &nbsp;&nbsp;&nbsp;&nbsp;★ GUERRAS MUNDIALES RP · SERVIDOR MTA:SA #1
+  </div>
+</div>
+
+<script>
+  // Clock
+  function tick() {
+    const n = new Date();
+    document.getElementById('clock').textContent =
+      n.getHours().toString().padStart(2,'0') + ':' +
+      n.getMinutes().toString().padStart(2,'0') + ':' +
+      n.getSeconds().toString().padStart(2,'0');
+  }
+  setInterval(tick, 1000); tick();
+
+  // Select pilot
+  function selectPilot(el, name, rank, aircraft, code, hp, armor, skill, wanted) {
+    document.querySelectorAll('.pilot-row').forEach(r => r.classList.remove('active'));
+    el.classList.add('active');
+
+    // Update center display
+    document.getElementById('pilot-name-big').textContent = name;
+    document.getElementById('pilot-rank-big').textContent = rank + ' · ' + code;
+    document.getElementById('aircraft-label').textContent = aircraft.toUpperCase();
+
+    // Update plane icon
+    const icon = document.getElementById('plane-icon');
+    icon.textContent = aircraft.includes('Rotat') ? '🚁' : '✈️';
+
+    // Update stats bars
+    setBar('hp',     hp);
+    setBar('armor',  armor);
+    setBar('skill',  skill);
+    setBar('wanted', wanted);
+
+    // Notification
+    showNotif(name, rank, aircraft, code);
+  }
+
+  function setBar(id, val) {
+    document.getElementById('sf-' + id).style.width = val + '%';
+    document.getElementById('sv-' + id).textContent  = val + '%';
+  }
+
+  function showNotif(name, rank, aircraft, code) {
+    const notif = document.getElementById('notif');
+    document.getElementById('notif-text').innerHTML =
+      code + '<br>' + name + '<br>' + rank + '<br>' + aircraft.toUpperCase();
+    notif.style.display = 'block';
+    notif.style.animation = 'none';
+    void notif.offsetWidth;
+    notif.style.animation = 'notifSlide 0.3s ease';
+    clearTimeout(notif._t);
+    notif._t = setTimeout(() => { notif.style.display = 'none'; }, 3000);
+  }
+</script>
 </body>
 </html>
