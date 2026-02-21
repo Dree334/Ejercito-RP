@@ -1,187 +1,526 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
-    <title>SISTEMA DE MANDO - SAM SUKV</title>
-    <style>
-        :root {
-            --army-green: #2d3423;
-            --combat-gold: #c5a059;
-            --alert-red: #ce1126;
-            --glow: #a2c523;
-            --halo-blue: #00f2ff;
-            --bg-dark: #0a0c08;
-        }
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
+  <title>SISTEMA DE MANDO - SAM SUKV</title>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=JetBrains+Mono:wght@300;400;500&display=swap" rel="stylesheet"/>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-        body, html {
-            margin: 0; padding: 0; height: 100vh;
-            background-color: var(--bg-dark);
-            font-family: 'Courier New', monospace;
-            color: var(--glow);
-            overflow: hidden;
-            display: flex; align-items: center; justify-content: center;
-        }
+    :root {
+      --bg:      #0a0b0f;
+      --surface: #10121a;
+      --surface2:#181b26;
+      --border:  #1e2235;
+      --accent:  #4eef3a;
+      --cyan:    #00f2ff;
+      --gold:    #fcd116;
+      --danger:  #ce1126;
+      --text:    #e2e8f0;
+      --muted:   #4a5168;
+      --col-y: #fcd116; --col-b: #003893; --col-r: #ce1126;
+    }
 
-        /* --- PANTALLA DE CARGA HALO --- */
-        #loader-screen {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: radial-gradient(circle, #10151a 0%, #000 100%);
-            z-index: 1000;
-            display: none; flex-direction: column; align-items: center; justify-content: center;
-        }
+    html, body {
+      height: 100%; width: 100%;
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'JetBrains Mono', monospace;
+      overflow: hidden;
+      display: flex; align-items: center; justify-content: center;
+    }
 
-        .halo-shield-container { width: 400px; position: relative; text-align: center; }
-        .shield-label { color: var(--halo-blue); font-size: 0.7rem; letter-spacing: 3px; margin-bottom: 10px; text-shadow: 0 0 10px var(--halo-blue); font-weight: bold; }
-        .shield-frame { width: 100%; height: 20px; border: 2px solid rgba(0, 242, 255, 0.3); padding: 3px; position: relative; transform: skewX(-20deg); background: rgba(0, 0, 0, 0.5); }
-        .shield-fill { height: 100%; width: 0%; background: linear-gradient(90deg, #0084ff, var(--halo-blue)); box-shadow: 0 0 20px var(--halo-blue); transition: width 0.1s ease-out; position: relative; }
-        .shield-status { margin-top: 15px; font-size: 0.8rem; color: #fff; text-shadow: 0 0 5px #fff; }
+    /* ── SCANLINE ──────────────────────────── */
+    .scanline {
+      position: fixed; left: 0; width: 100%; height: 3px;
+      background: rgba(78,239,58,0.07);
+      z-index: 10; pointer-events: none;
+      animation: moveScan 6s linear infinite;
+    }
+    @keyframes moveScan { from { top: -2%; } to { top: 102%; } }
 
-        /* --- INTERFAZ PRINCIPAL --- */
-        .scanline { position: fixed; top: 0; left: 0; width: 100%; height: 5px; background: rgba(162, 197, 35, 0.1); z-index: 10; animation: moveScan 4s linear infinite; pointer-events: none; }
-        
-        .welcome-card {
-            background: rgba(15, 20, 12, 0.95);
-            border: 2px solid var(--army-green);
-            padding: 40px; text-align: center;
-            position: relative; z-index: 5;
-            max-width: 450px; width: 90%;
-            box-shadow: 0 0 50px rgba(0,0,0,1);
-            clip-path: polygon(10% 0, 100% 0, 100% 90%, 90% 100%, 0 100%, 0 10%);
-        }
+    /* ── NOISE ─────────────────────────────── */
+    body::before {
+      content: '';
+      position: fixed; inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+      pointer-events: none; z-index: 0; opacity: 0.35;
+    }
 
-        .welcome-card::after { content: ""; position: absolute; top: 0; left: 0; width: 100%; height: 4px; background: linear-gradient(90deg, #fcd116 33%, #003893 33%, #003893 66%, #ce1126 66%); }
-        .header-logo { font-size: 4rem; margin-bottom: 10px; filter: drop-shadow(0 0 15px var(--glow)); }
-        h1 { margin: 0; font-size: 1.4rem; letter-spacing: 2px; color: #fff; }
-        .sub-header { color: var(--combat-gold); font-size: 0.75rem; font-weight: bold; margin-bottom: 25px; }
+    /* ── COLOMBIA BAR ──────────────────────── */
+    .colombia-bar {
+      position: fixed; top: 0; left: 0; width: 100%; height: 3px;
+      display: flex; z-index: 200;
+    }
+    .f-y { flex: 2; background: var(--col-y); box-shadow: 0 0 8px var(--col-y); }
+    .f-b { flex: 1; background: var(--col-b); }
+    .f-r { flex: 1; background: var(--col-r); }
 
-        .terminal-text { background: rgba(0,0,0,0.8); padding: 15px; border: 1px solid var(--army-green); font-size: 0.8rem; margin-bottom: 30px; min-height: 80px; color: var(--glow); text-align: left; }
-        
-        .btn-continue { display: inline-block; background: var(--army-green); color: #fff; padding: 12px 40px; text-decoration: none; font-weight: bold; border: 1px solid var(--glow); transition: 0.3s; clip-path: polygon(15% 0, 100% 0, 85% 100%, 0 100%); cursor: pointer; }
-        .btn-continue.locked { filter: grayscale(1); opacity: 0.5; pointer-events: none; }
-        .btn-continue:hover { background: var(--glow); color: #000; box-shadow: 0 0 20px var(--glow); }
+    /* ── CORNER DECORATIONS ────────────────── */
+    .corner {
+      position: fixed; width: 20px; height: 20px;
+      border-color: rgba(78,239,58,0.3); border-style: solid;
+      z-index: 5;
+    }
+    .corner-tl { top: 12px; left: 12px; border-width: 1px 0 0 1px; }
+    .corner-tr { top: 12px; right: 12px; border-width: 1px 1px 0 0; }
+    .corner-bl { bottom: 12px; left: 12px; border-width: 0 0 1px 1px; }
+    .corner-br { bottom: 12px; right: 12px; border-width: 0 1px 1px 0; }
 
-        @keyframes moveScan { from { top: -5%; } to { top: 105%; } }
-        @keyframes shieldFlash { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
-        .charging { animation: shieldFlash 0.3s infinite; }
-    </style>
+    /* ── MAIN CARD ─────────────────────────── */
+    .boot-card {
+      position: relative; z-index: 5;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 0;
+      width: min(480px, 92vw);
+      overflow: hidden;
+      box-shadow:
+        0 0 0 1px rgba(78,239,58,0.06),
+        0 40px 80px rgba(0,0,0,0.8),
+        inset 0 0 60px rgba(0,0,0,0.3);
+      animation: cardIn 0.8s cubic-bezier(0.16,1,0.3,1) both;
+    }
+
+    @keyframes cardIn {
+      from { opacity: 0; transform: translateY(30px) scale(0.97); }
+      to   { opacity: 1; transform: translateY(0) scale(1); }
+    }
+
+    /* Top accent line */
+    .card-accent {
+      height: 2px;
+      background: linear-gradient(90deg, var(--accent), var(--cyan), transparent);
+    }
+
+    /* Colombia stripe */
+    .card-flag {
+      height: 3px; display: flex;
+    }
+    .card-flag div { flex: 1; }
+    .cf-y { flex: 2 !important; background: var(--col-y); }
+    .cf-b { background: var(--col-b); }
+    .cf-r { background: var(--col-r); }
+
+    /* Card header */
+    .card-header {
+      padding: 28px 32px 20px;
+      display: flex; align-items: center; gap: 16px;
+      border-bottom: 1px solid var(--border);
+      background: linear-gradient(180deg, rgba(78,239,58,0.03) 0%, transparent 100%);
+    }
+
+    .header-emblem {
+      width: 52px; height: 52px; flex-shrink: 0;
+      background: linear-gradient(135deg, var(--surface2), rgba(78,239,58,0.08));
+      border: 1px solid rgba(78,239,58,0.25);
+      border-radius: 4px;
+      display: grid; place-items: center;
+      font-size: 24px;
+      box-shadow: 0 0 20px rgba(78,239,58,0.12);
+    }
+
+    .header-text { flex: 1; min-width: 0; }
+
+    .sys-title {
+      font-family: 'Syne', sans-serif;
+      font-weight: 800; font-size: 15px;
+      letter-spacing: 0.1em; text-transform: uppercase;
+      color: #fff; line-height: 1.2;
+    }
+
+    .sys-sub {
+      font-size: 9px; color: var(--accent);
+      letter-spacing: 0.18em; margin-top: 4px;
+    }
+
+    .sys-sub2 {
+      font-size: 8px; color: var(--muted);
+      letter-spacing: 0.12em; margin-top: 2px;
+    }
+
+    /* Status badge */
+    .status-row {
+      display: flex; align-items: center; gap: 6px;
+      margin-top: 8px;
+    }
+
+    .status-pip {
+      width: 6px; height: 6px; border-radius: 50%;
+      background: var(--accent); box-shadow: 0 0 6px var(--accent);
+      animation: blink 1.4s infinite;
+    }
+
+    .status-text { font-size: 9px; color: var(--accent); letter-spacing: 0.1em; }
+
+    @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.2} }
+
+    /* Card body */
+    .card-body { padding: 22px 28px; }
+
+    /* Terminal */
+    .terminal-box {
+      background: #05070a;
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      padding: 16px 18px;
+      min-height: 110px;
+      margin-bottom: 22px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .terminal-box::before {
+      content: 'TERMINAL // MODO SEGURO';
+      position: absolute; top: 8px; right: 12px;
+      font-size: 8px; color: rgba(78,239,58,0.3); letter-spacing: 0.12em;
+    }
+
+    .terminal-line {
+      font-size: 11px; line-height: 2;
+      color: var(--accent); display: block;
+    }
+
+    .terminal-cursor {
+      display: inline-block; width: 7px; height: 13px;
+      background: var(--accent); vertical-align: middle;
+      animation: cursorBlink 0.7s infinite;
+      margin-left: 2px;
+    }
+
+    @keyframes cursorBlink { 0%,49%{opacity:1} 50%,100%{opacity:0} }
+
+    /* Boot button */
+    .btn-boot {
+      width: 100%;
+      padding: 14px;
+      background: transparent;
+      border: 1px solid rgba(78,239,58,0.3);
+      border-radius: 3px;
+      color: var(--muted);
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px; letter-spacing: 0.2em; text-transform: uppercase;
+      cursor: pointer;
+      transition: all 0.3s;
+      position: relative; overflow: hidden;
+    }
+
+    .btn-boot.locked {
+      pointer-events: none;
+    }
+
+    .btn-boot.ready {
+      border-color: var(--accent);
+      color: var(--accent);
+      box-shadow: 0 0 20px rgba(78,239,58,0.1);
+      animation: readyPulse 2s infinite;
+    }
+
+    .btn-boot.ready:hover {
+      background: rgba(78,239,58,0.1);
+      box-shadow: 0 0 30px rgba(78,239,58,0.2);
+    }
+
+    .btn-boot.ready::before {
+      content: '';
+      position: absolute; top: 0; left: -100%;
+      width: 100%; height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(78,239,58,0.06), transparent);
+      animation: shimmer 2.5s infinite;
+    }
+
+    @keyframes readyPulse { 0%,100%{box-shadow:0 0 20px rgba(78,239,58,0.1)} 50%{box-shadow:0 0 30px rgba(78,239,58,0.25)} }
+    @keyframes shimmer { from{left:-100%} to{left:200%} }
+
+    /* Card footer */
+    .card-footer {
+      padding: 12px 28px 20px;
+      display: flex; justify-content: space-between; align-items: center;
+      border-top: 1px solid var(--border);
+    }
+
+    .footer-info { font-size: 8px; color: var(--muted); letter-spacing: 0.1em; line-height: 1.8; }
+    .footer-info span { color: var(--accent); }
+
+    .footer-ver {
+      font-size: 8px; color: var(--muted); letter-spacing: 0.1em; text-align: right;
+    }
+
+    /* ── LOADER OVERLAY ────────────────────── */
+    #loader-screen {
+      position: fixed; inset: 0;
+      background: radial-gradient(circle at center, #0a101a 0%, var(--bg) 100%);
+      z-index: 500;
+      display: none; flex-direction: column; align-items: center; justify-content: center;
+      gap: 24px;
+    }
+
+    .loader-emblem {
+      font-size: 48px;
+      filter: drop-shadow(0 0 20px var(--cyan));
+      animation: floatEmb 3s ease-in-out infinite;
+    }
+
+    @keyframes floatEmb { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-8px)} }
+
+    .loader-title {
+      font-family: 'Syne', sans-serif;
+      font-weight: 800; font-size: 13px;
+      letter-spacing: 0.2em; text-transform: uppercase;
+      color: var(--cyan); text-shadow: 0 0 14px rgba(0,242,255,0.5);
+    }
+
+    .shield-wrap { width: 340px; }
+
+    .shield-label {
+      font-size: 9px; color: var(--cyan); letter-spacing: 0.2em;
+      text-align: center; margin-bottom: 8px;
+      text-shadow: 0 0 8px rgba(0,242,255,0.4);
+    }
+
+    .shield-track {
+      height: 14px;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 2px;
+      padding: 2px; position: relative; overflow: hidden;
+    }
+
+    .shield-fill {
+      height: 100%; width: 0%;
+      background: linear-gradient(90deg, #0055ff, var(--cyan));
+      border-radius: 1px;
+      box-shadow: 0 0 16px rgba(0,242,255,0.5);
+      transition: width 0.1s ease-out;
+      position: relative;
+    }
+
+    .shield-fill::after {
+      content: ''; position: absolute; right: 0; top: 0; bottom: 0; width: 20px;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3));
+      animation: fillShine 0.5s linear infinite;
+    }
+
+    @keyframes fillShine { from{opacity:0.5} to{opacity:1} }
+
+    .shield-pct {
+      font-family: 'Syne', sans-serif; font-weight: 800;
+      font-size: 28px; color: var(--cyan);
+      text-align: center; margin-top: 10px;
+      text-shadow: 0 0 16px rgba(0,242,255,0.5);
+      letter-spacing: 0.05em;
+    }
+
+    .shield-msg {
+      font-size: 10px; color: var(--muted); text-align: center;
+      letter-spacing: 0.15em; margin-top: 4px;
+    }
+
+    /* segment dots */
+    .seg-dots {
+      display: flex; gap: 6px; justify-content: center; margin-top: 14px;
+    }
+
+    .seg-dot {
+      width: 6px; height: 6px; border-radius: 50%;
+      background: var(--border); transition: all 0.3s;
+    }
+
+    .seg-dot.lit { background: var(--cyan); box-shadow: 0 0 6px var(--cyan); }
+
+    /* ─ responsive ─ */
+    @media (max-width: 500px) {
+      .card-header { padding: 20px 20px 16px; gap: 12px; }
+      .card-body { padding: 18px 20px; }
+      .card-footer { padding: 10px 20px 16px; }
+      .shield-wrap { width: 85vw; }
+    }
+  </style>
 </head>
 <body onclick="initAudio()">
 
-    <div id="loader-screen">
-        <div class="halo-shield-container">
-            <div class="shield-label">RECARGANDO ESCUDOS DE ENERGÍA</div>
-            <div class="shield-frame">
-                <div id="progress" class="shield-fill"></div>
-            </div>
-            <div id="load-msg" class="shield-status">INICIANDO...</div>
-            <div id="load-pc" style="color: var(--halo-blue); font-size: 1.2rem; margin-top: 10px; font-weight: bold;">0%</div>
-        </div>
+<!-- Colombia bar -->
+<div class="colombia-bar"><div class="f-y"></div><div class="f-b"></div><div class="f-r"></div></div>
+
+<!-- Corners -->
+<div class="corner corner-tl"></div>
+<div class="corner corner-tr"></div>
+<div class="corner corner-bl"></div>
+<div class="corner corner-br"></div>
+
+<!-- Scanline -->
+<div class="scanline"></div>
+
+<!-- ══ LOADER ══════════════════════════════════════════ -->
+<div id="loader-screen">
+  <div class="loader-emblem">🦅</div>
+  <div class="loader-title">Recargando Escudos de Energía</div>
+  <div class="shield-wrap">
+    <div class="shield-label">SINCRONIZACIÓN DE ARMADURA EN CURSO</div>
+    <div class="shield-track">
+      <div class="shield-fill" id="shield-fill"></div>
+    </div>
+    <div class="shield-pct" id="load-pct">0%</div>
+    <div class="shield-msg" id="load-msg">INICIANDO PROTOCOLO...</div>
+    <div class="seg-dots" id="seg-dots">
+      <div class="seg-dot" id="d0"></div>
+      <div class="seg-dot" id="d1"></div>
+      <div class="seg-dot" id="d2"></div>
+      <div class="seg-dot" id="d3"></div>
+      <div class="seg-dot" id="d4"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ BOOT CARD ═══════════════════════════════════════ -->
+<div class="boot-card" id="boot-card">
+  <div class="card-accent"></div>
+  <div class="card-flag"><div class="cf-y"></div><div class="cf-b"></div><div class="cf-r"></div></div>
+
+  <div class="card-header">
+    <div class="header-emblem">🦅</div>
+    <div class="header-text">
+      <div class="sys-title">Ejército Roleplay Col</div>
+      <div class="sys-sub">GUERRAS MUNDIALES RP · INFO FAC COL</div>
+      <div class="sys-sub2">SISTEMA: SAM SUKV · MODO SEGURO · ENCRIPTADO</div>
+      <div class="status-row">
+        <div class="status-pip"></div>
+        <div class="status-text">SISTEMA ACTIVO</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card-body">
+    <div class="terminal-box">
+      <div id="typewriter"></div>
+      <span class="terminal-cursor" id="cursor"></span>
     </div>
 
-    <div class="scanline"></div>
+    <button class="btn-boot locked" id="nav-btn" onclick="triggerLoading()">
+      ESPERANDO SEÑAL...
+    </button>
+  </div>
 
-    <div class="welcome-card" id="main-card">
-        <div class="header-logo">🦅</div>
-        <h1>EJÉRCITO ROLEPLAY COL</h1>
-        <p class="sub-header">GUERRAS MUNDIALES RP | INFORMACION FAC COL</p>
-        
-        <div class="terminal-text" id="typewriter"></div>
-
-        <div id="nav-btn" class="btn-continue locked" onclick="triggerLoading()">ESPERANDO SEÑAL...</div>
-
-        <div style="margin-top: 25px; font-size: 0.55rem; color: var(--combat-gold); text-align: left; opacity: 0.8;">
-            SISTEMA: SAM SUKV [SECURE MODE]<br>
-            ESTADO: ENCRIPTADO - COL
-        </div>
+  <div class="card-footer">
+    <div class="footer-info">
+      USUARIO: <span>SAM SUKV</span><br>
+      ESTADO: <span>ENCRIPTADO · COL</span>
     </div>
+    <div class="footer-ver">
+      v3.2.1<br>
+      <span style="color:var(--accent)">●</span> ONLINE
+    </div>
+  </div>
+</div>
 
-    <audio id="click-sound" src="https://www.soundjay.com/communication/sounds/teletype-01.mp3"></audio>
-    <audio id="radio-static" src="https://www.soundjay.com/mechanical/sounds/radio-static-1.mp3" loop></audio>
+<audio id="click-sound" src="https://www.soundjay.com/communication/sounds/teletype-01.mp3" preload="auto"></audio>
+<audio id="radio-static" src="https://www.soundjay.com/mechanical/sounds/radio-static-1.mp3" loop preload="auto"></audio>
 
-    <script>
-        const terminal = document.getElementById("typewriter");
-        const btn = document.getElementById("nav-btn");
-        const audioClick = document.getElementById("click-sound");
-        const radio = document.getElementById("radio-static");
-        
-        const sequence = [
-            { text: "> ACCEDIENDO A RED PRIVADA...", delay: 600 },
-            { text: "> CARGANDO HUD DE COMBATE...", delay: 800 },
-            { text: "> [SISTEMA] HAS SIDO AUTORIZADO POR SAM SUKV.", delay: 500 },
-            { text: "> BIENVENIDO, SOLDADO.", delay: 500 }
-        ];
+<script>
+  const terminal  = document.getElementById('typewriter');
+  const cursor    = document.getElementById('cursor');
+  const btn       = document.getElementById('nav-btn');
+  const sfxClick  = document.getElementById('click-sound');
+  const sfxRadio  = document.getElementById('radio-static');
+  let audioStarted = false;
 
-        let seqIdx = 0;
-        let audioStarted = false;
+  const lines = [
+    { text: '> ACCEDIENDO A RED PRIVADA...', delay: 500 },
+    { text: '> CARGANDO HUD DE COMBATE...', delay: 600 },
+    { text: '> [SISTEMA] AUTORIZADO POR SAM SUKV.', delay: 400 },
+    { text: '> BIENVENIDO, SOLDADO.', delay: 300 }
+  ];
 
-        function initAudio() { 
-            if(!audioStarted) {
-                radio.volume = 0.05; 
-                radio.play().catch(() => {});
-                audioStarted = true;
-            }
+  let seqIdx = 0;
+
+  function initAudio() {
+    if (!audioStarted) {
+      sfxRadio.volume = 0.04;
+      sfxRadio.play().catch(() => {});
+      audioStarted = true;
+    }
+  }
+
+  function typeLine(lineObj) {
+    const p = document.createElement('div');
+    p.className = 'terminal-line';
+    terminal.appendChild(p);
+    cursor.remove();
+    p.after(cursor);
+
+    let i = 0;
+    function char() {
+      if (i < lineObj.text.length) {
+        p.textContent += lineObj.text[i++];
+        sfxClick.currentTime = 0;
+        sfxClick.play().catch(() => {});
+        setTimeout(char, 22);
+      } else {
+        setTimeout(() => {
+          seqIdx++;
+          if (seqIdx < lines.length) typeLine(lines[seqIdx]);
+          else unlock();
+        }, lineObj.delay);
+      }
+    }
+    char();
+  }
+
+  function unlock() {
+    cursor.style.display = 'none';
+    btn.classList.remove('locked');
+    btn.classList.add('ready');
+    btn.textContent = 'INICIAR DESPLIEGUE';
+  }
+
+  // Loader
+  const loadMsgs = [
+    'REESTABLECIENDO ESCUDOS...',
+    'SINCRONIZANDO ARMADURA...',
+    'CALIBRANDO SISTEMAS...',
+    'SOFTWARE VERIFICADO.',
+    '¡ESCUDOS AL 100%!'
+  ];
+
+  function triggerLoading() {
+    document.getElementById('boot-card').style.animation = 'cardIn 0.4s reverse forwards';
+    setTimeout(() => {
+      document.getElementById('boot-card').style.display = 'none';
+      const loader = document.getElementById('loader-screen');
+      loader.style.display = 'flex';
+
+      let p = 0;
+      const fill = document.getElementById('shield-fill');
+      const pct  = document.getElementById('load-pct');
+      const msg  = document.getElementById('load-msg');
+      const dots = document.querySelectorAll('.seg-dot');
+
+      const iv = setInterval(() => {
+        p += Math.floor(Math.random() * 7) + 2;
+        if (p >= 100) {
+          p = 100;
+          clearInterval(iv);
+          msg.textContent = loadMsgs[4];
+          dots.forEach(d => d.classList.add('lit'));
+          setTimeout(() => { window.location.href = 'index1.html'; }, 900);
         }
 
-        function typeLine(lineObj) {
-            let i = 0;
-            const p = document.createElement("div");
-            terminal.appendChild(p);
-            function charByChar() {
-                if (i < lineObj.text.length) {
-                    p.innerHTML += lineObj.text.charAt(i);
-                    i++;
-                    audioClick.currentTime = 0; 
-                    audioClick.play().catch(() => {});
-                    setTimeout(charByChar, 25);
-                } else {
-                    setTimeout(() => {
-                        seqIdx++;
-                        if (seqIdx < sequence.length) typeLine(sequence[seqIdx]);
-                        else unlockButton();
-                    }, lineObj.delay);
-                }
-            }
-            charByChar();
-        }
+        fill.style.width = p + '%';
+        pct.textContent  = p + '%';
 
-        function unlockButton() {
-            btn.classList.remove("locked");
-            btn.innerHTML = "INICIAR DESPLIEGUE";
-        }
+        const dotIdx = Math.floor(p / 20);
+        for (let d = 0; d <= dotIdx && d < dots.length; d++) dots[d].classList.add('lit');
 
-        function triggerLoading() {
-            document.getElementById("main-card").style.display = "none";
-            document.getElementById("loader-screen").style.display = "flex";
-            const bar = document.getElementById("progress");
-            bar.classList.add("charging");
+        if (p > 20)  msg.textContent = loadMsgs[0];
+        if (p > 40)  msg.textContent = loadMsgs[1];
+        if (p > 65)  msg.textContent = loadMsgs[2];
+        if (p > 85)  msg.textContent = loadMsgs[3];
+      }, 90);
+    }, 350);
+  }
 
-            let p = 0;
-            const pc = document.getElementById("load-pc");
-            const msg = document.getElementById("load-msg");
-            const msgs = ["REESTABLECIENDO ESCUDOS...", "SINCRONIZANDO ARMADURA...", "SOFTWARE LISTO.", "¡ESCUDOS AL 100%!"];
-
-            const interval = setInterval(() => {
-                p += Math.floor(Math.random() * 8) + 2;
-                if (p >= 100) {
-                    p = 100;
-                    clearInterval(interval);
-                    bar.classList.remove("charging");
-                    setTimeout(() => { window.location.href = "index1.html"; }, 800);
-                }
-                bar.style.width = p + "%";
-                pc.innerHTML = p + "%";
-                if (p > 20) msg.innerHTML = msgs[0];
-                if (p > 50) msg.innerHTML = msgs[1];
-                if (p > 80) msg.innerHTML = msgs[2];
-                if (p >= 100) msg.innerHTML = msgs[3];
-            }, 100);
-        }
-
-        window.onload = () => {
-            setTimeout(() => typeLine(sequence[0]), 1000);
-        };
-    </script>
+  window.onload = () => setTimeout(() => typeLine(lines[0]), 900);
+</script>
 </body>
 </html>
