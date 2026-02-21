@@ -3,295 +3,716 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SISTEMA DE RANGOS ROLEPLAY - RP MILITAR</title>
+    <title>EJÉRCITO RP - COLOMBIA WARS</title>
     <style>
-        /* Estética de terminal segura sin fuentes externas */
+        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Share+Tech+Mono&family=Bebas+Neue&display=swap');
+
         :root {
-            --primary: #00ff41; /* Verde neón terminal */
-            --danger: #ff3e3e;
-            --warning: #fcd116;
-            --bg: #0a0c0a;
-            --panel: #141814;
-            --border: #2d3423;
+            --neon-gold: #f5c518;
+            --neon-red: #ff2222;
+            --neon-green: #00ff88;
+            --dark-bg: #050608;
+            --panel-bg: #0a0c0f;
+            --card-bg: #0f1218;
+            --border-col: #1e2430;
+            --text-dim: #4a5568;
+            --camou-1: #3d4a2f;
+            --camou-2: #2c3520;
+            --camou-3: #5c6b44;
         }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
 
         body {
-            background-color: var(--bg);
-            color: #ffffff;
-            font-family: 'Courier New', Courier, monospace;
-            margin: 0;
-            padding: 15px;
-            display: flex;
-            justify-content: center;
-            background-image: radial-gradient(var(--border) 0.5px, transparent 0.5px);
-            background-size: 20px 20px;
-        }
-
-        .mando-container {
-            width: 100%;
-            max-width: 600px;
-            background: var(--panel);
-            border: 1px solid var(--border);
-            padding: 20px;
+            background-color: var(--dark-bg);
+            color: #c8d4e0;
+            font-family: 'Share Tech Mono', monospace;
+            min-height: 100vh;
+            overflow-x: hidden;
             position: relative;
-            box-shadow: 0 0 20px rgba(0,0,0,0.8);
         }
 
-        /* Líneas de escaneo CRT */
-        .mando-container::before {
-            content: " ";
+        /* ── FONDO ANIMADO ── */
+        body::before {
+            content: '';
+            position: fixed;
+            inset: 0;
+            background:
+                repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,255,136,0.015) 2px, rgba(0,255,136,0.015) 4px),
+                repeating-linear-gradient(90deg, transparent, transparent 40px, rgba(0,255,136,0.01) 40px, rgba(0,255,136,0.01) 41px);
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        /* Partículas flotantes */
+        .particles {
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            z-index: 0;
+            overflow: hidden;
+        }
+        .particle {
             position: absolute;
-            top: 0; left: 0; bottom: 0; right: 0;
-            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.1) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.02), rgba(0, 255, 0, 0.01), rgba(0, 0, 255, 0.02));
-            z-index: 10;
-            background-size: 100% 2px, 2px 100%;
+            width: 2px;
+            height: 2px;
+            background: var(--neon-gold);
+            border-radius: 50%;
+            opacity: 0;
+            animation: rise linear infinite;
+        }
+        @keyframes rise {
+            0%   { opacity: 0; transform: translateY(100vh) translateX(0); }
+            10%  { opacity: 0.8; }
+            90%  { opacity: 0.4; }
+            100% { opacity: 0; transform: translateY(-20px) translateX(var(--drift)); }
+        }
+
+        /* ── WRAPPER ── */
+        .wrapper {
+            position: relative;
+            z-index: 1;
+            max-width: 680px;
+            margin: 0 auto;
+            padding: 20px 15px 40px;
+        }
+
+        /* ── HEADER ── */
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+            position: relative;
+        }
+
+        .flag-stripe {
+            height: 4px;
+            background: linear-gradient(90deg, #fcd116 33.3%, #003087 33.3% 66.6%, #ce1126 66.6%);
+            margin-bottom: 16px;
+            box-shadow: 0 0 12px rgba(252,209,22,0.5);
+        }
+
+        .header-top-line {
+            font-size: 0.65rem;
+            letter-spacing: 4px;
+            color: var(--neon-gold);
+            opacity: 0.7;
+            margin-bottom: 4px;
+            animation: pulse-text 3s ease-in-out infinite;
+        }
+
+        @keyframes pulse-text {
+            0%,100% { opacity: 0.5; }
+            50%      { opacity: 1; }
+        }
+
+        .header-title {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: clamp(2rem, 8vw, 3.2rem);
+            letter-spacing: 6px;
+            line-height: 1;
+            color: #fff;
+            text-shadow:
+                0 0 10px var(--neon-gold),
+                0 0 30px rgba(245,197,24,0.4),
+                0 0 60px rgba(245,197,24,0.15);
+            animation: flicker 6s infinite;
+        }
+
+        @keyframes flicker {
+            0%,19%,21%,23%,25%,54%,56%,100% { text-shadow: 0 0 10px var(--neon-gold), 0 0 30px rgba(245,197,24,0.4); }
+            20%,22%,24%,55% { text-shadow: none; opacity: 0.9; }
+        }
+
+        .header-sub {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 0.6rem;
+            letter-spacing: 8px;
+            color: var(--neon-green);
+            margin-top: 6px;
+            opacity: 0.8;
+        }
+
+        .classified-badge {
+            display: inline-block;
+            border: 1px solid var(--neon-red);
+            color: var(--neon-red);
+            font-size: 0.55rem;
+            letter-spacing: 3px;
+            padding: 3px 12px;
+            margin-top: 10px;
+            animation: blink-badge 2s step-start infinite;
+            text-transform: uppercase;
+        }
+        @keyframes blink-badge { 0%,100%{opacity:1} 50%{opacity:0.2} }
+
+        /* ── BARRA DE ESTADO ── */
+        .status-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: var(--card-bg);
+            border: 1px solid var(--border-col);
+            border-left: 3px solid var(--neon-gold);
+            padding: 8px 14px;
+            font-size: 0.65rem;
+            letter-spacing: 2px;
+            margin-bottom: 16px;
+            color: var(--neon-gold);
+        }
+
+        .status-dot {
+            display: inline-block;
+            width: 7px; height: 7px;
+            border-radius: 50%;
+            background: var(--neon-green);
+            box-shadow: 0 0 8px var(--neon-green);
+            animation: blink-dot 1.4s ease-in-out infinite;
+            margin-right: 6px;
+            vertical-align: middle;
+        }
+        @keyframes blink-dot { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:0.3;transform:scale(0.7)} }
+
+        /* ── BUSCADOR ── */
+        .search-wrapper {
+            position: relative;
+            margin-bottom: 22px;
+        }
+
+        .search-icon {
+            position: absolute;
+            left: 14px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--neon-gold);
+            font-size: 1rem;
             pointer-events: none;
         }
 
-        header {
-            text-align: center;
-            border-bottom: 2px solid var(--primary);
-            margin-bottom: 20px;
-            padding-bottom: 10px;
-        }
-
-        .auth-info {
-            font-size: 10px;
-            display: flex;
-            justify-content: space-between;
-            color: var(--warning);
-            margin-bottom: 5px;
-        }
-
-        h1 {
-            font-size: 1.2rem;
-            letter-spacing: 3px;
-            margin: 5px 0;
-            color: var(--primary);
-        }
-
-        .search-box {
+        #search {
             width: 100%;
-            background: #000;
-            border: 1px solid var(--border);
-            color: var(--primary);
-            padding: 12px;
-            font-family: inherit;
-            box-sizing: border-box;
+            background: var(--card-bg);
+            border: 1px solid var(--border-col);
+            border-top: 2px solid var(--neon-gold);
+            color: #fff;
+            padding: 12px 14px 12px 42px;
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 0.8rem;
+            letter-spacing: 2px;
             outline: none;
-            margin-bottom: 20px;
+            transition: border-color 0.3s, box-shadow 0.3s;
+        }
+        #search:focus {
+            border-color: var(--neon-gold);
+            box-shadow: 0 0 16px rgba(245,197,24,0.2), inset 0 0 8px rgba(245,197,24,0.05);
+        }
+        #search::placeholder { color: var(--text-dim); }
+
+        /* ── CATEGORÍAS ── */
+        .rank-category {
+            margin-bottom: 8px;
+            border: 1px solid var(--border-col);
+            position: relative;
+            overflow: hidden;
+            transition: border-color 0.3s;
         }
 
-        /* Secciones de Jerarquía */
-        .rank-category {
-            margin-bottom: 10px;
-            border: 1px solid rgba(0, 255, 65, 0.1);
+        .rank-category::before {
+            content: '';
+            position: absolute;
+            left: 0; top: 0; bottom: 0;
+            width: 3px;
+            background: var(--cat-color, var(--neon-gold));
+            box-shadow: 0 0 8px var(--cat-color, var(--neon-gold));
         }
+
+        .rank-category.alto-mando   { --cat-color: #f5c518; }
+        .rank-category.superiores   { --cat-color: #ff8800; }
+        .rank-category.subalternos  { --cat-color: #ff4444; }
+        .rank-category.suboficiales { --cat-color: #00ff88; }
+        .rank-category.tropa        { --cat-color: #00aaff; }
+        .rank-category.ingreso      { --cat-color: #aaaaaa; }
+
+        .rank-category:hover { border-color: var(--cat-color, var(--neon-gold)); }
 
         .category-title {
-            background: rgba(0, 255, 65, 0.05);
-            padding: 10px;
+            background: var(--card-bg);
+            padding: 12px 16px 12px 20px;
             cursor: pointer;
             display: flex;
             justify-content: space-between;
-            font-size: 0.9rem;
-            font-weight: bold;
-            color: var(--warning);
+            align-items: center;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 0.7rem;
+            font-weight: 700;
+            letter-spacing: 3px;
+            color: #fff;
+            user-select: none;
+            transition: background 0.2s;
+        }
+        .category-title:hover { background: rgba(255,255,255,0.04); }
+
+        .cat-left {
+            display: flex;
+            align-items: center;
+            gap: 10px;
         }
 
-        .category-title:hover {
-            background: rgba(0, 255, 65, 0.15);
+        .cat-icon {
+            font-size: 1rem;
+            opacity: 0.9;
+        }
+
+        .cat-badge {
+            font-size: 0.5rem;
+            letter-spacing: 1px;
+            padding: 2px 6px;
+            background: var(--cat-color, var(--neon-gold));
+            color: #000;
+            font-family: 'Share Tech Mono', monospace;
+        }
+
+        .toggle-icon {
+            font-size: 0.8rem;
+            color: var(--cat-color, var(--neon-gold));
+            transition: transform 0.35s;
         }
 
         .rank-list {
             max-height: 0;
             overflow: hidden;
-            transition: max-height 0.4s ease-out;
-            background: #000;
+            transition: max-height 0.45s cubic-bezier(0.4, 0, 0.2, 1);
+            background: #070a0e;
         }
 
         .rank-item {
-            padding: 8px 15px;
-            border-bottom: 1px solid rgba(0, 255, 65, 0.05);
-            font-size: 0.8rem;
+            padding: 10px 16px 10px 24px;
+            border-bottom: 1px solid rgba(255,255,255,0.03);
+            font-size: 0.75rem;
+            letter-spacing: 2px;
             display: flex;
             align-items: center;
+            gap: 12px;
+            transition: background 0.15s, padding-left 0.15s;
+            cursor: default;
         }
 
-        .rank-item::before {
-            content: ">>";
-            margin-right: 10px;
-            color: var(--primary);
-            font-size: 0.6rem;
+        .rank-item:hover {
+            background: rgba(255,255,255,0.04);
+            padding-left: 28px;
         }
 
-        /* Footer y Bio-Scan */
+        .rank-num {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 0.55rem;
+            color: var(--cat-color, #666);
+            min-width: 28px;
+        }
+
+        .rank-bar {
+            height: 2px;
+            flex: 1;
+            max-width: 40px;
+            background: linear-gradient(90deg, var(--cat-color, #666), transparent);
+            opacity: 0.4;
+        }
+
+        /* ── ESCANER BIO ── */
         .scanner-section {
-            margin-top: 25px;
-            padding: 15px;
-            border: 1px dashed var(--primary);
+            margin-top: 24px;
+            border: 1px solid rgba(0,255,136,0.3);
+            padding: 20px;
             text-align: center;
             cursor: pointer;
+            position: relative;
+            overflow: hidden;
+            background: var(--card-bg);
+            transition: border-color 0.3s;
+        }
+        .scanner-section:hover { border-color: var(--neon-green); }
+
+        .scan-line {
+            position: absolute;
+            left: 0; right: 0;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, var(--neon-green), transparent);
+            opacity: 0;
+            top: -2px;
+        }
+        .scanner-section.scanning .scan-line {
+            opacity: 1;
+            animation: scan-sweep 1.4s linear;
+        }
+        @keyframes scan-sweep {
+            from { top: -2px; }
+            to   { top: 100%; }
         }
 
-        #scan-text {
-            font-size: 0.7rem;
-            color: var(--primary);
-            letter-spacing: 2px;
+        .scan-label {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 0.6rem;
+            letter-spacing: 4px;
+            color: var(--neon-green);
         }
 
+        .scan-corners {
+            position: absolute;
+            inset: 4px;
+            pointer-events: none;
+        }
+        .scan-corners::before,
+        .scan-corners::after {
+            content: '';
+            position: absolute;
+            width: 12px; height: 12px;
+        }
+        .scan-corners::before {
+            top: 0; left: 0;
+            border-top: 2px solid var(--neon-green);
+            border-left: 2px solid var(--neon-green);
+        }
+        .scan-corners::after {
+            bottom: 0; right: 0;
+            border-bottom: 2px solid var(--neon-green);
+            border-right: 2px solid var(--neon-green);
+        }
+
+        /* ── BARRA DE PROGRESO HYPE ── */
+        .progress-container {
+            margin-top: 6px;
+            height: 3px;
+            background: rgba(255,255,255,0.05);
+            display: none;
+        }
+        .progress-bar {
+            height: 100%;
+            width: 0%;
+            background: var(--neon-green);
+            box-shadow: 0 0 8px var(--neon-green);
+            transition: width 1.4s linear;
+        }
+
+        /* ── FOOTER NAV ── */
         .footer-nav {
-            margin-top: 20px;
+            margin-top: 18px;
             display: grid;
             grid-template-columns: 1fr 1fr;
             gap: 10px;
         }
 
         .nav-btn {
-            background: transparent;
-            border: 1px solid var(--primary);
-            color: #fff;
-            padding: 10px;
+            background: var(--card-bg);
+            border: 1px solid var(--border-col);
+            color: #c8d4e0;
+            padding: 13px 10px;
             text-decoration: none;
-            font-size: 0.7rem;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 0.55rem;
+            letter-spacing: 2px;
             text-align: center;
+            text-transform: uppercase;
+            transition: all 0.25s;
+            display: block;
+            position: relative;
+            overflow: hidden;
         }
-
+        .nav-btn::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: var(--btn-accent, var(--neon-gold));
+            transform: scaleX(0);
+            transform-origin: left;
+            transition: transform 0.3s;
+            opacity: 0.08;
+        }
+        .nav-btn:hover::before { transform: scaleX(1); }
         .nav-btn:hover {
-            background: var(--primary);
-            color: #000;
+            border-color: var(--btn-accent, var(--neon-gold));
+            color: #fff;
+            box-shadow: 0 0 12px rgba(245,197,24,0.15);
+        }
+        .nav-btn.red { --btn-accent: var(--neon-red); }
+        .nav-btn.red:hover { box-shadow: 0 0 12px rgba(255,34,34,0.2); }
+
+        /* ── WATERMARK ── */
+        .watermark {
+            text-align: center;
+            margin-top: 24px;
+            font-size: 0.5rem;
+            letter-spacing: 3px;
+            color: var(--text-dim);
+            opacity: 0.5;
         }
 
-        .nav-btn.red { border-color: var(--danger); color: var(--danger); }
-        .nav-btn.red:hover { background: var(--danger); color: #fff; }
+        /* ── SCROLLBAR ── */
+        ::-webkit-scrollbar { width: 4px; }
+        ::-webkit-scrollbar-track { background: var(--dark-bg); }
+        ::-webkit-scrollbar-thumb { background: var(--camou-1); border-radius: 2px; }
 
+        /* ── ANIMACION DE ENTRADA ── */
+        .rank-category {
+            opacity: 0;
+            transform: translateX(-12px);
+            animation: slide-in 0.4s forwards;
+        }
+        @keyframes slide-in {
+            to { opacity: 1; transform: translateX(0); }
+        }
+        .rank-category:nth-child(1) { animation-delay: 0.05s; }
+        .rank-category:nth-child(2) { animation-delay: 0.10s; }
+        .rank-category:nth-child(3) { animation-delay: 0.15s; }
+        .rank-category:nth-child(4) { animation-delay: 0.20s; }
+        .rank-category:nth-child(5) { animation-delay: 0.25s; }
+        .rank-category:nth-child(6) { animation-delay: 0.30s; }
     </style>
 </head>
 <body>
 
-<div class="mando-container">
+<!-- Partículas -->
+<div class="particles" id="particles"></div>
+
+<div class="wrapper">
+
     <header>
-        <div class="auth-info">
-            <span>DEV: SAM SUKV</span>
-            <span>SEC-LEVEL: 05</span>
-        </div>
-        <h1>EJÉRCITO RP - RANGOS</h1>
+        <div class="flag-stripe"></div>
+        <div class="header-top-line">◆ FUERZAS MILITARES DE COLOMBIA RP ◆</div>
+        <div class="header-title">SISTEMA DE RANGOS</div>
+        <div class="header-sub">GUERRAS MUNDIALES · COLOMBIA · RP TÁCTICO</div>
+        <div class="classified-badge">⚠ CLASIFICADO NIVEL 5 ⚠</div>
     </header>
 
-    <input type="text" id="search" class="search-box" placeholder="> FILTRAR RANGO..." onkeyup="filterRanks()">
-
-    <div id="hierarchy">
-        <div class="rank-category">
-            <div class="category-title" onclick="toggle(this)">ALTO MANDO <span>[+]</span></div>
-            <div class="rank-list">
-                <div class="rank-item">COMANDANTE GENERAL</div>
-                <div class="rank-item">MAYOR GENERAL</div>
-                <div class="rank-item">GENERAL DE BRIGADA</div>
-            </div>
-        </div>
-
-        <div class="rank-category">
-            <div class="category-title" onclick="toggle(this)">OFICIALES SUPERIORES <span>[+]</span></div>
-            <div class="rank-list">
-                <div class="rank-item">CORONEL</div>
-                <div class="rank-item">TENIENTE CORONEL</div>
-                <div class="rank-item">MAYOR</div>
-                <div class="rank-item">CAPITÁN</div>
-            </div>
-        </div>
-
-        <div class="rank-category">
-            <div class="category-title" onclick="toggle(this)">OFICIALES SUBALTERNOS <span>[+]</span></div>
-            <div class="rank-list">
-                <div class="rank-item">TENIENTE</div>
-                <div class="rank-item">SUBTENIENTE</div>
-            </div>
-        </div>
-
-        <div class="rank-category">
-            <div class="category-title" onclick="toggle(this)">SUBOFICIALES <span>[+]</span></div>
-            <div class="rank-list">
-                <div class="rank-item">SARGENTO MAYOR DE COMANDO</div>
-                <div class="rank-item">SARGENTO MAYOR</div>
-                <div class="rank-item">SARGENTO PRIMERO</div>
-                <div class="rank-item">SARGENTO SEGUNDO</div>
-                <div class="rank-item">SARGENTO TERCERO</div>
-            </div>
-        </div>
-
-        <div class="rank-category">
-            <div class="category-title" onclick="toggle(this)">TROPA <span>[+]</span></div>
-            <div class="rank-list">
-                <div class="rank-item">CABO PRIMERO</div>
-                <div class="rank-item">CABO SEGUNDO</div>
-                <div class="rank-item">CABO TERCERO</div>
-            </div>
-        </div>
-
-        <div class="rank-category">
-            <div class="category-title" onclick="toggle(this)">INGRESO <span>[+]</span></div>
-            <div class="rank-list">
-                <div class="rank-item">RECLUTA</div>
-            </div>
-        </div>
+    <div class="status-bar">
+        <span><span class="status-dot"></span>SISTEMA EN LÍNEA</span>
+        <span>OPS: ACTIVAS</span>
+        <span>ID: SAM_SUKV</span>
     </div>
 
-    <div class="scanner-section" onclick="runScan()">
-        <span id="scan-text">INICIAR ESCANEO BIOMÉTRICO</span>
+    <div class="search-wrapper">
+        <span class="search-icon">⌕</span>
+        <input type="text" id="search" placeholder="FILTRAR RANGO..." onkeyup="filterRanks()" autocomplete="off" spellcheck="false">
+    </div>
+
+    <div id="hierarchy">
+
+        <div class="rank-category alto-mando">
+            <div class="category-title" onclick="toggle(this)">
+                <div class="cat-left">
+                    <span class="cat-icon">★</span>
+                    <span>ALTO MANDO</span>
+                    <span class="cat-badge">TIER S</span>
+                </div>
+                <span class="toggle-icon">▼</span>
+            </div>
+            <div class="rank-list">
+                <div class="rank-item"><span class="rank-num">R-01</span><span class="rank-bar"></span>COMANDANTE GENERAL</div>
+                <div class="rank-item"><span class="rank-num">R-02</span><span class="rank-bar"></span>MAYOR GENERAL</div>
+                <div class="rank-item"><span class="rank-num">R-03</span><span class="rank-bar"></span>GENERAL DE BRIGADA</div>
+            </div>
+        </div>
+
+        <div class="rank-category superiores">
+            <div class="category-title" onclick="toggle(this)">
+                <div class="cat-left">
+                    <span class="cat-icon">◈</span>
+                    <span>OFICIALES SUPERIORES</span>
+                    <span class="cat-badge">TIER A</span>
+                </div>
+                <span class="toggle-icon">▼</span>
+            </div>
+            <div class="rank-list">
+                <div class="rank-item"><span class="rank-num">R-04</span><span class="rank-bar"></span>CORONEL</div>
+                <div class="rank-item"><span class="rank-num">R-05</span><span class="rank-bar"></span>TENIENTE CORONEL</div>
+                <div class="rank-item"><span class="rank-num">R-06</span><span class="rank-bar"></span>MAYOR</div>
+                <div class="rank-item"><span class="rank-num">R-07</span><span class="rank-bar"></span>CAPITÁN</div>
+            </div>
+        </div>
+
+        <div class="rank-category subalternos">
+            <div class="category-title" onclick="toggle(this)">
+                <div class="cat-left">
+                    <span class="cat-icon">◇</span>
+                    <span>OFICIALES SUBALTERNOS</span>
+                    <span class="cat-badge">TIER B</span>
+                </div>
+                <span class="toggle-icon">▼</span>
+            </div>
+            <div class="rank-list">
+                <div class="rank-item"><span class="rank-num">R-08</span><span class="rank-bar"></span>TENIENTE</div>
+                <div class="rank-item"><span class="rank-num">R-09</span><span class="rank-bar"></span>SUBTENIENTE</div>
+            </div>
+        </div>
+
+        <div class="rank-category suboficiales">
+            <div class="category-title" onclick="toggle(this)">
+                <div class="cat-left">
+                    <span class="cat-icon">⬡</span>
+                    <span>SUBOFICIALES</span>
+                    <span class="cat-badge">TIER C</span>
+                </div>
+                <span class="toggle-icon">▼</span>
+            </div>
+            <div class="rank-list">
+                <div class="rank-item"><span class="rank-num">R-10</span><span class="rank-bar"></span>SARGENTO MAYOR DE COMANDO</div>
+                <div class="rank-item"><span class="rank-num">R-11</span><span class="rank-bar"></span>SARGENTO MAYOR</div>
+                <div class="rank-item"><span class="rank-num">R-12</span><span class="rank-bar"></span>SARGENTO PRIMERO</div>
+                <div class="rank-item"><span class="rank-num">R-13</span><span class="rank-bar"></span>SARGENTO SEGUNDO</div>
+                <div class="rank-item"><span class="rank-num">R-14</span><span class="rank-bar"></span>SARGENTO TERCERO</div>
+            </div>
+        </div>
+
+        <div class="rank-category tropa">
+            <div class="category-title" onclick="toggle(this)">
+                <div class="cat-left">
+                    <span class="cat-icon">▣</span>
+                    <span>TROPA</span>
+                    <span class="cat-badge">TIER D</span>
+                </div>
+                <span class="toggle-icon">▼</span>
+            </div>
+            <div class="rank-list">
+                <div class="rank-item"><span class="rank-num">R-15</span><span class="rank-bar"></span>CABO PRIMERO</div>
+                <div class="rank-item"><span class="rank-num">R-16</span><span class="rank-bar"></span>CABO SEGUNDO</div>
+                <div class="rank-item"><span class="rank-num">R-17</span><span class="rank-bar"></span>CABO TERCERO</div>
+            </div>
+        </div>
+
+        <div class="rank-category ingreso">
+            <div class="category-title" onclick="toggle(this)">
+                <div class="cat-left">
+                    <span class="cat-icon">▷</span>
+                    <span>INGRESO</span>
+                    <span class="cat-badge">TIER E</span>
+                </div>
+                <span class="toggle-icon">▼</span>
+            </div>
+            <div class="rank-list">
+                <div class="rank-item"><span class="rank-num">R-18</span><span class="rank-bar"></span>RECLUTA</div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Escáner -->
+    <div class="scanner-section" id="scanner" onclick="runScan()">
+        <div class="scan-line" id="scanLine"></div>
+        <div class="scan-corners"></div>
+        <div class="scan-label" id="scan-text">[ INICIAR ESCANEO BIOMÉTRICO ]</div>
+        <div class="progress-container" id="progressCont">
+            <div class="progress-bar" id="progressBar"></div>
+        </div>
     </div>
 
     <div class="footer-nav">
-        <a href="index1.html" class="nav-btn">CENTRO DE CONTROL</a>
-        <a href="FE.html" class="nav-btn red">FUERZA  RP TACTICA</a>
+        <a href="index1.html" class="nav-btn">⌘ CENTRO DE CONTROL</a>
+        <a href="FE.html" class="nav-btn red">⚔ FUERZA RP TÁCTICA</a>
     </div>
+
+    <div class="watermark">COLOMBIA WARS RP · SISTEMA MILITAR v2.0 · DEV: SAM SUKV</div>
+
 </div>
 
 <script>
-    function toggle(element) {
-        const list = element.nextElementSibling;
-        const span = element.querySelector('span');
-        
-        // Cerrar otros para limpieza
-        document.querySelectorAll('.rank-list').forEach(el => {
-            if(el !== list) {
-                el.style.maxHeight = null;
-                el.previousElementSibling.querySelector('span').innerText = '[+]';
-            }
+    /* ── PARTÍCULAS ── */
+    const container = document.getElementById('particles');
+    for (let i = 0; i < 28; i++) {
+        const p = document.createElement('div');
+        p.className = 'particle';
+        p.style.cssText = `
+            left: ${Math.random() * 100}%;
+            width: ${Math.random() > 0.7 ? 3 : 2}px;
+            height: ${Math.random() > 0.7 ? 3 : 2}px;
+            animation-duration: ${6 + Math.random() * 14}s;
+            animation-delay: ${Math.random() * 12}s;
+            --drift: ${(Math.random() - 0.5) * 80}px;
+            background: ${Math.random() > 0.5 ? '#f5c518' : '#00ff88'};
+        `;
+        container.appendChild(p);
+    }
+
+    /* ── TOGGLE ── */
+    function toggle(el) {
+        const list = el.nextElementSibling;
+        const icon = el.querySelector('.toggle-icon');
+        const isOpen = list.style.maxHeight && list.style.maxHeight !== '0px';
+
+        // Cerrar todos
+        document.querySelectorAll('.rank-list').forEach(l => l.style.maxHeight = null);
+        document.querySelectorAll('.toggle-icon').forEach(i => {
+            i.style.transform = 'rotate(0deg)';
         });
 
-        if (list.style.maxHeight) {
-            list.style.maxHeight = null;
-            span.innerText = '[+]';
-        } else {
-            list.style.maxHeight = list.scrollHeight + "px";
-            span.innerText = '[-]';
+        if (!isOpen) {
+            list.style.maxHeight = list.scrollHeight + 'px';
+            icon.style.transform = 'rotate(180deg)';
         }
     }
 
+    /* ── FILTRO ── */
     function filterRanks() {
-        let input = document.getElementById('search').value.toUpperCase();
-        let items = document.querySelectorAll('.rank-item');
-        
-        items.forEach(item => {
-            if (item.innerText.toUpperCase().indexOf(input) > -1) {
-                item.style.display = "";
-            } else {
-                item.style.display = "none";
+        const q = document.getElementById('search').value.toUpperCase();
+        const cats = document.querySelectorAll('.rank-category');
+
+        cats.forEach(cat => {
+            let hasVisible = false;
+            cat.querySelectorAll('.rank-item').forEach(item => {
+                const match = item.textContent.toUpperCase().includes(q);
+                item.style.display = match ? '' : 'none';
+                if (match) hasVisible = true;
+            });
+            cat.style.display = hasVisible || !q ? '' : 'none';
+
+            // Abrir categoría si hay búsqueda activa
+            if (q && hasVisible) {
+                const list = cat.querySelector('.rank-list');
+                list.style.maxHeight = list.scrollHeight + 'px';
+            } else if (!q) {
+                cat.querySelector('.rank-list').style.maxHeight = null;
             }
         });
     }
 
+    /* ── ESCANER ── */
+    let scanning = false;
     function runScan() {
+        if (scanning) return;
+        scanning = true;
+
+        const scanner = document.getElementById('scanner');
         const txt = document.getElementById('scan-text');
-        txt.innerText = "IDENTIFICANDO...";
-        txt.style.color = "var(--warning)";
-        
+        const scanLine = document.getElementById('scanLine');
+        const progCont = document.getElementById('progressCont');
+        const progBar = document.getElementById('progressBar');
+
+        txt.textContent = '[ ESCANEANDO... ]';
+        txt.style.color = '#fcd116';
+        progCont.style.display = 'block';
+
+        scanner.classList.add('scanning');
+        scanLine.style.animation = 'none';
+        void scanLine.offsetWidth; // reflow
+        scanLine.style.animation = '';
+        scanner.classList.remove('scanning');
+        scanner.classList.add('scanning');
+
+        setTimeout(() => { progBar.style.width = '100%'; }, 50);
+
+        const msgs = ['LEYENDO HUELLA...', 'VERIFICANDO IRIS...', 'COMPROBANDO ADN...'];
+        let i = 0;
+        const interval = setInterval(() => {
+            txt.textContent = '[ ' + msgs[i % msgs.length] + ' ]';
+            i++;
+        }, 440);
+
         setTimeout(() => {
-            txt.innerText = "ACCESO PERMITIDO: SAM SUKV";
-            txt.style.color = "var(--primary)";
+            clearInterval(interval);
+            scanner.classList.remove('scanning');
+            txt.textContent = '[ ✔ ACCESO PERMITIDO: SAM SUKV ]';
+            txt.style.color = '#00ff88';
+            progBar.style.background = '#00ff88';
+            progBar.style.boxShadow = '0 0 12px #00ff88';
+            scanning = false;
         }, 1500);
     }
 </script>
-
 </body>
 </html>
