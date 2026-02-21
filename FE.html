@@ -3,322 +3,612 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CNOE - ACCESO RESTRINGIDO</title>
+    <title>CNOE - ARCHIVOS G6 CLASIFICADOS</title>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Share+Tech+Mono&family=Bebas+Neue&display=swap" rel="stylesheet"/>
     <style>
         :root {
-            --cnoe-red: #8b0000;
-            --alert-red: #ff0000;
-            --army-gold: #fcd116;
-            --dark-core: #070707;
-            --panel-grey: #121212;
+            --cnoe-red:  #8b0000;
+            --alert-red: #cc1111;
+            --gold:      #fcd116;
+            --blue-col:  #003893;
+            --bg:        #070707;
+            --card:      #0c0c0c;
+            --panel:     #111111;
+            --border:    #1e1e1e;
+            --muted:     #3a3a3a;
         }
 
-        * { box-sizing: border-box; }
+        *, *::before, *::after { box-sizing: border-box; margin:0; padding:0; }
 
         body {
-            background-color: var(--dark-core);
-            color: #d0d0d0;
-            font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
-            margin: 0;
-            overflow: hidden;
-            background-image: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%);
-            background-size: 100% 4px;
+            background: var(--bg);
+            color: #c8c8c8;
+            font-family: 'Share Tech Mono', monospace;
+            min-height: 100vh;
+            overflow-x: hidden;
+            position: relative;
         }
 
-        /* --- PANTALLA DE BLOQUEO --- */
-        #bloqueo {
-            position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: #000;
-            z-index: 9999;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            text-align: center;
-            transition: opacity 0.5s;
+        /* Scanlines */
+        body::before {
+            content: '';
+            position: fixed; inset:0;
+            background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,0,0,0.12) 2px, rgba(0,0,0,0.12) 4px);
+            pointer-events: none; z-index: 0;
         }
+
+        /* Grid */
+        body::after {
+            content: '';
+            position: fixed; inset:0;
+            background:
+                linear-gradient(rgba(139,0,0,0.018) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(139,0,0,0.018) 1px, transparent 1px);
+            background-size: 30px 30px;
+            pointer-events: none; z-index: 0;
+        }
+
+        /* Particles */
+        .particles { position: fixed; inset:0; pointer-events:none; z-index:0; overflow:hidden; }
+        .p { position:absolute; border-radius:50%; opacity:0; animation:rise linear infinite; }
+        @keyframes rise {
+            0%   { opacity:0; transform:translateY(100vh) translateX(0); }
+            10%  { opacity:.5; } 90% { opacity:.2; }
+            100% { opacity:0; transform:translateY(-30px) translateX(var(--d)); }
+        }
+
+        /* ══ LOGIN ══ */
+        #bloqueo {
+            position: fixed; inset:0; z-index:200;
+            background: rgba(7,7,7,0.98);
+            display: flex; align-items:center; justify-content:center;
+            transition: opacity .6s ease;
+        }
+        #bloqueo.fade-out { opacity:0; pointer-events:none; }
 
         .lock-box {
-            border: 1px solid var(--cnoe-red);
-            padding: 40px;
-            background: rgba(139, 0, 0, 0.05);
-            box-shadow: 0 0 30px rgba(139, 0, 0, 0.2);
-            max-width: 400px;
-            width: 90%;
-            animation: fadeIn 1s ease-in;
+            width:100%; max-width:400px;
+            background: var(--card);
+            border:1px solid rgba(139,0,0,.45);
+            box-shadow: 0 0 60px rgba(0,0,0,.95), 0 0 30px rgba(139,0,0,.08);
+            position: relative;
+            animation: slideUp .5s ease both;
+        }
+        @keyframes slideUp { from{opacity:0;transform:translateY(20px)} to{opacity:1;transform:translateY(0)} }
+
+        .lock-box::before {
+            content:''; position:absolute; top:-1px; left:0; right:0; height:3px;
+            background: linear-gradient(90deg, #fcd116 33.33%, #003893 33.33% 66.66%, #ce1126 66.66%);
+            box-shadow: 0 0 10px rgba(252,209,22,.3);
         }
 
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(-20px); }
-            to { opacity: 1; transform: translateY(0); }
+        .lock-scan { position:absolute; left:0; right:0; height:2px;
+            background:linear-gradient(90deg,transparent,var(--alert-red),transparent);
+            opacity:0; top:-2px; }
+        .lock-box.scanning .lock-scan { opacity:1; animation:scan-s 1.3s linear; }
+        @keyframes scan-s { from{top:-2px} to{top:100%} }
+
+        /* Corner deco */
+        .lock-box .c-tl, .lock-box .c-br { position:absolute; width:12px; height:12px; }
+        .lock-box .c-tl { bottom:-1px; left:-1px; border-bottom:2px solid var(--alert-red); border-left:2px solid var(--alert-red); }
+        .lock-box .c-br { bottom:-1px; right:-1px; border-bottom:2px solid var(--alert-red); border-right:2px solid var(--alert-red); }
+
+        .lock-inner { padding:30px 28px 26px; }
+
+        .lock-logo { text-align:center; margin-bottom:22px; }
+        .lock-skull { font-size:2rem; animation:pulse-s 2s ease-in-out infinite; }
+        @keyframes pulse-s { 0%,100%{filter:drop-shadow(0 0 6px var(--alert-red))} 50%{filter:drop-shadow(0 0 18px var(--alert-red))} }
+
+        .lock-title {
+            font-family:'Bebas Neue',sans-serif;
+            font-size:2rem; letter-spacing:6px; color:#fff;
+            text-shadow:0 0 10px var(--alert-red), 0 0 30px rgba(204,17,17,.3); line-height:1;
+        }
+        .lock-sub {
+            font-family:'Orbitron',sans-serif;
+            font-size:.48rem; letter-spacing:4px; color:var(--muted); margin-top:5px;
         }
 
-        .lock-box h2 { color: var(--alert-red); letter-spacing: 5px; margin-bottom: 20px; font-size: 1.2rem; }
-
-        input[type="password"] {
-            background: #111;
-            border: 1px solid var(--cnoe-red);
-            color: var(--army-gold);
-            padding: 12px;
-            width: 100%;
-            text-align: center;
-            outline: none;
-            font-family: inherit;
-            margin-bottom: 15px;
-            transition: 0.3s;
+        .lock-eyebrow {
+            font-family:'Orbitron',sans-serif;
+            font-size:.5rem; letter-spacing:3px; color:var(--alert-red);
+            border-left:3px solid var(--alert-red); padding-left:10px;
+            margin-bottom:18px; animation:blink-t 2s step-start infinite;
         }
+        @keyframes blink-t { 0%,100%{opacity:1} 50%{opacity:.25} }
 
-        input[type="password"]:focus {
-            box-shadow: 0 0 10px var(--cnoe-red);
-            border-color: var(--alert-red);
+        .f-label { font-family:'Orbitron',sans-serif; font-size:.46rem; letter-spacing:3px; color:var(--muted); display:block; margin-bottom:5px; }
+        .f-wrap { position:relative; margin-bottom:12px; }
+        .f-icon { position:absolute; left:12px; top:50%; transform:translateY(-50%); color:var(--alert-red); font-size:13px; pointer-events:none; }
+        .f-pass {
+            width:100%; background:#0a0a0a; border:1px solid var(--border);
+            border-top:1px solid var(--alert-red); color:#fff;
+            padding:11px 14px 11px 36px;
+            font-family:'Share Tech Mono',monospace; font-size:.8rem; letter-spacing:3px; outline:none;
+            transition:border-color .25s, box-shadow .25s;
         }
+        .f-pass:focus { border-color:var(--alert-red); box-shadow:0 0 12px rgba(204,17,17,.2); }
+        .f-pass::placeholder { color:var(--muted); letter-spacing:2px; }
+
+        .login-err { font-size:.6rem; color:var(--alert-red); letter-spacing:2px; text-align:center; margin-bottom:12px; min-height:16px; }
 
         .btn-auth {
-            background: var(--cnoe-red);
-            color: white;
-            border: none;
-            padding: 10px 25px;
-            cursor: pointer;
-            font-weight: bold;
-            text-transform: uppercase;
-            width: 100%;
-            transition: 0.3s;
+            width:100%; background:transparent; border:1px solid var(--alert-red);
+            color:var(--alert-red); padding:13px; font-family:'Orbitron',sans-serif;
+            font-size:.6rem; font-weight:700; letter-spacing:4px; cursor:pointer;
+            position:relative; overflow:hidden; transition:color .3s;
         }
+        .btn-auth::before {
+            content:''; position:absolute; inset:0;
+            background:var(--alert-red); transform:scaleX(0); transform-origin:left;
+            transition:transform .35s; z-index:0;
+        }
+        .btn-auth:hover::before { transform:scaleX(1); }
+        .btn-auth:hover { color:#fff; }
+        .btn-auth span { position:relative; z-index:1; }
 
-        .btn-auth:hover { background: var(--alert-red); letter-spacing: 2px; }
+        .lock-footer { text-align:center; margin-top:16px; font-size:.45rem; letter-spacing:3px; color:var(--muted); opacity:.4; }
 
-        /* --- PANTALLA DE CARGA ROJA --- */
+        /* ══ LOADING ══ */
         #pantalla-carga {
-            position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: #000;
-            z-index: 10000;
-            display: none;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
+            position:fixed; inset:0; background:#050505;
+            z-index:10000; display:none;
+            flex-direction:column; align-items:center; justify-content:center;
+            transition: opacity .5s;
+        }
+        .load-flag { width:300px; height:4px; margin-bottom:24px;
+            background:linear-gradient(90deg, #fcd116 33.33%, #003893 33.33% 66.66%, #ce1126 66.66%);
+            box-shadow:0 0 10px rgba(252,209,22,.3); }
+        .load-box { width:300px; text-align:center; }
+        #txt-carga {
+            font-family:'Orbitron',sans-serif;
+            font-size:.58rem; letter-spacing:4px; color:var(--alert-red);
+            margin-bottom:14px; animation:blink-t 1s step-start infinite;
+        }
+        .prog-bg { height:3px; width:100%; background:#200; overflow:hidden; border:1px solid rgba(204,17,17,.2); }
+        .prog-fill { height:100%; width:0%; background:var(--alert-red); box-shadow:0 0 12px var(--alert-red); transition:width .08s linear; }
+        #perc { font-family:'Orbitron',sans-serif; font-size:.52rem; color:var(--alert-red); margin-top:8px; letter-spacing:3px; }
+
+        /* ══ CONTENT ══ */
+        #contenido { display:none; position:relative; z-index:1; padding-bottom:50px; animation:fadeIn .6s ease; }
+        @keyframes fadeIn { from{opacity:0} to{opacity:1} }
+
+        /* FLAG TOP */
+        .flag-bar {
+            height:5px; width:100%;
+            background:linear-gradient(90deg, #fcd116 33.33%, #003893 33.33% 66.66%, #ce1126 66.66%);
+            box-shadow:0 0 12px rgba(252,209,22,.4);
+            position:sticky; top:0; z-index:50;
         }
 
-        .loader-container {
-            width: 250px;
-            text-align: center;
-        }
+        .wrapper { max-width:1200px; margin:0 auto; padding:22px 16px; }
 
-        .loading-txt {
-            color: var(--alert-red);
-            font-size: 0.7rem;
-            letter-spacing: 3px;
-            margin-bottom: 15px;
-            text-transform: uppercase;
-            animation: blink 1s infinite;
-        }
-
-        @keyframes blink {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.3; }
-        }
-
-        .progress-bg {
-            height: 4px;
-            width: 100%;
-            background: #200;
-            border-radius: 2px;
-            overflow: hidden;
-            border: 1px solid rgba(255, 0, 0, 0.2);
-        }
-
-        .progress-fill {
-            height: 100%;
-            width: 0%;
-            background: var(--alert-red);
-            box-shadow: 0 0 15px var(--alert-red);
-            transition: width 0.1s linear;
-        }
-
-        /* --- CONTENIDO (OCULTO INICIALMENTE) --- */
-        #contenido { display: none; padding: 20px; animation: slideIn 0.8s ease-out; }
-
-        @keyframes slideIn {
-            from { opacity: 0; filter: blur(10px); }
-            to { opacity: 1; filter: blur(0); }
-        }
-
+        /* Header */
         .header-cnoe {
-            border: 1px solid var(--cnoe-red);
-            background: linear-gradient(180deg, #1a0000 0%, #000 100%);
-            padding: 25px;
-            text-align: center;
-            margin-bottom: 30px;
+            background:var(--card); border:1px solid rgba(139,0,0,.3);
+            border-top:2px solid var(--alert-red);
+            padding:24px; text-align:center; margin-bottom:20px;
+            position:relative; overflow:hidden;
+            animation: slideDown .5s ease both;
+        }
+        @keyframes slideDown { from{opacity:0;transform:translateY(-14px)} to{opacity:1;transform:translateY(0)} }
+
+        .header-cnoe::before {
+            content:''; position:absolute; top:3px; left:3px; width:14px; height:14px;
+            border-top:2px solid var(--alert-red); border-left:2px solid var(--alert-red);
+        }
+        .header-cnoe::after {
+            content:''; position:absolute; bottom:3px; right:3px; width:14px; height:14px;
+            border-bottom:2px solid var(--gold); border-right:2px solid var(--gold);
         }
 
-        .flag { height: 4px; display: flex; width: 120px; margin: 15px auto; }
-        
-        .grid-expedientes {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-            gap: 20px;
-            max-width: 1300px; margin: 0 auto;
+        /* Scan line on header */
+        .header-scan {
+            position:absolute; left:0; right:0; height:1px;
+            background:linear-gradient(90deg,transparent,var(--alert-red),transparent);
+            animation:h-scan 5s linear infinite; opacity:.3;
+        }
+        @keyframes h-scan { 0%{top:0} 100%{top:100%} }
+
+        .header-eyebrow {
+            font-family:'Orbitron',sans-serif; font-size:.52rem; letter-spacing:5px;
+            color:var(--gold); margin-bottom:8px; opacity:.8;
+        }
+        .header-title {
+            font-family:'Bebas Neue',sans-serif;
+            font-size:clamp(2rem,7vw,3rem); letter-spacing:6px; color:#fff;
+            text-shadow:0 0 12px var(--alert-red), 0 0 40px rgba(204,17,17,.25); line-height:1;
+        }
+        .header-sub {
+            font-family:'Orbitron',sans-serif;
+            font-size:.5rem; letter-spacing:4px; color:var(--alert-red); margin-top:6px; opacity:.8;
+        }
+        .classified-badge {
+            display:inline-flex; align-items:center; gap:6px;
+            border:1px solid var(--alert-red); color:var(--alert-red);
+            font-size:.48rem; letter-spacing:3px; padding:3px 14px; margin-top:10px;
+            animation:blink-t 2s step-start infinite;
         }
 
+        /* Status bar */
+        .status-bar {
+            display:flex; justify-content:space-between; align-items:center;
+            background:var(--panel); border:1px solid var(--border);
+            border-left:3px solid var(--alert-red);
+            padding:7px 14px; font-size:.57rem; letter-spacing:2px;
+            color:var(--alert-red); margin-bottom:20px;
+        }
+        .live-dot {
+            display:inline-block; width:7px; height:7px; border-radius:50%;
+            background:var(--gold); box-shadow:0 0 7px var(--gold);
+            animation:blink-dot 1.4s ease-in-out infinite; margin-right:6px;
+        }
+        @keyframes blink-dot { 0%,100%{opacity:1} 50%{opacity:.2} }
+
+        /* Ticker */
+        .ticker-wrap {
+            border:1px solid rgba(204,17,17,.2); border-left:3px solid var(--alert-red);
+            background:rgba(204,17,17,.03); overflow:hidden; height:28px;
+            display:flex; align-items:center; margin-bottom:20px;
+        }
+        .ticker-lbl { font-family:'Orbitron',sans-serif; font-size:.45rem; letter-spacing:2px;
+            color:var(--alert-red); padding:0 12px; flex-shrink:0; border-right:1px solid rgba(204,17,17,.2); }
+        .ticker-inner { overflow:hidden; flex:1; }
+        .ticker-text { display:inline-block; white-space:nowrap; font-size:.57rem; letter-spacing:2px;
+            color:#885555; animation:ticker 25s linear infinite; padding-left:100%; }
+        @keyframes ticker { from{transform:translateX(0)} to{transform:translateX(-100%)} }
+
+        /* Grid */
+        .grid-cnoe {
+            display:grid;
+            grid-template-columns:repeat(auto-fill,minmax(300px,1fr));
+            gap:12px;
+        }
+
+        /* Cards */
         .card-cnoe {
-            background: var(--panel-grey);
-            border-left: 4px solid var(--cnoe-red);
-            position: relative;
-            padding: 20px;
-            box-shadow: 5px 5px 15px rgba(0,0,0,0.5);
-            transition: 0.3s;
+            background:var(--card); border:1px solid var(--border);
+            position:relative; overflow:hidden;
+            transition:border-color .25s, transform .2s;
+            animation:fadeUp .4s ease both;
+        }
+        @keyframes fadeUp { from{opacity:0;transform:translateY(14px)} to{opacity:1;transform:translateY(0)} }
+        .card-cnoe:nth-child(1){animation-delay:.05s}
+        .card-cnoe:nth-child(2){animation-delay:.10s}
+        .card-cnoe:nth-child(3){animation-delay:.15s}
+        .card-cnoe:nth-child(4){animation-delay:.20s}
+        .card-cnoe:nth-child(5){animation-delay:.25s}
+
+        .card-cnoe::before {
+            content:''; position:absolute; left:0; top:0; bottom:0; width:3px;
+            background:var(--alert-red); box-shadow:0 0 8px var(--alert-red);
+        }
+        .card-cnoe::after {
+            content:''; position:absolute; bottom:4px; right:4px; width:10px; height:10px;
+            border-bottom:1px solid rgba(204,17,17,.4); border-right:1px solid rgba(204,17,17,.4);
+        }
+        .card-cnoe:hover { transform:translateY(-3px); border-color:var(--alert-red); }
+
+        .card-inner { padding:14px 14px 12px 18px; }
+
+        .card-top { display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; }
+
+        .rank-badge {
+            font-family:'Orbitron',sans-serif; font-size:.46rem; font-weight:700; letter-spacing:1px;
+            background:var(--gold); color:#000; padding:2px 9px;
         }
 
-        .card-cnoe:hover {
-            transform: scale(1.02);
-            border-left-color: var(--alert-red);
-            background: #181818;
+        .card-id {
+            font-family:'Orbitron',sans-serif; font-size:.45rem; letter-spacing:1px;
+            color:var(--alert-red); opacity:.7;
         }
 
-        .rank { background: var(--army-gold); color: #000; padding: 2px 8px; font-size: 0.65rem; font-weight: 900; margin-bottom: 10px; display: inline-block;}
-        .data-row { margin-bottom: 8px; font-size: 0.85rem; }
-        .data-row b { color: var(--cnoe-red); font-size: 0.7rem; margin-right: 8px; }
+        .card-name {
+            font-family:'Bebas Neue',sans-serif;
+            font-size:1.4rem; letter-spacing:3px; color:#fff; margin-bottom:10px; line-height:1;
+        }
 
-        footer { text-align: center; padding: 40px; font-size: 0.65rem; color: #555; }
-        .dev-credit { color: var(--army-gold); font-weight: bold; display: block; margin-top: 10px; }
+        .data-row {
+            display:flex; justify-content:space-between; align-items:center;
+            padding:5px 0; border-bottom:1px solid rgba(255,255,255,.03);
+            font-size:.68rem;
+        }
+        .data-row:last-child { border-bottom:none; }
+        .data-key { color:var(--muted); letter-spacing:1px; font-size:.58rem; }
+        .data-val { color:#c8c8c8; letter-spacing:1px; text-align:right; }
+
+        .card-footer {
+            display:flex; justify-content:space-between; align-items:center;
+            border-top:1px solid rgba(255,255,255,.04); padding-top:8px; margin-top:4px;
+            font-size:.52rem; letter-spacing:2px;
+        }
+        .card-footer .unit { color:var(--muted); }
+        .card-status {
+            display:flex; align-items:center; gap:4px; color:var(--gold);
+        }
+        .card-status::before {
+            content:''; width:5px; height:5px; border-radius:50%;
+            background:var(--gold); box-shadow:0 0 5px var(--gold);
+            animation:blink-dot 1.6s ease-in-out infinite;
+        }
+
+        /* Footer */
+        footer {
+            text-align:center; margin-top:30px;
+            border-top:1px solid var(--border); padding-top:22px;
+        }
+        .footer-flag {
+            height:3px; width:200px; margin:0 auto 14px;
+            background:linear-gradient(90deg, #fcd116 33.33%, #003893 33.33% 66.66%, #ce1126 66.66%);
+            box-shadow:0 0 8px rgba(252,209,22,.3);
+        }
+        .footer-title {
+            font-family:'Bebas Neue',sans-serif;
+            font-size:1rem; letter-spacing:5px; color:var(--gold);
+            text-shadow:0 0 10px rgba(252,209,22,.3);
+        }
+        .footer-creator {
+            font-family:'Orbitron',sans-serif;
+            font-size:.55rem; letter-spacing:3px; color:var(--alert-red);
+            margin-top:6px; font-weight:700;
+        }
+        .footer-sys {
+            font-family:'Share Tech Mono',monospace;
+            font-size:.45rem; letter-spacing:3px; color:var(--muted); margin-top:5px; opacity:.5;
+        }
+
+        ::-webkit-scrollbar { width:4px; }
+        ::-webkit-scrollbar-track { background:var(--bg); }
+        ::-webkit-scrollbar-thumb { background:#200; border-radius:2px; }
     </style>
 </head>
 <body>
 
-    <div id="bloqueo">
-        <div class="lock-box">
-            <h2>ACCESO RESTRINGIDO</h2>
-            <p style="font-size: 0.7rem; color: #666;">AUTORIZACIÓN CONTRASEÑA REQUERIDA</p>
-            <input type="password" id="passInput" placeholder="INGRESE CÓDIGO">
-            <button class="btn-auth" onclick="verificar()">AUTORIZAR</button>
-            <p id="errorMsg" style="color: var(--alert-red); font-size: 0.7rem; margin-top: 10px; display: none;">CÓDIGO INVÁLIDO</p>
+<div class="particles" id="particles"></div>
+
+<!-- ══ LOGIN ══ -->
+<div id="bloqueo">
+    <div class="lock-box" id="lockBox">
+        <div class="lock-scan" id="lockScan"></div>
+        <div class="c-tl"></div>
+        <div class="c-br"></div>
+        <div class="lock-inner">
+            <div class="lock-logo">
+                <div class="lock-skull">☣</div>
+                <div class="lock-title">CNOE · G6</div>
+                <div class="lock-sub">◆ ARCHIVOS CLASIFICADOS · ACCESO RESTRINGIDO ◆</div>
+            </div>
+            <div class="lock-eyebrow">⚠ AUTORIZACIÓN DE CONTRASEÑA REQUERIDA</div>
+            <label class="f-label">CÓDIGO DE ACCESO</label>
+            <div class="f-wrap">
+                <span class="f-icon">⚿</span>
+                <input class="f-pass" id="passInput" type="password" placeholder="INGRESE CÓDIGO..." autocomplete="off" onkeydown="if(event.key==='Enter')verificar()"/>
+            </div>
+            <div class="login-err" id="loginErr"></div>
+            <button class="btn-auth" onclick="verificar()"><span>⛔ AUTORIZAR ACCESO</span></button>
+            <div class="lock-footer">GUERRAS MUNDIALES RP · CNOE · CREADO POR SAM SUKV</div>
         </div>
     </div>
+</div>
 
-    <div id="pantalla-carga">
-        <div class="loader-container">
-            <div class="loading-txt" id="txt-carga">DESENCRIPTANDO...</div>
-            <div class="progress-bg">
-                <div class="progress-fill" id="bar"></div>
-            </div>
-            <div id="perc" style="color: var(--alert-red); font-size: 0.6rem; margin-top: 10px;">0%</div>
-        </div>
+<!-- ══ LOADING ══ -->
+<div id="pantalla-carga">
+    <div class="load-flag"></div>
+    <div class="load-box">
+        <div id="txt-carga">DESENCRIPTANDO...</div>
+        <div class="prog-bg"><div class="prog-fill" id="bar"></div></div>
+        <div id="perc">0%</div>
     </div>
+</div>
 
-    <div id="contenido">
-        <header class="header-cnoe">
-            <div style="color: var(--army-gold); font-size: 0.7rem; letter-spacing: 2px;">GUERRAS MUNDIALES RP</div>
-            <h1 style="color: var(--alert-red); margin: 10px 0;">CNOE - ARCHIVOS G6</h1>
-            <div class="flag">
-                <div style="background:#fcd116; flex:2"></div>
-                <div style="background:#003893; flex:1"></div>
-                <div style="background:#ce1126; flex:1"></div>
-            </div>
-        </header>
+<!-- ══ CONTENT ══ -->
+<div id="contenido">
+    <div class="flag-bar"></div>
+    <div class="wrapper">
 
-        <div class="grid-expedientes">
-            <div class="card-cnoe">
-                <span class="rank">CORONEL</span>
-                <h3 style="margin: 0 0 10px 0; color: #fff;">SAM ZUWKV</h3>
-                <div class="data-row"><b>Unidad:</b> CNOE</div>
-                <div class="data-row"><b>ID:</b> EJC-99283-TAC</div>
-                <div class="data-row"><b>Especialidad:</b> Acción Directa</div>
-            </div>
+        <div class="header-cnoe">
+            <div class="header-scan"></div>
+            <div class="header-eyebrow">◆ GUERRAS MUNDIALES RP · COLOMBIA WARS ◆</div>
+            <div class="header-title">CNOE — ARCHIVOS G6</div>
+            <div class="header-sub">COMANDO CONJUNTO DE OPERACIONES ESPECIALES · CLASIFICADO</div>
+            <div class="classified-badge">⚠ NIVEL 5 — SOLO PERSONAL AUTORIZADO ⚠</div>
+        </div>
 
-            <div class="card-cnoe">
-                <span class="rank">TENIENTE</span>
-                <h3 style="margin: 0 0 10px 0; color: #fff;">JUAN ÁVILA</h3>
-                <div class="data-row"><b>Unidad:</b> COMANDO ESPECIAL</div>
-                <div class="data-row"><b>ID:</b> EJC-44102-TAC</div>
-                <div class="data-row"><b>Especialidad:</b> Infiltración HAHO</div>
-            </div>
+        <div class="status-bar">
+            <span><span class="live-dot"></span>SISTEMA ACTIVO</span>
+            <span>TERMINAL: G6-CNOE</span>
+            <span>ARCHIVOS: 5 REGISTROS</span>
+        </div>
 
-            <div class="card-cnoe">
-                <span class="rank">COMANDANTE</span>
-                <h3 style="margin: 0 0 10px 0; color: #fff;">DAVID FERNÁNDEZ</h3>
-                <div class="data-row"><b>Unidad:</b> CNOE</div>
-                <div class="data-row"><b>ID:</b> EJC-7721-TAC</div>
-                <div class="data-row"><b>Especialidad:</b> Operaciones Urbanas</div>
+        <div class="ticker-wrap">
+            <div class="ticker-lbl">ALERTA</div>
+            <div class="ticker-inner">
+                <span class="ticker-text">
+                    OPERACIONES CNOE EN CURSO · INFORMACIÓN CLASIFICADA NIVEL 5 ·
+                    PROHIBIDA SU REPRODUCCIÓN · COLOMBIA WARS RP 2026 ·
+                    SOLO PERSONAL AUTORIZADO · TERMINAL G6 ACTIVO ·
+                    CÓDIGO ROJO SECTOR NORTE · UNIDADES ESPECIALES DESPLEGADAS ·
+                </span>
             </div>
+        </div>
+
+        <div class="grid-cnoe">
 
             <div class="card-cnoe">
-                <span class="rank">SARGENTO PRIMERO</span>
-                <h3 style="margin: 0 0 10px 0; color: #fff;">VICENTE ZAMBRANO</h3>
-                <div class="data-row"><b>Unidad:</b> CNOE</div>
-                <div class="data-row"><b>ID:</b> EJC-3301-TAC</div>
-                <div class="data-row"><b>Especialidad:</b> Combate Cercano (CQB)</div>
+                <div class="card-inner">
+                    <div class="card-top">
+                        <span class="rank-badge">CORONEL</span>
+                        <span class="card-id">EJC-99283-TAC</span>
+                    </div>
+                    <div class="card-name">SAM ZUWKV</div>
+                    <div class="data-row"><span class="data-key">UNIDAD</span><span class="data-val">CNOE</span></div>
+                    <div class="data-row"><span class="data-key">ESPECIALIDAD</span><span class="data-val">Acción Directa</span></div>
+                    <div class="data-row"><span class="data-key">CLEARANCE</span><span class="data-val">NIVEL 5</span></div>
+                    <div class="card-footer">
+                        <span class="unit">COLOMBIA WARS RP</span>
+                        <span class="card-status">ACTIVO</span>
+                    </div>
+                </div>
             </div>
 
             <div class="card-cnoe">
-                <span class="rank">SARGENTO SEGUNDO</span>
-                <h3 style="margin: 0 0 10px 0; color: #fff;">BLACK ROSE</h3>
-                <div class="data-row"><b>Unidad:</b> CNOE</div>
-                <div class="data-row"><b>ID:</b> EJC-0000-TAC</div>
-                <div class="data-row"><b>Especialidad:</b> Guerra Asimétrica</div>
+                <div class="card-inner">
+                    <div class="card-top">
+                        <span class="rank-badge">TENIENTE</span>
+                        <span class="card-id">EJC-44102-TAC</span>
+                    </div>
+                    <div class="card-name">JUAN ÁVILA</div>
+                    <div class="data-row"><span class="data-key">UNIDAD</span><span class="data-val">COMANDO ESPECIAL</span></div>
+                    <div class="data-row"><span class="data-key">ESPECIALIDAD</span><span class="data-val">Infiltración HAHO</span></div>
+                    <div class="data-row"><span class="data-key">CLEARANCE</span><span class="data-val">NIVEL 4</span></div>
+                    <div class="card-footer">
+                        <span class="unit">COLOMBIA WARS RP</span>
+                        <span class="card-status">ACTIVO</span>
+                    </div>
+                </div>
             </div>
+
+            <div class="card-cnoe">
+                <div class="card-inner">
+                    <div class="card-top">
+                        <span class="rank-badge">COMANDANTE</span>
+                        <span class="card-id">EJC-7721-TAC</span>
+                    </div>
+                    <div class="card-name">DAVID FERNÁNDEZ</div>
+                    <div class="data-row"><span class="data-key">UNIDAD</span><span class="data-val">CNOE</span></div>
+                    <div class="data-row"><span class="data-key">ESPECIALIDAD</span><span class="data-val">Operaciones Urbanas</span></div>
+                    <div class="data-row"><span class="data-key">CLEARANCE</span><span class="data-val">NIVEL 5</span></div>
+                    <div class="card-footer">
+                        <span class="unit">COLOMBIA WARS RP</span>
+                        <span class="card-status">ACTIVO</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card-cnoe">
+                <div class="card-inner">
+                    <div class="card-top">
+                        <span class="rank-badge">SGT PRIMERO</span>
+                        <span class="card-id">EJC-3301-TAC</span>
+                    </div>
+                    <div class="card-name">VICENTE ZAMBRANO</div>
+                    <div class="data-row"><span class="data-key">UNIDAD</span><span class="data-val">CNOE</span></div>
+                    <div class="data-row"><span class="data-key">ESPECIALIDAD</span><span class="data-val">Combate Cercano (CQB)</span></div>
+                    <div class="data-row"><span class="data-key">CLEARANCE</span><span class="data-val">NIVEL 3</span></div>
+                    <div class="card-footer">
+                        <span class="unit">COLOMBIA WARS RP</span>
+                        <span class="card-status">ACTIVO</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card-cnoe">
+                <div class="card-inner">
+                    <div class="card-top">
+                        <span class="rank-badge">SGT SEGUNDO</span>
+                        <span class="card-id">EJC-0000-TAC</span>
+                    </div>
+                    <div class="card-name">BLACK ROSE</div>
+                    <div class="data-row"><span class="data-key">UNIDAD</span><span class="data-val">CNOE</span></div>
+                    <div class="data-row"><span class="data-key">ESPECIALIDAD</span><span class="data-val">Guerra Asimétrica</span></div>
+                    <div class="data-row"><span class="data-key">CLEARANCE</span><span class="data-val">NIVEL 3</span></div>
+                    <div class="card-footer">
+                        <span class="unit">COLOMBIA WARS RP</span>
+                        <span class="card-status">ACTIVO</span>
+                    </div>
+                </div>
+            </div>
+
         </div>
 
         <footer>
-            ACCESO AUTORIZADO - TERMINAL G6
-            <span class="dev-credit">PROGRAMADOR: SAM SUKV</span>
+            <div class="footer-flag"></div>
+            <div class="footer-title">ACCESO AUTORIZADO — TERMINAL G6</div>
+            <div class="footer-creator">★ CREADO POR SAM SUKV ★</div>
+            <div class="footer-sys">GUERRAS MUNDIALES RP · COLOMBIA WARS · 2026 · CNOE · ENC: AES-256</div>
         </footer>
+
     </div>
+</div>
 
-    <script>
-        function verificar() {
-            var mPass = document.getElementById("passInput").value;
-            var passwordCorrecta = "Sam-Admn";
+<script>
+    /* Particles */
+    const pc = document.getElementById('particles');
+    for (let i = 0; i < 16; i++) {
+        const el = document.createElement('div');
+        el.className = 'p';
+        el.style.cssText = `left:${Math.random()*100}%;width:2px;height:2px;
+            animation-duration:${8+Math.random()*14}s;
+            animation-delay:${Math.random()*14}s;
+            --d:${(Math.random()-.5)*70}px;
+            background:${Math.random()>.5?'#fcd116':'#8b0000'};`;
+        pc.appendChild(el);
+    }
 
-            if (mPass === passwordCorrecta) {
-                document.getElementById("bloqueo").style.display = "none";
-                iniciarCarga();
-            } else {
-                document.getElementById("errorMsg").style.display = "block";
-                document.getElementById("passInput").value = "";
-            }
+    /* Auth */
+    const PASS = "Sam-Admn";
+
+    function verificar() {
+        const val = document.getElementById('passInput').value;
+        const err = document.getElementById('loginErr');
+        const box = document.getElementById('lockBox');
+        err.textContent = '';
+
+        if (!val) { err.textContent = '⚠ INGRESA EL CÓDIGO'; return; }
+
+        if (val === PASS) {
+            box.classList.add('scanning');
+            err.style.color = '#00ff88';
+            err.textContent = '[ ✔ CÓDIGO VALIDADO ]';
+            setTimeout(() => {
+                const bloqueo = document.getElementById('bloqueo');
+                bloqueo.classList.add('fade-out');
+                setTimeout(() => { bloqueo.style.display='none'; iniciarCarga(); }, 600);
+            }, 1200);
+        } else {
+            err.style.color = '#cc1111';
+            err.textContent = '⛔ CÓDIGO INVÁLIDO — ACCESO DENEGADO';
+            box.style.borderColor = 'rgba(204,17,17,.9)';
+            document.getElementById('passInput').value = '';
+            setTimeout(() => { box.style.borderColor=''; err.textContent=''; }, 2200);
         }
+    }
 
-        function iniciarCarga() {
-            const pantallaCarga = document.getElementById("pantalla-carga");
-            const barra = document.getElementById("bar");
-            const porcentaje = document.getElementById("perc");
-            const texto = document.getElementById("txt-carga");
-            
-            pantallaCarga.style.display = "flex";
-            
-            let progreso = 0;
-            const msgs = ["CONECTANDO...", "EXTRAYENDO...", "FILTRANDO...", "LISTO."];
-            
-            const timer = setInterval(() => {
-                progreso += Math.floor(Math.random() * 3) + 1;
-                if (progreso > 100) progreso = 100;
-                
-                barra.style.width = progreso + "%";
-                porcentaje.innerText = progreso + "%";
-                
-                if (progreso < 30) texto.innerText = msgs[0];
-                else if (progreso < 60) texto.innerText = msgs[1];
-                else if (progreso < 90) texto.innerText = msgs[2];
-                else texto.innerText = msgs[3];
+    function iniciarCarga() {
+        const carga = document.getElementById('pantalla-carga');
+        const barra = document.getElementById('bar');
+        const porc  = document.getElementById('perc');
+        const txt   = document.getElementById('txt-carga');
 
-                if (progreso === 100) {
-                    clearInterval(timer);
+        carga.style.display = 'flex';
+
+        const msgs = ['CONECTANDO AL SERVIDOR...','DESENCRIPTANDO ARCHIVOS...','FILTRANDO DATOS G6...','ACCESO CONCEDIDO...'];
+        let prog = 0;
+
+        const timer = setInterval(() => {
+            prog += Math.floor(Math.random() * 3) + 1;
+            if (prog > 100) prog = 100;
+            barra.style.width = prog + '%';
+            porc.textContent = prog + '%';
+            if      (prog < 30) txt.textContent = msgs[0];
+            else if (prog < 60) txt.textContent = msgs[1];
+            else if (prog < 90) txt.textContent = msgs[2];
+            else                txt.textContent = msgs[3];
+
+            if (prog === 100) {
+                clearInterval(timer);
+                setTimeout(() => {
+                    carga.style.opacity = '0';
+                    carga.style.transition = 'opacity .5s';
                     setTimeout(() => {
-                        pantallaCarga.style.opacity = "0";
-                        setTimeout(() => {
-                            pantallaCarga.style.display = "none";
-                            document.getElementById("contenido").style.display = "block";
-                            document.body.style.overflow = "auto";
-                        }, 500);
+                        carga.style.display = 'none';
+                        document.getElementById('contenido').style.display = 'block';
+                        document.body.style.overflow = 'auto';
                     }, 500);
-                }
-            }, 50);
-        }
-
-        document.getElementById("passInput").addEventListener("keyup", function(event) {
-            if (event.key === "Enter") { verificar(); }
-        });
-    </script>
+                }, 400);
+            }
+        }, 45);
+    }
+</script>
 </body>
 </html>
