@@ -2,16 +2,19 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8"/>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
+  <meta name="mobile-web-app-capable" content="yes"/>
+  <meta name="apple-mobile-web-app-capable" content="yes"/>
+  <meta name="theme-color" content="#000000"/>
   <title>FAC - MTA:SA GUERRAS MUNDIALES RP</title>
   <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Share+Tech+Mono&display=swap" rel="stylesheet"/>
   <style>
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; image-rendering: pixelated; }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; image-rendering: pixelated; -webkit-tap-highlight-color: transparent; }
 
     :root {
       --sa-black:   #000000;
       --sa-dark:    #0a0a0a;
-      --sa-panel:   rgba(0,0,0,0.82);
+      --sa-panel:   rgba(0,0,0,0.88);
       --sa-orange:  #ff8c00;
       --sa-yellow:  #f5e642;
       --sa-green:   #55e043;
@@ -20,32 +23,25 @@
       --sa-cyan:    #00d4ff;
       --sa-white:   #ffffff;
       --sa-grey:    #888888;
-      --sa-hp:      #e03030;
-      --sa-armor:   #5599ff;
-      --sa-money:   #55e043;
       --col-y: #fcd116; --col-b: #003893; --col-r: #ce1126;
+      --safe-top: env(safe-area-inset-top, 0px);
+      --safe-bottom: env(safe-area-inset-bottom, 0px);
     }
 
     html, body {
       width: 100%; height: 100%;
-      background: var(--sa-black);
+      background: #000;
       color: var(--sa-white);
       font-family: 'Share Tech Mono', monospace;
       overflow: hidden;
+      touch-action: pan-y;
     }
 
     /* ── CITY BACKGROUND ─────────────────────── */
     .city-bg {
       position: fixed; inset: 0; z-index: 0;
-      background:
-        linear-gradient(180deg,
-          #0a0f1a 0%,
-          #0d1520 30%,
-          #121a10 60%,
-          #0a0c08 100%);
+      background: linear-gradient(180deg, #0a0f1a 0%, #0d1520 30%, #121a10 60%, #0a0c08 100%);
     }
-
-    /* Stars */
     .city-bg::before {
       content: '';
       position: absolute; inset: 0;
@@ -55,245 +51,215 @@
         radial-gradient(1px 1px at 40% 20%, rgba(255,255,255,0.5) 0%, transparent 100%),
         radial-gradient(1px 1px at 60% 5%,  rgba(255,255,255,0.7) 0%, transparent 100%),
         radial-gradient(1px 1px at 75% 12%, rgba(255,255,255,0.4) 0%, transparent 100%),
-        radial-gradient(1px 1px at 90% 18%, rgba(255,255,255,0.6) 0%, transparent 100%),
-        radial-gradient(1px 1px at 15% 25%, rgba(255,255,255,0.3) 0%, transparent 100%),
-        radial-gradient(1px 1px at 50% 10%, rgba(255,255,255,0.5) 0%, transparent 100%),
-        radial-gradient(1px 1px at 82% 7%,  rgba(255,255,255,0.4) 0%, transparent 100%);
-    }
-
-    /* Pixel city skyline SVG via CSS */
-    .city-bg::after {
-      content: '';
-      position: absolute; bottom: 0; left: 0; right: 0;
-      height: 35%;
-      background:
-        /* buildings silhouette */
-        linear-gradient(transparent 0%, transparent 100%) center/100% 100%,
-        repeating-linear-gradient(90deg,
-          #0d1208 0px, #0d1208 30px,
-          transparent 30px, transparent 4px,
-          #0f1a0a 34px, #0f1a0a 80px,
-          transparent 80px, transparent 4px,
-          #0a1006 84px, #0a1006 50px,
-          transparent 134px, transparent 4px
-        );
-    }
-
-    /* Flying plane animation */
-    .plane-fx {
-      position: fixed; top: 18%; left: -80px;
-      font-size: 28px; z-index: 1;
-      animation: flyPlane 18s linear infinite;
-      filter: drop-shadow(0 0 6px rgba(0,212,255,0.5));
-    }
-
-    @keyframes flyPlane {
-      from { left: -80px; top: 18%; }
-      to   { left: 110%; top: 12%; }
+        radial-gradient(1px 1px at 90% 18%, rgba(255,255,255,0.6) 0%, transparent 100%);
     }
 
     /* Scanlines */
     .scanlines {
       position: fixed; inset: 0; z-index: 1;
-      background: repeating-linear-gradient(
-        0deg,
-        transparent,
-        transparent 2px,
-        rgba(0,0,0,0.15) 2px,
-        rgba(0,0,0,0.15) 4px
-      );
+      background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,0,0,0.12) 2px, rgba(0,0,0,0.12) 4px);
       pointer-events: none;
+    }
+
+    /* Plane */
+    .plane-fx {
+      position: fixed; top: 10%; left: -80px;
+      font-size: 20px; z-index: 1;
+      animation: flyPlane 20s linear infinite;
+      filter: drop-shadow(0 0 6px rgba(0,212,255,0.5));
+    }
+    @keyframes flyPlane {
+      from { left: -80px; top: 10%; }
+      to   { left: 110%; top: 6%; }
     }
 
     /* Colombia stripe */
     .colombia-bar {
       position: fixed; top: 0; left: 0; width: 100%; height: 4px;
-      display: flex; z-index: 100;
+      display: flex; z-index: 200;
     }
     .f-y{flex:2;background:var(--col-y);box-shadow:0 0 6px var(--col-y)}
     .f-b{flex:1;background:var(--col-b)}
     .f-r{flex:1;background:var(--col-r);box-shadow:0 0 4px var(--col-r)}
 
-    /* ── MAIN LAYOUT ─────────────────────────── */
-    .hud-root {
-      position: relative; z-index: 10;
-      width: 100vw; height: 100vh;
-      display: grid;
-      grid-template-rows: 52px 1fr 72px;
-      grid-template-columns: 280px 1fr 260px;
-      padding: 8px;
-      gap: 6px;
-    }
-
     /* ── SA PANEL BASE ───────────────────────── */
     .sa-panel {
       background: var(--sa-panel);
-      border: 2px solid rgba(255,255,255,0.08);
+      border: 1px solid rgba(255,255,255,0.08);
       position: relative;
       overflow: hidden;
     }
-
-    /* pixel corner brackets */
     .sa-panel::before, .sa-panel::after {
       content: '';
       position: absolute;
-      width: 10px; height: 10px;
+      width: 8px; height: 8px;
       border-color: var(--sa-orange);
       border-style: solid;
     }
-
     .sa-panel::before { top: 3px; left: 3px; border-width: 2px 0 0 2px; }
     .sa-panel::after  { bottom: 3px; right: 3px; border-width: 0 2px 2px 0; }
 
+    /* ══════════════════════════════════════════
+       MOBILE LAYOUT (main)
+    ══════════════════════════════════════════ */
+    .app-root {
+      position: relative; z-index: 10;
+      width: 100vw; height: 100dvh;
+      display: flex; flex-direction: column;
+      padding-top: 4px; /* colombia bar */
+      padding-bottom: 20px; /* ticker */
+    }
+
     /* ── TOPBAR ──────────────────────────────── */
     .topbar {
-      grid-column: 1 / 4;
-      display: flex; align-items: center; gap: 10px;
-      padding: 0 12px;
+      flex-shrink: 0;
+      display: flex; align-items: center; gap: 8px;
+      padding: 8px 10px;
+      margin: 4px 6px 0;
+      height: 50px;
     }
-
     .sa-logo {
       font-family: 'Press Start 2P', monospace;
-      font-size: 9px; color: var(--sa-orange);
-      text-shadow: 2px 2px 0 rgba(255,100,0,0.4);
-      letter-spacing: 0.05em; white-space: nowrap;
-      line-height: 1.4;
+      font-size: 7px; color: var(--sa-orange);
+      text-shadow: 1px 1px 0 rgba(255,100,0,0.4);
+      letter-spacing: 0.04em; white-space: nowrap;
+      line-height: 1.5;
     }
-
-    .sa-logo span { color: var(--sa-yellow); display: block; font-size: 7px; margin-top: 2px; }
-
-    .top-divider {
-      width: 2px; height: 30px; background: var(--sa-orange); flex-shrink: 0;
-    }
-
-    .wanted-stars {
-      display: flex; gap: 3px; align-items: center; margin-left: 4px;
-    }
-
-    .star {
-      font-size: 14px; color: var(--sa-grey);
-      filter: drop-shadow(0 0 0px transparent);
-      transition: all 0.3s;
-    }
-
-    .star.lit {
-      color: var(--sa-yellow);
-      filter: drop-shadow(0 0 4px var(--sa-yellow));
-    }
-
+    .sa-logo span { color: var(--sa-yellow); display: block; font-size: 5px; margin-top: 2px; }
+    .top-divider { width: 2px; height: 26px; background: var(--sa-orange); flex-shrink: 0; }
     .top-spacer { flex: 1; }
-
     .clock-sa {
       font-family: 'Press Start 2P', monospace;
-      font-size: 11px; color: var(--sa-yellow);
-      text-shadow: 0 0 8px rgba(245,230,66,0.5);
-      letter-spacing: 0.05em;
+      font-size: 9px; color: var(--sa-yellow);
+      text-shadow: 0 0 6px rgba(245,230,66,0.5);
     }
 
-    .server-tag {
-      font-size: 8px; color: var(--sa-orange);
-      border: 1px solid rgba(255,140,0,0.4);
-      padding: 3px 8px; font-family: 'Share Tech Mono', monospace;
-      letter-spacing: 0.1em;
+    /* ── TAB BAR ─────────────────────────────── */
+    .tab-bar {
+      flex-shrink: 0;
+      display: flex;
+      margin: 4px 6px;
+      border-bottom: 1px solid rgba(255,140,0,0.3);
+    }
+    .tab-btn {
+      flex: 1;
+      padding: 8px 4px;
+      background: transparent;
+      border: none;
+      color: var(--sa-grey);
+      font-family: 'Press Start 2P', monospace;
+      font-size: 5px;
+      letter-spacing: 0.06em;
+      cursor: pointer;
+      transition: all 0.2s;
+      border-bottom: 2px solid transparent;
+      margin-bottom: -1px;
+      display: flex; flex-direction: column; align-items: center; gap: 4px;
+    }
+    .tab-btn .tab-icon { font-size: 14px; }
+    .tab-btn.active {
+      color: var(--sa-orange);
+      border-bottom-color: var(--sa-orange);
     }
 
-    /* ── LEFT PANEL: PILOT LIST ──────────────── */
-    .left-panel {
-      grid-row: 2;
-      display: flex; flex-direction: column; padding: 8px 6px; gap: 4px;
+    /* ── CONTENT AREA ────────────────────────── */
+    .content-area {
+      flex: 1;
+      overflow: hidden;
+      position: relative;
     }
 
+    /* ── VIEWS ───────────────────────────────── */
+    .view {
+      position: absolute; inset: 0;
+      overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
+      padding: 6px;
+      display: none;
+      flex-direction: column;
+      gap: 6px;
+      opacity: 0;
+      transition: opacity 0.2s ease;
+    }
+    .view.active {
+      display: flex;
+      opacity: 1;
+    }
+
+    /* ══ VIEW 1: PILOTOS ══════════════════════ */
     .panel-title-sa {
       font-family: 'Press Start 2P', monospace;
-      font-size: 7px; color: var(--sa-orange);
-      letter-spacing: 0.08em; padding: 6px 8px;
+      font-size: 6px; color: var(--sa-orange);
+      letter-spacing: 0.08em; padding: 8px 10px;
       border-bottom: 1px solid rgba(255,140,0,0.3);
-      margin-bottom: 4px;
       text-shadow: 1px 1px 0 rgba(255,100,0,0.5);
     }
-
-    .pilot-row {
-      display: flex; align-items: center; gap: 8px;
-      padding: 8px 8px; cursor: pointer;
-      border: 1px solid transparent;
-      transition: all 0.15s; position: relative;
+    .section-label-sa {
+      font-family: 'Press Start 2P', monospace;
+      font-size: 5px; color: var(--sa-grey);
+      padding: 6px 10px; letter-spacing: 0.1em;
+    }
+    .divider-sa {
+      height: 1px; background: rgba(255,255,255,0.06); margin: 2px 0;
     }
 
-    .pilot-row:hover, .pilot-row.active {
+    /* Pilot rows — bigger touch targets */
+    .pilot-row {
+      display: flex; align-items: center; gap: 10px;
+      padding: 12px 10px; cursor: pointer;
+      border: 1px solid transparent;
+      transition: all 0.15s; position: relative;
+      min-height: 60px;
+    }
+    .pilot-row:active {
+      background: rgba(255,140,0,0.15);
+      border-color: rgba(255,140,0,0.5);
+    }
+    .pilot-row.selected {
       background: rgba(255,140,0,0.1);
       border-color: rgba(255,140,0,0.4);
     }
-
-    .pilot-row.active::before {
+    .pilot-row.selected::before {
       content: '▶';
-      position: absolute; left: -2px;
+      position: absolute; left: -1px;
       color: var(--sa-orange); font-size: 8px;
     }
-
     .pilot-row.elite { border-left: 3px solid var(--sa-yellow); }
 
     .pilot-avatar-sa {
-      width: 28px; height: 28px; flex-shrink: 0;
+      width: 36px; height: 36px; flex-shrink: 0;
       background: rgba(255,255,255,0.05);
       border: 1px solid rgba(255,255,255,0.1);
       display: grid; place-items: center;
-      font-size: 14px;
+      font-size: 18px;
     }
-
     .pilot-info-sa { flex: 1; min-width: 0; }
-
     .pilot-id {
       font-family: 'Press Start 2P', monospace;
-      font-size: 6px; color: var(--sa-cyan); margin-bottom: 2px;
+      font-size: 5px; color: var(--sa-cyan); margin-bottom: 3px;
     }
-
     .pilot-name-sa {
-      font-size: 10px; color: var(--sa-white); letter-spacing: 0.05em;
+      font-size: 12px; color: var(--sa-white); letter-spacing: 0.04em;
       white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
     }
-
-    .pilot-aircraft {
-      font-size: 8px; color: var(--sa-grey); margin-top: 1px;
-    }
-
+    .pilot-aircraft { font-size: 9px; color: var(--sa-grey); margin-top: 2px; }
     .online-dot {
-      width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0;
+      width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0;
       animation: dotBlink 1.5s infinite;
     }
-
     .dot-green { background: var(--sa-green); box-shadow: 0 0 5px var(--sa-green); }
     .dot-gold  { background: var(--sa-yellow); box-shadow: 0 0 5px var(--sa-yellow); }
-
     @keyframes dotBlink { 0%,100%{opacity:1} 50%{opacity:0.3} }
 
-    .divider-sa {
-      height: 1px; background: rgba(255,255,255,0.06); margin: 4px 0;
-    }
-
-    .section-label-sa {
-      font-family: 'Press Start 2P', monospace;
-      font-size: 6px; color: var(--sa-grey);
-      padding: 4px 8px; letter-spacing: 0.1em;
-    }
-
-    /* ── CENTER: PILOT PROFILE ───────────────── */
-    .center-panel {
-      grid-row: 2;
-      display: flex; flex-direction: column; padding: 10px 14px; gap: 10px;
-    }
-
-    /* Big aircraft display */
+    /* ══ VIEW 2: PERFIL ═══════════════════════ */
     .aircraft-display {
-      flex: 1;
+      height: 200px; flex-shrink: 0;
       background: rgba(0,0,0,0.6);
       border: 1px solid rgba(255,140,0,0.2);
       display: flex; flex-direction: column;
       align-items: center; justify-content: center;
       position: relative; overflow: hidden;
-      min-height: 200px;
     }
-
-    /* Grid background */
     .aircraft-display::before {
       content: '';
       position: absolute; inset: 0;
@@ -302,8 +268,6 @@
         linear-gradient(90deg, rgba(0,212,255,0.04) 1px, transparent 1px);
       background-size: 20px 20px;
     }
-
-    /* Corner crosshairs */
     .aircraft-display::after {
       content: '';
       position: absolute;
@@ -311,35 +275,27 @@
       width: 60px; height: 60px;
       border: 1px solid rgba(255,140,0,0.3);
       border-radius: 50%;
-      box-shadow:
-        0 0 0 1px rgba(255,140,0,0.1),
-        inset 0 0 20px rgba(255,140,0,0.05);
+      box-shadow: 0 0 0 1px rgba(255,140,0,0.1), inset 0 0 20px rgba(255,140,0,0.05);
     }
-
     .plane-icon-big {
-      font-size: 72px;
+      font-size: 80px;
       filter: drop-shadow(0 0 20px rgba(0,212,255,0.6));
       z-index: 1;
       animation: hover3d 3s ease-in-out infinite;
     }
-
     @keyframes hover3d {
       0%,100% { transform: translateY(0) rotate(-2deg); }
       50%      { transform: translateY(-8px) rotate(2deg); }
     }
-
     .target-label {
-      position: absolute; bottom: 12px;
+      position: absolute; bottom: 10px;
       font-family: 'Press Start 2P', monospace;
-      font-size: 6px; color: var(--sa-orange);
-      letter-spacing: 0.15em; text-align: center;
+      font-size: 5px; color: var(--sa-orange);
+      letter-spacing: 0.12em; text-align: center;
     }
-
     .target-label span { color: var(--sa-white); }
-
-    /* Corner reticles */
     .reticle {
-      position: absolute; width: 16px; height: 16px;
+      position: absolute; width: 14px; height: 14px;
       border-color: rgba(255,140,0,0.5); border-style: solid;
     }
     .r-tl { top: 8px; left: 8px; border-width: 2px 0 0 2px; }
@@ -347,78 +303,74 @@
     .r-bl { bottom: 8px; left: 8px; border-width: 0 0 2px 2px; }
     .r-br { bottom: 8px; right: 8px; border-width: 0 2px 2px 0; }
 
-    /* Pilot name display */
     .pilot-name-display {
       font-family: 'Press Start 2P', monospace;
-      font-size: 12px; color: var(--sa-yellow);
+      font-size: 11px; color: var(--sa-yellow);
       text-shadow: 2px 2px 0 rgba(200,150,0,0.4), 0 0 15px rgba(245,230,66,0.4);
-      letter-spacing: 0.08em; text-align: center;
+      letter-spacing: 0.06em; text-align: center;
     }
-
     .pilot-rank-display {
-      font-size: 11px; color: var(--sa-orange); text-align: center;
-      letter-spacing: 0.1em; margin-top: 2px;
+      font-size: 10px; color: var(--sa-orange); text-align: center;
+      letter-spacing: 0.08em; margin-top: 3px;
     }
 
-    /* SA-style stats bars */
+    /* Stats */
     .stats-grid {
       display: grid; grid-template-columns: 1fr 1fr; gap: 8px;
+      padding: 0 2px;
     }
-
     .stat-item { display: flex; flex-direction: column; gap: 4px; }
-
-    .stat-header {
-      display: flex; justify-content: space-between; align-items: center;
-    }
-
+    .stat-header { display: flex; justify-content: space-between; align-items: center; }
     .stat-name {
       font-family: 'Press Start 2P', monospace;
-      font-size: 5px; color: var(--sa-grey); letter-spacing: 0.06em;
+      font-size: 5px; color: var(--sa-grey); letter-spacing: 0.05em;
     }
-
     .stat-val {
       font-family: 'Press Start 2P', monospace;
-      font-size: 7px; color: var(--sa-white);
+      font-size: 6px; color: var(--sa-white);
     }
-
     .stat-bar {
-      height: 8px; background: rgba(0,0,0,0.6);
+      height: 10px; background: rgba(0,0,0,0.6);
       border: 1px solid rgba(255,255,255,0.1);
       position: relative; overflow: hidden;
     }
-
-    .stat-fill {
-      height: 100%;
-      transition: width 1s ease;
-    }
-
+    .stat-fill { height: 100%; transition: width 0.8s ease; }
     .fill-hp     { background: linear-gradient(90deg, #cc2222, #ff4444); box-shadow: 0 0 6px rgba(220,50,50,0.5); }
     .fill-armor  { background: linear-gradient(90deg, #2244cc, #4488ff); box-shadow: 0 0 6px rgba(68,136,255,0.5); }
     .fill-skill  { background: linear-gradient(90deg, #cc8800, var(--sa-yellow)); box-shadow: 0 0 6px rgba(245,230,66,0.5); }
     .fill-wanted { background: linear-gradient(90deg, #cc4400, var(--sa-orange)); box-shadow: 0 0 6px rgba(255,140,0,0.5); }
 
-    /* ── RIGHT PANEL: RADAR + DATA ───────────── */
-    .right-panel {
-      grid-row: 2;
-      display: flex; flex-direction: column; gap: 6px; padding: 8px 6px;
+    .btn-sa {
+      display: flex; align-items: center; justify-content: center;
+      padding: 14px; margin-top: 2px;
+      background: rgba(255,140,0,0.1);
+      border: 1px solid rgba(255,140,0,0.4);
+      color: var(--sa-orange);
+      font-family: 'Press Start 2P', monospace;
+      font-size: 6px; letter-spacing: 0.1em;
+      text-decoration: none; cursor: pointer;
+      transition: all 0.2s; text-transform: uppercase;
     }
+    .btn-sa:active { background: rgba(255,140,0,0.25); box-shadow: 0 0 10px rgba(255,140,0,0.2); }
 
-    /* SA minimap */
+    /* ══ VIEW 3: RADAR ════════════════════════ */
     .minimap-wrap {
       position: relative;
-      width: 100%; padding-top: 100%;
+      width: min(70vw, 260px);
+      margin: 0 auto;
     }
-
+    .minimap-wrap::before {
+      content: '';
+      display: block;
+      padding-top: 100%;
+    }
     .minimap {
       position: absolute; inset: 0;
       border: 2px solid rgba(255,255,255,0.15);
       border-radius: 50%;
       overflow: hidden;
-      background:
-        radial-gradient(circle, #1a2810 0%, #0d1508 60%, #05080a 100%);
+      background: radial-gradient(circle, #1a2810 0%, #0d1508 60%, #05080a 100%);
     }
-
-    /* Map grid lines */
     .minimap::before {
       content: '';
       position: absolute; inset: 0;
@@ -428,8 +380,6 @@
       background-size: 20% 20%;
       border-radius: 50%;
     }
-
-    /* Radar sweep */
     .minimap::after {
       content: '';
       position: absolute; inset: 0;
@@ -437,161 +387,71 @@
       border-radius: 50%;
       animation: sweep 4s linear infinite;
     }
-
     @keyframes sweep { from{transform:rotate(0deg)} to{transform:rotate(360deg)} }
-
-    /* Roads */
-    .map-road {
-      position: absolute; background: rgba(255,255,255,0.1);
-    }
-
-    /* Blips */
+    .map-road { position: absolute; background: rgba(255,255,255,0.1); }
     .map-blip {
       position: absolute;
       border-radius: 50%;
       transform: translate(-50%, -50%);
     }
-
-    .blip-player {
-      width: 8px; height: 8px;
-      background: var(--sa-cyan);
-      box-shadow: 0 0 8px var(--sa-cyan);
-      top: 50%; left: 50%;
-    }
-
-    .blip-pilot {
-      width: 6px; height: 6px;
-      background: var(--sa-yellow);
-      box-shadow: 0 0 6px var(--sa-yellow);
-    }
-
-    .blip-target {
-      width: 5px; height: 5px;
-      background: var(--sa-red);
-      box-shadow: 0 0 6px var(--sa-red);
-      animation: dotBlink 0.8s infinite;
-    }
-
+    .blip-player { width: 10px; height: 10px; background: var(--sa-cyan); box-shadow: 0 0 8px var(--sa-cyan); top: 50%; left: 50%; }
+    .blip-pilot  { width: 7px; height: 7px; background: var(--sa-yellow); box-shadow: 0 0 6px var(--sa-yellow); }
+    .blip-target { width: 6px; height: 6px; background: var(--sa-red); box-shadow: 0 0 6px var(--sa-red); animation: dotBlink 0.8s infinite; }
     .minimap-label {
       font-family: 'Press Start 2P', monospace;
       font-size: 5px; color: var(--sa-grey);
-      text-align: center; margin-top: 5px;
-      letter-spacing: 0.1em;
+      text-align: center; margin-top: 8px;
+      letter-spacing: 0.08em;
     }
 
     /* Data rows */
     .data-row-sa {
       display: flex; justify-content: space-between; align-items: center;
-      padding: 5px 6px; border-bottom: 1px solid rgba(255,255,255,0.05);
+      padding: 10px 10px; border-bottom: 1px solid rgba(255,255,255,0.05);
     }
-
-    .dr-key {
-      font-size: 8px; color: var(--sa-grey); letter-spacing: 0.05em;
-    }
-
+    .dr-key { font-size: 9px; color: var(--sa-grey); letter-spacing: 0.05em; }
     .dr-val {
       font-family: 'Press Start 2P', monospace;
       font-size: 6px; color: var(--sa-orange);
     }
-
     .dr-val.green { color: var(--sa-green); }
     .dr-val.cyan  { color: var(--sa-cyan); }
     .dr-val.red   { color: var(--sa-red); }
 
-    /* Return button */
-    .btn-sa {
-      display: flex; align-items: center; justify-content: center;
-      padding: 8px; margin-top: 4px;
-      background: rgba(255,140,0,0.1);
-      border: 1px solid rgba(255,140,0,0.4);
-      color: var(--sa-orange);
-      font-family: 'Press Start 2P', monospace;
-      font-size: 6px; letter-spacing: 0.1em;
-      text-decoration: none; cursor: pointer;
-      transition: all 0.2s; text-transform: uppercase;
+    /* ── HUD BOTTOM BAR ──────────────────────── */
+    .hud-bottom {
+      flex-shrink: 0;
+      display: flex; align-items: center;
+      padding: 6px 10px; gap: 10px;
+      margin: 0 6px 4px;
+      height: 52px;
     }
-
-    .btn-sa:hover { background: rgba(255,140,0,0.25); box-shadow: 0 0 10px rgba(255,140,0,0.2); }
-
-    /* ── BOTTOM HUD ──────────────────────────── */
-    .bottom-hud {
-      grid-column: 1 / 4;
-      display: grid;
-      grid-template-columns: 240px 1fr 240px;
-      align-items: center;
-      padding: 0 12px; gap: 12px;
-    }
-
-    /* HP + Armor bars (SA style) */
-    .hud-bars { display: flex; flex-direction: column; gap: 6px; }
-
-    .bar-row {
-      display: flex; align-items: center; gap: 8px;
-    }
-
-    .bar-icon { font-size: 14px; width: 20px; text-align: center; }
-
+    .hud-bars { display: flex; flex-direction: column; gap: 4px; flex: 1; }
+    .bar-row { display: flex; align-items: center; gap: 6px; }
+    .bar-icon { font-size: 12px; width: 16px; text-align: center; flex-shrink: 0; }
     .bar-track {
-      flex: 1; height: 10px;
+      flex: 1; height: 8px;
       background: rgba(0,0,0,0.7);
       border: 1px solid rgba(255,255,255,0.15);
-      position: relative; overflow: hidden;
+      overflow: hidden;
     }
+    .bar-fill { height: 100%; position: relative; }
+    .bar-fill::after { content: ''; position: absolute; right: 0; top: 0; bottom: 0; width: 2px; background: rgba(255,255,255,0.4); }
+    .hp-fill    { width: 87%; background: linear-gradient(90deg, #8b0000, #e03030); }
+    .armor-fill { width: 100%; background: linear-gradient(90deg, #003099, #4488ff); }
+    .bar-num { font-family: 'Press Start 2P', monospace; font-size: 6px; color: var(--sa-white); width: 22px; text-align: right; }
 
-    .bar-fill {
-      height: 100%; position: relative;
-    }
+    .hud-center { text-align: center; flex-shrink: 0; }
+    .money-val { font-family: 'Press Start 2P', monospace; font-size: 7px; color: var(--sa-green); text-shadow: 0 0 8px rgba(85,224,67,0.4); }
+    .money-label { font-size: 7px; color: var(--sa-grey); margin-top: 2px; }
 
-    .bar-fill::after {
-      content: '';
-      position: absolute; right: 0; top: 0; bottom: 0;
-      width: 3px; background: rgba(255,255,255,0.4);
-    }
-
-    .hp-fill    { width: 87%; background: linear-gradient(90deg, #8b0000, #e03030); box-shadow: 0 0 6px rgba(220,50,50,0.4); }
-    .armor-fill { width: 100%; background: linear-gradient(90deg, #003099, #4488ff); box-shadow: 0 0 6px rgba(68,136,255,0.4); }
-
-    .bar-num {
-      font-family: 'Press Start 2P', monospace;
-      font-size: 8px; color: var(--sa-white); width: 28px; text-align: right;
-    }
-
-    /* Money */
-    .hud-money {
-      text-align: center;
-    }
-
-    .money-val {
-      font-family: 'Press Start 2P', monospace;
-      font-size: 13px; color: var(--sa-money);
-      text-shadow: 0 0 10px rgba(85,224,67,0.4), 1px 1px 0 rgba(0,80,0,0.5);
-      letter-spacing: 0.05em;
-    }
-
-    .money-label {
-      font-size: 8px; color: var(--sa-grey); margin-top: 3px; letter-spacing: 0.1em;
-    }
-
-    /* Weapon slot */
-    .hud-weapon {
-      display: flex; align-items: center; justify-content: flex-end; gap: 10px;
-    }
-
-    .weapon-icon { font-size: 28px; filter: drop-shadow(0 0 6px rgba(255,140,0,0.4)); }
-
+    .hud-weapon { display: flex; align-items: center; gap: 6px; flex-shrink: 0; }
+    .weapon-icon { font-size: 22px; filter: drop-shadow(0 0 5px rgba(255,140,0,0.4)); }
     .weapon-info { text-align: right; }
+    .weapon-name { font-family: 'Press Start 2P', monospace; font-size: 5px; color: var(--sa-white); }
+    .weapon-ammo { font-family: 'Press Start 2P', monospace; font-size: 7px; color: var(--sa-orange); margin-top: 2px; }
 
-    .weapon-name {
-      font-family: 'Press Start 2P', monospace;
-      font-size: 7px; color: var(--sa-white); letter-spacing: 0.05em;
-    }
-
-    .weapon-ammo {
-      font-family: 'Press Start 2P', monospace;
-      font-size: 9px; color: var(--sa-orange); margin-top: 3px;
-    }
-
-    /* Ticker */
+    /* ── TICKER ──────────────────────────────── */
     .sa-ticker {
       position: fixed; bottom: 0; left: 0; right: 0;
       height: 20px;
@@ -599,268 +459,406 @@
       z-index: 50;
       display: flex; align-items: center; overflow: hidden;
     }
-
     .ticker-tag {
-      background: rgba(0,0,0,0.6); padding: 0 10px;
+      background: rgba(0,0,0,0.6); padding: 0 8px;
       font-family: 'Press Start 2P', monospace;
-      font-size: 6px; color: var(--sa-yellow);
+      font-size: 5px; color: var(--sa-yellow);
       white-space: nowrap; height: 100%;
       display: flex; align-items: center; flex-shrink: 0;
       border-right: 1px solid rgba(0,0,0,0.3);
     }
-
     .ticker-text {
       font-family: 'Press Start 2P', monospace;
-      font-size: 6px; color: #000;
+      font-size: 5px; color: #000;
       white-space: nowrap;
-      animation: scroll 25s linear infinite;
-      letter-spacing: 0.06em;
+      animation: scroll 22s linear infinite;
+      letter-spacing: 0.05em;
     }
-
     @keyframes scroll {
       from { transform: translateX(100vw); }
       to   { transform: translateX(-100%); }
     }
 
+    /* ── SLIDE-IN PILOT DETAIL (mobile overlay) ── */
+    .pilot-detail-overlay {
+      position: fixed; inset: 0; z-index: 300;
+      background: rgba(0,0,0,0.95);
+      display: none; flex-direction: column;
+      overflow-y: auto;
+      padding: 12px;
+      gap: 10px;
+      -webkit-overflow-scrolling: touch;
+      transform: translateX(100%);
+      transition: transform 0.3s ease;
+    }
+    .pilot-detail-overlay.open {
+      display: flex;
+      transform: translateX(0);
+    }
+    .overlay-topbar {
+      display: flex; align-items: center; gap: 10px;
+      padding-bottom: 10px;
+      border-bottom: 1px solid rgba(255,140,0,0.3);
+    }
+    .close-btn {
+      background: rgba(255,140,0,0.15);
+      border: 1px solid rgba(255,140,0,0.5);
+      color: var(--sa-orange);
+      font-family: 'Press Start 2P', monospace;
+      font-size: 8px;
+      padding: 10px 14px;
+      cursor: pointer;
+      flex-shrink: 0;
+    }
+    .overlay-title {
+      font-family: 'Press Start 2P', monospace;
+      font-size: 8px; color: var(--sa-yellow);
+    }
+
     /* ── NOTIFICATION ────────────────────────── */
     .sa-notif {
-      position: fixed; top: 70px; right: 16px; z-index: 200;
-      background: rgba(0,0,0,0.85);
+      position: fixed; top: 60px; right: 10px; z-index: 400;
+      background: rgba(0,0,0,0.92);
       border-left: 3px solid var(--sa-orange);
-      padding: 10px 14px;
+      padding: 10px 12px;
       font-family: 'Press Start 2P', monospace;
-      font-size: 7px; color: var(--sa-white);
-      max-width: 240px; line-height: 1.8;
+      font-size: 6px; color: var(--sa-white);
+      max-width: 200px; line-height: 1.8;
       display: none;
-      animation: notifSlide 0.3s ease;
     }
+    .notif-title { color: var(--sa-yellow); margin-bottom: 4px; font-size: 7px; }
 
-    @keyframes notifSlide {
-      from { transform: translateX(100%); opacity: 0; }
-      to   { transform: translateX(0); opacity: 1; }
-    }
-
-    .notif-title { color: var(--sa-yellow); margin-bottom: 4px; font-size: 8px; }
-
-    /* Mobile */
-    @media (max-width: 768px) {
-      .hud-root {
-        grid-template-columns: 1fr;
-        grid-template-rows: auto;
-        overflow-y: auto;
-        height: auto;
-      }
-      .topbar { grid-column: 1; }
-      .bottom-hud { grid-column: 1; grid-template-columns: 1fr; }
-      body { overflow-y: auto; height: auto; }
-    }
+    /* Scrollbar styling */
+    .view::-webkit-scrollbar { width: 2px; }
+    .view::-webkit-scrollbar-track { background: transparent; }
+    .view::-webkit-scrollbar-thumb { background: rgba(255,140,0,0.3); }
+    .pilot-detail-overlay::-webkit-scrollbar { width: 2px; }
+    .pilot-detail-overlay::-webkit-scrollbar-thumb { background: rgba(255,140,0,0.3); }
   </style>
 </head>
 <body>
 
-<!-- Colombia -->
+<!-- Colombia bar -->
 <div class="colombia-bar"><div class="f-y"></div><div class="f-b"></div><div class="f-r"></div></div>
 
-<!-- City BG -->
+<!-- BG -->
 <div class="city-bg"></div>
 <div class="scanlines"></div>
 <div class="plane-fx">✈️</div>
 
-<!-- Notification popup -->
+<!-- Notification -->
 <div class="sa-notif" id="notif">
   <div class="notif-title">★ PILOTO SELECCIONADO</div>
   <div id="notif-text">---</div>
 </div>
 
-<!-- ══ HUD ROOT ═══════════════════════════════════════ -->
-<div class="hud-root">
+<!-- Pilot Detail Overlay -->
+<div class="pilot-detail-overlay" id="detail-overlay">
+  <div class="overlay-topbar">
+    <button class="close-btn" onclick="closeDetail()">✕ VOLVER</button>
+    <div class="overlay-title">PERFIL DE PILOTO</div>
+  </div>
 
-  <!-- ── TOPBAR ──────────────────────────────────── -->
+  <!-- Aircraft view -->
+  <div class="sa-panel aircraft-display" style="height:180px;flex-shrink:0">
+    <div class="reticle r-tl"></div><div class="reticle r-tr"></div>
+    <div class="reticle r-bl"></div><div class="reticle r-br"></div>
+    <div class="plane-icon-big" id="plane-icon">✈️</div>
+    <div class="target-label">AERONAVE: <span id="aircraft-label">F-16 FALCON</span></div>
+  </div>
+
+  <!-- Name -->
+  <div style="text-align:center;padding:4px 0">
+    <div class="pilot-name-display" id="pilot-name-big">SAM SUKV</div>
+    <div class="pilot-rank-display" id="pilot-rank-big">CORONEL SUPERIOR · ECO-024</div>
+  </div>
+
+  <!-- Stats -->
+  <div class="sa-panel" style="padding:10px">
+    <div class="panel-title-sa" style="margin:-10px -10px 10px;padding:8px 10px">▶ ESTADÍSTICAS</div>
+    <div class="stats-grid">
+      <div class="stat-item">
+        <div class="stat-header">
+          <span class="stat-name">❤ SALUD</span>
+          <span class="stat-val" id="sv-hp">87%</span>
+        </div>
+        <div class="stat-bar"><div class="stat-fill fill-hp" id="sf-hp" style="width:87%"></div></div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-header">
+          <span class="stat-name">🛡 BLINDAJE</span>
+          <span class="stat-val" id="sv-armor">100%</span>
+        </div>
+        <div class="stat-bar"><div class="stat-fill fill-armor" id="sf-armor" style="width:100%"></div></div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-header">
+          <span class="stat-name">✈ HABILIDAD</span>
+          <span class="stat-val" id="sv-skill">95%</span>
+        </div>
+        <div class="stat-bar"><div class="stat-fill fill-skill" id="sf-skill" style="width:95%"></div></div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-header">
+          <span class="stat-name">⭐ RANGO</span>
+          <span class="stat-val" id="sv-wanted">72%</span>
+        </div>
+        <div class="stat-bar"><div class="stat-fill fill-wanted" id="sf-wanted" style="width:72%"></div></div>
+      </div>
+    </div>
+  </div>
+
+  <a href="index1.html" class="btn-sa">← VOLVER AL MANDO CENTRAL</a>
+</div>
+
+<!-- ══ APP ROOT ═══════════════════════════════════ -->
+<div class="app-root">
+
+  <!-- TOPBAR -->
   <div class="sa-panel topbar">
     <div class="sa-logo">
-      ✈ FAC · GUERRAS MUNDIALES RP
-      <span>FUERZA AEREA ROLEPLAY COLOMBIA</span>
+      ✈ FAC · GUERRAS MUNDIALES
+      <span>FUERZA AEREA RP COLOMBIA</span>
     </div>
     <div class="top-divider"></div>
-    <div class="wanted-stars">
-      <span class="star lit" title="ÉLITE">★</span>
-      <span class="star lit" title="ACTIVO">★</span>
-      <span class="star lit" title="VETERANO">★</span>
-      <span class="star" title="">★</span>
-      <span class="star" title="">★</span>
-      <span class="star" title="">★</span>
-    </div>
     <div class="top-spacer"></div>
-    <div class="server-tag">MTA:SA GUERRAS MUNDIALES RP</div>
     <div class="clock-sa" id="clock">00:00:00</div>
   </div>
 
-  <!-- ── LEFT: PILOT LIST ────────────────────────── -->
-  <div class="sa-panel left-panel">
-    <div class="panel-title-sa">▶ CONTACTOS ID.</div>
-
-    <div class="section-label-sa">── PILOTOS ÉLITE ──</div>
-
-    <div class="pilot-row elite active" onclick="selectPilot(this,'SAM SUKV','Coronel Superior','F-16 Falcon','ECO-024',87,100,95,72)">
-      <div class="pilot-avatar-sa">🦅</div>
-      <div class="pilot-info-sa">
-        <div class="pilot-id">[ECO-024]</div>
-        <div class="pilot-name-sa">SAM SUKV</div>
-        <div class="pilot-aircraft">F-16 FALCON</div>
-      </div>
-      <div class="online-dot dot-gold"></div>
-    </div>
-
-    <div class="pilot-row elite" onclick="selectPilot(this,'BLACK ROSSE','Piloto Oficial','F-22 Raptor','ECO-001',100,100,88,60)">
-      <div class="pilot-avatar-sa">🦅</div>
-      <div class="pilot-info-sa">
-        <div class="pilot-id">[ECO-001]</div>
-        <div class="pilot-name-sa">BLACK ROSSE</div>
-        <div class="pilot-aircraft">F-22 RAPTOR</div>
-      </div>
-      <div class="online-dot dot-gold"></div>
-    </div>
-
-    <div class="divider-sa"></div>
-    <div class="section-label-sa">── CADETES ──</div>
-
-    <div class="pilot-row" onclick="selectPilot(this,'ROBERT NOEIL','Cadete','F-22 Raptor','CDT-A02',75,80,50,20)">
-      <div class="pilot-avatar-sa">🪖</div>
-      <div class="pilot-info-sa">
-        <div class="pilot-id">[CDT-A02]</div>
-        <div class="pilot-name-sa">ROBERT NOEIL</div>
-        <div class="pilot-aircraft">F-22 RAPTOR</div>
-      </div>
-      <div class="online-dot dot-green"></div>
-    </div>
-
-    <div class="pilot-row" onclick="selectPilot(this,'JUAN BERMUDEZ','Cadete','Ala-Rotatoria','CDT-034',60,65,40,10)">
-      <div class="pilot-avatar-sa">🪖</div>
-      <div class="pilot-info-sa">
-        <div class="pilot-id">[CDT-034]</div>
-        <div class="pilot-name-sa">JUAN BERMUDEZ</div>
-        <div class="pilot-aircraft">ALA-ROTATORIA</div>
-      </div>
-      <div class="online-dot dot-green"></div>
-    </div>
-
-    <div class="pilot-row" onclick="selectPilot(this,'JHON CONNOR','Cadete','Ala-Rotatoria','CDT-027',70,70,45,15)">
-      <div class="pilot-avatar-sa">🪖</div>
-      <div class="pilot-info-sa">
-        <div class="pilot-id">[CDT-027]</div>
-        <div class="pilot-name-sa">JHON CONNOR</div>
-        <div class="pilot-aircraft">ALA-ROTATORIA</div>
-      </div>
-      <div class="online-dot dot-green"></div>
-    </div>
-
-    <div class="pilot-row" onclick="selectPilot(this,'JOSE PEREIRA','Cadete','Ala-Rotatoria','CDT-052',65,60,38,8)">
-      <div class="pilot-avatar-sa">🪖</div>
-      <div class="pilot-info-sa">
-        <div class="pilot-id">[CDT-052]</div>
-        <div class="pilot-name-sa">JOSE PEREIRA</div>
-        <div class="pilot-aircraft">ALA-ROTATORIA</div>
-      </div>
-      <div class="online-dot dot-green"></div>
-    </div>
-
-    <div class="pilot-row" onclick="selectPilot(this,'JORGUE PERLA','Cadete','Ala-Rotatoria','CDT-055',68,72,42,12)">
-      <div class="pilot-avatar-sa">🪖</div>
-      <div class="pilot-info-sa">
-        <div class="pilot-id">[CDT-055]</div>
-        <div class="pilot-name-sa">JORGUE PERLA</div>
-        <div class="pilot-aircraft">ALA-ROTATORIA</div>
-      </div>
-      <div class="online-dot dot-green"></div>
-    </div>
+  <!-- TAB BAR -->
+  <div class="tab-bar">
+    <button class="tab-btn active" onclick="switchTab('pilotos',this)">
+      <span class="tab-icon">👥</span>PILOTOS
+    </button>
+    <button class="tab-btn" onclick="switchTab('radar',this)">
+      <span class="tab-icon">📡</span>RADAR
+    </button>
+    <button class="tab-btn" onclick="switchTab('info',this)">
+      <span class="tab-icon">ℹ️</span>INFO
+    </button>
   </div>
 
-  <!-- ── CENTER: PILOT PROFILE ───────────────────── -->
-  <div class="sa-panel center-panel">
+  <!-- CONTENT -->
+  <div class="content-area">
 
-    <!-- Aircraft view -->
-    <div class="aircraft-display">
-      <div class="reticle r-tl"></div>
-      <div class="reticle r-tr"></div>
-      <div class="reticle r-bl"></div>
-      <div class="reticle r-br"></div>
-      <div class="plane-icon-big" id="plane-icon">✈️</div>
-      <div class="target-label">
-        AERONAVE: <span id="aircraft-label">F-16 FALCON</span>
+    <!-- VIEW: PILOTOS -->
+    <div class="view active" id="view-pilotos">
+
+      <div class="sa-panel" style="padding-bottom:8px">
+        <div class="panel-title-sa">▶ CONTACTOS ID.</div>
+        <div class="section-label-sa">── PILOTOS ÉLITE ──</div>
+
+        <div class="pilot-row elite selected" onclick="openDetail('SAM SUKV','Coronel Superior','F-16 Falcon','ECO-024',87,100,95,72)">
+          <div class="pilot-avatar-sa">🦅</div>
+          <div class="pilot-info-sa">
+            <div class="pilot-id">[ECO-024]</div>
+            <div class="pilot-name-sa">SAM SUKV</div>
+            <div class="pilot-aircraft">F-16 FALCON</div>
+          </div>
+          <div class="online-dot dot-gold"></div>
+        </div>
+
+        <div class="pilot-row elite" onclick="openDetail('BLACK ROSSE','Piloto Oficial','F-22 Raptor','ECO-001',100,100,88,60)">
+          <div class="pilot-avatar-sa">🦅</div>
+          <div class="pilot-info-sa">
+            <div class="pilot-id">[ECO-001]</div>
+            <div class="pilot-name-sa">BLACK ROSSE</div>
+            <div class="pilot-aircraft">F-22 RAPTOR</div>
+          </div>
+          <div class="online-dot dot-gold"></div>
+        </div>
+
+        <div class="divider-sa"></div>
+        <div class="section-label-sa">── CADETES ──</div>
+
+        <div class="pilot-row" onclick="openDetail('ROBERT NOEIL','Cadete','F-22 Raptor','CDT-A02',75,80,50,20)">
+          <div class="pilot-avatar-sa">🪖</div>
+          <div class="pilot-info-sa">
+            <div class="pilot-id">[CDT-A02]</div>
+            <div class="pilot-name-sa">ROBERT NOEIL</div>
+            <div class="pilot-aircraft">F-22 RAPTOR</div>
+          </div>
+          <div class="online-dot dot-green"></div>
+        </div>
+
+        <div class="pilot-row" onclick="openDetail('JUAN BERMUDEZ','Cadete','Ala-Rotatoria','CDT-034',60,65,40,10)">
+          <div class="pilot-avatar-sa">🪖</div>
+          <div class="pilot-info-sa">
+            <div class="pilot-id">[CDT-034]</div>
+            <div class="pilot-name-sa">JUAN BERMUDEZ</div>
+            <div class="pilot-aircraft">ALA-ROTATORIA</div>
+          </div>
+          <div class="online-dot dot-green"></div>
+        </div>
+
+        <div class="pilot-row" onclick="openDetail('JHON CONNOR','Cadete','Ala-Rotatoria','CDT-027',70,70,45,15)">
+          <div class="pilot-avatar-sa">🪖</div>
+          <div class="pilot-info-sa">
+            <div class="pilot-id">[CDT-027]</div>
+            <div class="pilot-name-sa">JHON CONNOR</div>
+            <div class="pilot-aircraft">ALA-ROTATORIA</div>
+          </div>
+          <div class="online-dot dot-green"></div>
+        </div>
+
+        <div class="pilot-row" onclick="openDetail('JOSE PEREIRA','Cadete','Ala-Rotatoria','CDT-052',65,60,38,8)">
+          <div class="pilot-avatar-sa">🪖</div>
+          <div class="pilot-info-sa">
+            <div class="pilot-id">[CDT-052]</div>
+            <div class="pilot-name-sa">JOSE PEREIRA</div>
+            <div class="pilot-aircraft">ALA-ROTATORIA</div>
+          </div>
+          <div class="online-dot dot-green"></div>
+        </div>
+
+        <div class="pilot-row" onclick="openDetail('JORGUE PERLA','Cadete','Ala-Rotatoria','CDT-055',68,72,42,12)">
+          <div class="pilot-avatar-sa">🪖</div>
+          <div class="pilot-info-sa">
+            <div class="pilot-id">[CDT-055]</div>
+            <div class="pilot-name-sa">JORGUE PERLA</div>
+            <div class="pilot-aircraft">ALA-ROTATORIA</div>
+          </div>
+          <div class="online-dot dot-green"></div>
+        </div>
       </div>
+
+      <div style="height:10px;flex-shrink:0"></div>
     </div>
 
-    <!-- Pilot name -->
-    <div style="text-align:center">
-      <div class="pilot-name-display" id="pilot-name-big">SAM SUKV</div>
-      <div class="pilot-rank-display" id="pilot-rank-big">CORONEL SUPERIOR · ECO-024</div>
+    <!-- VIEW: RADAR -->
+    <div class="view" id="view-radar">
+      <div class="sa-panel" style="padding:10px">
+        <div class="panel-title-sa" style="margin:-10px -10px 12px;padding:8px 10px">▶ RADAR TÁCTICO</div>
+
+        <div class="minimap-wrap">
+          <div class="minimap">
+            <div class="map-road" style="width:1px;top:10%;bottom:10%;left:45%;"></div>
+            <div class="map-road" style="height:1px;left:10%;right:10%;top:48%;"></div>
+            <div class="map-road" style="width:1px;top:20%;bottom:30%;left:65%;"></div>
+            <div class="map-blip blip-pilot" style="top:35%;left:60%"></div>
+            <div class="map-blip blip-pilot" style="top:55%;left:35%"></div>
+            <div class="map-blip blip-target" style="top:28%;left:72%"></div>
+            <div class="map-blip blip-target" style="top:68%;left:25%"></div>
+            <div class="map-blip blip-player"></div>
+          </div>
+          <div class="minimap-label">COORD: 4.711 // -74.072 · G6</div>
+        </div>
+
+        <!-- Legend -->
+        <div style="display:flex;gap:16px;justify-content:center;margin-top:14px;flex-wrap:wrap">
+          <div style="display:flex;align-items:center;gap:6px">
+            <div style="width:8px;height:8px;border-radius:50%;background:var(--sa-cyan);box-shadow:0 0 6px var(--sa-cyan)"></div>
+            <span style="font-size:8px;color:var(--sa-grey)">TÚ</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:6px">
+            <div style="width:7px;height:7px;border-radius:50%;background:var(--sa-yellow);box-shadow:0 0 5px var(--sa-yellow)"></div>
+            <span style="font-size:8px;color:var(--sa-grey)">ALIADO</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:6px">
+            <div style="width:6px;height:6px;border-radius:50%;background:var(--sa-red);box-shadow:0 0 5px var(--sa-red)"></div>
+            <span style="font-size:8px;color:var(--sa-grey)">ENEMIGO</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="sa-panel">
+        <div class="panel-title-sa">▶ ESTADO DE MISIÓN</div>
+        <div class="data-row-sa">
+          <span class="dr-key">MISIÓN ACTIVA</span>
+          <span class="dr-val green">TOMAR LS Y SF</span>
+        </div>
+        <div class="data-row-sa">
+          <span class="dr-key">FACCIÓN</span>
+          <span class="dr-val cyan">FAC COL</span>
+        </div>
+        <div class="data-row-sa">
+          <span class="dr-key">SEÑAL</span>
+          <span class="dr-val green">ESTABLE</span>
+        </div>
+        <div class="data-row-sa">
+          <span class="dr-key">CIFRADO</span>
+          <span class="dr-val red">⬤ ENCRIPTADO</span>
+        </div>
+      </div>
+
+      <div style="height:10px;flex-shrink:0"></div>
     </div>
 
-   
+    <!-- VIEW: INFO -->
+    <div class="view" id="view-info">
+      <div class="sa-panel">
+        <div class="panel-title-sa">▶ SERVIDOR</div>
+        <div class="data-row-sa">
+          <span class="dr-key">NOMBRE</span>
+          <span class="dr-val cyan">GUERRAS MUNDIALES RP</span>
+        </div>
+        <div class="data-row-sa">
+          <span class="dr-key">TIPO</span>
+          <span class="dr-val">MTA:SA</span>
+        </div>
+        <div class="data-row-sa">
+          <span class="dr-key">ARMA</span>
+          <span class="dr-val">HYDRA JET</span>
+        </div>
+        <div class="data-row-sa">
+          <span class="dr-key">MUNICIÓN</span>
+          <span class="dr-val green">∞ MISILES</span>
+        </div>
+        <div class="data-row-sa">
+          <span class="dr-key">DESARROLLADOR</span>
+          <span class="dr-val cyan">SAM SUKV</span>
+        </div>
+        <div class="data-row-sa">
+          <span class="dr-key">ESTADO</span>
+          <span class="dr-val green">⬤ ACTIVO</span>
+        </div>
+      </div>
 
-    <a href="index1.html" class="btn-sa">← VOLVER AL MANDO CENTRAL</a>
+      <!-- Wanted stars -->
+      <div class="sa-panel" style="padding:12px">
+        <div class="panel-title-sa" style="margin:-12px -12px 12px;padding:8px 12px">▶ NIVEL DE FACCIÓN</div>
+        <div style="display:flex;gap:8px;justify-content:center">
+          <span style="font-size:22px;color:var(--sa-yellow);filter:drop-shadow(0 0 4px var(--sa-yellow))">★</span>
+          <span style="font-size:22px;color:var(--sa-yellow);filter:drop-shadow(0 0 4px var(--sa-yellow))">★</span>
+          <span style="font-size:22px;color:var(--sa-yellow);filter:drop-shadow(0 0 4px var(--sa-yellow))">★</span>
+          <span style="font-size:22px;color:var(--sa-grey)">★</span>
+          <span style="font-size:22px;color:var(--sa-grey)">★</span>
+          <span style="font-size:22px;color:var(--sa-grey)">★</span>
+        </div>
+        <div style="text-align:center;margin-top:8px;font-family:'Press Start 2P',monospace;font-size:6px;color:var(--sa-grey)">RANGO: ÉLITE ACTIVO VETERANO</div>
+      </div>
+
+      <a href="index1.html" class="btn-sa" style="text-decoration:none">← VOLVER AL MANDO CENTRAL</a>
+
+      <div style="height:10px;flex-shrink:0"></div>
+    </div>
+
   </div>
 
-  <!-- ── RIGHT: RADAR + INFO ─────────────────────── -->
-  <div class="sa-panel right-panel">
-    <div class="panel-title-sa">▶ RADAR TÁCTICO</div>
-
-    <!-- Minimap SA style -->
-    <div class="minimap-wrap">
-      <div class="minimap">
-        <!-- Roads -->
-        <div class="map-road" style="width:1px;top:10%;bottom:10%;left:45%;"></div>
-        <div class="map-road" style="height:1px;left:10%;right:10%;top:48%;"></div>
-        <div class="map-road" style="width:1px;top:20%;bottom:30%;left:65%;"></div>
-        <!-- Blips -->
-        <div class="map-blip blip-pilot" style="top:35%;left:60%"></div>
-        <div class="map-blip blip-pilot" style="top:55%;left:35%"></div>
-        <div class="map-blip blip-target" style="top:28%;left:72%"></div>
-        <div class="map-blip blip-target" style="top:68%;left:25%"></div>
-        <div class="map-blip blip-player"></div>
+  <!-- HUD BOTTOM BAR -->
+  <div class="sa-panel hud-bottom">
+    <div class="hud-bars">
+      <div class="bar-row">
+        <div class="bar-icon">❤</div>
+        <div class="bar-track"><div class="bar-fill hp-fill"></div></div>
+        <div class="bar-num">87</div>
       </div>
-      <div class="minimap-label">COORD: 4.711 // -74.072 · G6</div>
-    </div>
-
-    <!-- Data -->
-    <div style="margin-top:4px">
-      <div class="data-row-sa">
-        <span class="dr-key">SERVIDOR</span>
-        <span class="dr-val cyan">GUERRAS MUNDIALES RP</span>
-      </div>
-      <div class="data-row-sa">
-        <span class="dr-key">MISIÓN</span>
-        <span class="dr-val green">TOMAR LS Y SF</span>
-      </div>
-      
-      <div class="data-row-sa">
-        <span class="dr-key">FACCIÓN</span>
-        <span class="dr-val cyan">FAC COL</span>
-      </div>
-      <div class="data-row-sa">
-        <span class="dr-key">SEÑAL</span>
-        <span class="dr-val green">ESTABLE</span>
-      </div>
-      <div class="data-row-sa">
-        <span class="dr-key">ESTADO</span>
-        <span class="dr-val red">⬤ ENCRIPTADO</span>
+      <div class="bar-row">
+        <div class="bar-icon">🛡</div>
+        <div class="bar-track"><div class="bar-fill armor-fill"></div></div>
+        <div class="bar-num">100</div>
       </div>
     </div>
-  </div>
 
-
-
-    <!-- Money -->
-    <div class="hud-money">
-      <div class="money-val">PERSONAL ACTIVO</div>
-      <div class="money-label">DESAROLLADOR SAMK SUKV</div>
+    <div class="hud-center">
+      <div class="money-val">ACTIVO</div>
+      <div class="money-label">FAC COL</div>
     </div>
 
-    <!-- Weapon -->
     <div class="hud-weapon">
       <div class="weapon-info">
         <div class="weapon-name">HYDRA JET</div>
-        <div class="weapon-ammo">∞ MISILES</div>
+        <div class="weapon-ammo">∞ MSL</div>
       </div>
       <div class="weapon-icon">🚀</div>
     </div>
@@ -870,10 +868,9 @@
 
 <!-- SA Ticker -->
 <div class="sa-ticker">
-  <div class="ticker-tag">★ FAC COL</div>
+  <div class="ticker-tag">★ FAC</div>
   <div class="ticker-text">
-    ★ GUERRAS MUNDIALES RP · SERVIDOR MTA:SA #1 ·  
-    ★ SISTEMA FICTISIO PARA VIDEJUEGOS
+    ★ GUERRAS MUNDIALES RP · SERVIDOR MTA:SA #1 · SISTEMA FICTICIO PARA VIDEOJUEGOS
     &nbsp;&nbsp;&nbsp;&nbsp;★ GUERRAS MUNDIALES RP · SERVIDOR MTA:SA #1
   </div>
 </div>
@@ -889,46 +886,59 @@
   }
   setInterval(tick, 1000); tick();
 
-  // Select pilot
-  function selectPilot(el, name, rank, aircraft, code, hp, armor, skill, wanted) {
-    document.querySelectorAll('.pilot-row').forEach(r => r.classList.remove('active'));
-    el.classList.add('active');
+  // Tab switching
+  function switchTab(tabId, btn) {
+    document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    document.getElementById('view-' + tabId).classList.add('active');
+    btn.classList.add('active');
+  }
 
-    // Update center display
+  // Open pilot detail overlay
+  function openDetail(name, rank, aircraft, code, hp, armor, skill, wanted) {
     document.getElementById('pilot-name-big').textContent = name;
     document.getElementById('pilot-rank-big').textContent = rank + ' · ' + code;
     document.getElementById('aircraft-label').textContent = aircraft.toUpperCase();
+    document.getElementById('plane-icon').textContent = aircraft.includes('Rotat') ? '🚁' : '✈️';
 
-    // Update plane icon
-    const icon = document.getElementById('plane-icon');
-    icon.textContent = aircraft.includes('Rotat') ? '🚁' : '✈️';
-
-    // Update stats bars
-    setBar('hp',     hp);
-    setBar('armor',  armor);
-    setBar('skill',  skill);
+    setBar('hp', hp);
+    setBar('armor', armor);
+    setBar('skill', skill);
     setBar('wanted', wanted);
 
-    // Notification
+    const overlay = document.getElementById('detail-overlay');
+    overlay.style.display = 'flex';
+    requestAnimationFrame(() => overlay.classList.add('open'));
+
     showNotif(name, rank, aircraft, code);
+  }
+
+  function closeDetail() {
+    const overlay = document.getElementById('detail-overlay');
+    overlay.classList.remove('open');
+    setTimeout(() => { overlay.style.display = 'none'; }, 300);
   }
 
   function setBar(id, val) {
     document.getElementById('sf-' + id).style.width = val + '%';
-    document.getElementById('sv-' + id).textContent  = val + '%';
+    document.getElementById('sv-' + id).textContent = val + '%';
   }
 
   function showNotif(name, rank, aircraft, code) {
     const notif = document.getElementById('notif');
-    document.getElementById('notif-text').innerHTML =
-      code + '<br>' + name + '<br>' + rank + '<br>' + aircraft.toUpperCase();
+    document.getElementById('notif-text').innerHTML = code + '<br>' + name + '<br>' + rank;
     notif.style.display = 'block';
-    notif.style.animation = 'none';
-    void notif.offsetWidth;
-    notif.style.animation = 'notifSlide 0.3s ease';
     clearTimeout(notif._t);
-    notif._t = setTimeout(() => { notif.style.display = 'none'; }, 3000);
+    notif._t = setTimeout(() => { notif.style.display = 'none'; }, 2500);
   }
+
+  // Swipe to close overlay
+  let touchStartX = 0;
+  const overlay = document.getElementById('detail-overlay');
+  overlay.addEventListener('touchstart', e => { touchStartX = e.touches[0].clientX; }, {passive: true});
+  overlay.addEventListener('touchend', e => {
+    if (e.changedTouches[0].clientX - touchStartX > 80) closeDetail();
+  }, {passive: true});
 </script>
 </body>
 </html>
