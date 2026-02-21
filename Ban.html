@@ -3,360 +3,715 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>S.U.K.V. TITAN | SISTEMA PERMANENTE</title>
+    <title>S.U.K.V. SANCIONES - COLOMBIA WARS RP</title>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Share+Tech+Mono&family=Bebas+Neue&display=swap" rel="stylesheet"/>
     <style>
         :root {
-            --red: #ff3c3c;
-            --dark-red: #440000;
-            --bg: #050505;
-            --glass: rgba(20, 10, 10, 0.95);
-            --border: rgba(255, 60, 60, 0.2);
-            --terminal: #1a0505;
+            --gold:   #f5c518;
+            --red:    #cc1111;
+            --green:  #00ff88;
+            --cyan:   #00f2ff;
+            --bg:     #050608;
+            --card:   #0a0d10;
+            --panel:  #0f1318;
+            --border: #1a2230;
+            --muted:  #3a4a5a;
         }
 
-        * { box-sizing: border-box; font-family: 'Consolas', monospace; }
-        
-        body { 
-            background: var(--bg); color: #fff; margin: 0; 
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            background: var(--bg);
+            color: #c8d8e8;
+            font-family: 'Share Tech Mono', monospace;
             height: 100vh; overflow: hidden;
-            background-image: radial-gradient(circle at center, #1a0505 0%, #050505 100%);
         }
 
-        /* --- LOGIN OVERLAY --- */
-        #login-screen {
-            position: fixed; top:0; left:0; width: 100%; height: 100%;
-            background: #000; display: flex; justify-content: center; align-items: center;
-            z-index: 9999; flex-direction: column;
+        /* Grid BG */
+        body::before {
+            content: '';
+            position: fixed; inset: 0;
+            background:
+                linear-gradient(rgba(0,242,255,0.014) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0,242,255,0.014) 1px, transparent 1px);
+            background-size: 30px 30px;
+            pointer-events: none; z-index: 0;
         }
+        body::after {
+            content: '';
+            position: fixed; inset: 0;
+            background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,0,0,0.08) 2px, rgba(0,0,0,0.08) 4px);
+            pointer-events: none; z-index: 0;
+        }
+
+        /* Particles */
+        .particles { position: fixed; inset: 0; pointer-events: none; z-index: 0; overflow: hidden; }
+        .p { position: absolute; border-radius: 50%; opacity: 0; animation: rise linear infinite; }
+        @keyframes rise {
+            0%   { opacity:0; transform:translateY(100vh) translateX(0); }
+            10%  { opacity:.6; } 90% { opacity:.2; }
+            100% { opacity:0; transform:translateY(-30px) translateX(var(--d)); }
+        }
+
+        /* ═══════════════════════
+           LOGIN
+        ═══════════════════════ */
+        #login-screen {
+            position: fixed; inset: 0; z-index: 200;
+            display: flex; align-items: center; justify-content: center;
+            background: rgba(5,6,8,0.98);
+            transition: opacity .6s ease;
+        }
+        #login-screen.fade-out { opacity: 0; pointer-events: none; }
 
         .login-box {
-            width: 350px; padding: 40px; border: 1px solid var(--red);
-            background: #0a0000; text-align: center;
-            box-shadow: 0 0 50px rgba(255, 0, 0, 0.2);
+            width: 100%; max-width: 400px;
+            background: var(--card);
+            border: 1px solid rgba(204,17,17,.35);
+            box-shadow: 0 0 60px rgba(0,0,0,.95), 0 0 30px rgba(204,17,17,.08);
+            position: relative;
+            animation: slideUp .5s ease both;
+        }
+        @keyframes slideUp { from{opacity:0;transform:translateY(24px)} to{opacity:1;transform:translateY(0)} }
+
+        .login-box::before { content:''; position:absolute; top:-1px; left:0; right:0; height:3px;
+            background: linear-gradient(90deg, #fcd116 33.33%, #003087 33.33% 66.66%, #ce1126 66.66%);
+            box-shadow: 0 0 10px rgba(252,209,22,.4); }
+
+        /* Scan line */
+        .login-scan { position:absolute; left:0; right:0; height:2px;
+            background: linear-gradient(90deg, transparent, var(--red), transparent);
+            opacity:0; top:-2px; }
+        .login-box.scanning .login-scan { opacity:1; animation: scan-s 1.3s linear; }
+        @keyframes scan-s { from{top:-2px} to{top:100%} }
+
+        .login-inner { padding: 30px 28px 26px; }
+
+        .login-logo { text-align: center; margin-bottom: 24px; }
+        .login-skull { font-size: 2.2rem; margin-bottom: 8px; animation: pulse-skull 2s ease-in-out infinite; }
+        @keyframes pulse-skull { 0%,100%{filter:drop-shadow(0 0 6px var(--red))} 50%{filter:drop-shadow(0 0 18px var(--red))} }
+        .login-title {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 1.9rem; letter-spacing: 6px; color: #fff;
+            text-shadow: 0 0 10px var(--red), 0 0 30px rgba(204,17,17,.3);
+            line-height: 1;
+        }
+        .login-sub {
+            font-family: 'Orbitron', sans-serif;
+            font-size: .48rem; letter-spacing: 4px; color: var(--muted);
+            margin-top: 5px;
         }
 
-        /* --- SISTEMA PRINCIPAL --- */
-        #main-system { display: none; opacity: 0; transition: opacity 0.5s; }
+        .login-eyebrow {
+            font-family: 'Orbitron', sans-serif;
+            font-size: .5rem; letter-spacing: 3px; color: var(--red);
+            border-left: 3px solid var(--red); padding-left: 10px;
+            margin-bottom: 20px; animation: blink-tag 2s step-start infinite;
+        }
+        @keyframes blink-tag { 0%,100%{opacity:1} 50%{opacity:.3} }
 
-        .os-wrapper { display: grid; grid-template-rows: 60px 1fr 180px 40px; height: 100vh; }
+        .field-group { margin-bottom: 14px; }
+        .field-label { font-family:'Orbitron',sans-serif; font-size:.48rem; letter-spacing:3px; color:var(--muted); display:block; margin-bottom:5px; }
+        .field-wrap { position:relative; }
+        .field-icon { position:absolute; left:12px; top:50%; transform:translateY(-50%); color:var(--red); font-size:13px; pointer-events:none; }
+        .field-input {
+            width:100%; background:#070a0d; border:1px solid var(--border);
+            border-top:1px solid var(--red); color:#fff;
+            padding:11px 14px 11px 36px; font-family:'Share Tech Mono',monospace;
+            font-size:.8rem; letter-spacing:2px; outline:none;
+            transition:border-color .25s, box-shadow .25s;
+        }
+        .field-input:focus { border-color:var(--red); box-shadow:0 0 12px rgba(204,17,17,.2); }
+        .field-input::placeholder { color:var(--muted); }
 
-        .top-bar {
-            background: #000; border-bottom: 2px solid var(--red);
-            display: flex; justify-content: space-between; align-items: center; padding: 0 25px;
+        .login-error {
+            font-size:.62rem; color:var(--red); letter-spacing:2px;
+            text-align:center; margin-bottom:12px; min-height:16px;
         }
 
-        .workspace { display: grid; grid-template-columns: 400px 1fr; gap: 20px; padding: 20px; overflow: hidden; }
+        .btn-login {
+            width:100%; background:transparent; border:1px solid var(--red);
+            color:var(--red); padding:13px; font-family:'Orbitron',sans-serif;
+            font-size:.62rem; font-weight:700; letter-spacing:4px; cursor:pointer;
+            position:relative; overflow:hidden; transition:color .3s;
+        }
+        .btn-login::before {
+            content:''; position:absolute; inset:0;
+            background:var(--red); transform:scaleX(0); transform-origin:left;
+            transition:transform .35s; z-index:0;
+        }
+        .btn-login:hover::before { transform:scaleX(1); }
+        .btn-login:hover { color:#fff; }
+        .btn-login span { position:relative; z-index:1; }
 
-        .glass-panel {
-            background: var(--glass); border: 1px solid var(--border); border-radius: 5px;
-            padding: 20px; display: flex; flex-direction: column; gap: 10px;
+        .login-footer { text-align:center; margin-top:16px; font-size:.45rem; letter-spacing:3px; color:var(--muted); opacity:.4; }
+
+        /* ═══════════════════════
+           MAIN APP
+        ═══════════════════════ */
+        #app { display:none; height:100vh; position:relative; z-index:1; }
+        #app.visible { display:flex; flex-direction:column; animation:fadeIn .5s ease; }
+        @keyframes fadeIn { from{opacity:0} to{opacity:1} }
+
+        /* FLAG */
+        .flag-bar {
+            height: 4px; flex-shrink:0;
+            background: linear-gradient(90deg, #fcd116 33.33%, #003087 33.33% 66.66%, #ce1126 66.66%);
+            box-shadow: 0 0 10px rgba(252,209,22,.4);
         }
 
-        h2 { font-size: 0.9rem; color: var(--red); text-transform: uppercase; border-left: 4px solid var(--red); padding-left: 10px; margin: 0; }
-
-        .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-        .full-width { grid-column: span 2; }
-
-        label { font-size: 0.6rem; color: var(--red); text-transform: uppercase; font-weight: bold; }
-        
-        input, select, textarea {
-            width: 100%; background: #000; border: 1px solid #440000;
-            padding: 8px; color: #ff9999; border-radius: 3px; outline: none; font-size: 0.8rem;
+        /* TOP BAR */
+        .topbar {
+            height: 52px; flex-shrink:0;
+            background: rgba(6,8,10,.95); border-bottom:1px solid var(--border);
+            display:flex; align-items:center; padding:0 20px; gap:16px;
+            backdrop-filter:blur(12px);
         }
-        
-        textarea { height: 60px; resize: none; }
-
-        .btn-ban {
-            padding: 12px; background: var(--red); border: none; border-radius: 3px; 
-            color: #000; font-weight: 900; cursor: pointer; text-transform: uppercase;
-            transition: 0.3s; width: 100%;
+        .topbar-logo {
+            font-family:'Bebas Neue',sans-serif;
+            font-size:1.3rem; letter-spacing:5px; color:#fff;
+            text-shadow:0 0 8px var(--red), 0 0 20px rgba(204,17,17,.2);
         }
-        .btn-ban:hover { background: #fff; box-shadow: 0 0 20px var(--red); }
+        .topbar-sep { width:1px; height:22px; background:var(--border); }
+        .topbar-sub { font-family:'Orbitron',sans-serif; font-size:.48rem; letter-spacing:3px; color:var(--muted); }
+        .topbar-right { margin-left:auto; display:flex; align-items:center; gap:12px; }
+        .admin-badge {
+            font-family:'Orbitron',sans-serif; font-size:.45rem; letter-spacing:2px;
+            background:rgba(204,17,17,.12); border:1px solid rgba(204,17,17,.35);
+            color:var(--red); padding:4px 10px;
+        }
+        #clock { font-family:'Orbitron',sans-serif; font-size:.6rem; letter-spacing:2px; color:var(--cyan); }
+        .btn-logout {
+            background:transparent; border:1px solid rgba(204,17,17,.4); color:var(--red);
+            font-family:'Orbitron',sans-serif; font-size:.48rem; letter-spacing:2px;
+            padding:5px 12px; cursor:pointer; transition:all .2s;
+        }
+        .btn-logout:hover { background:rgba(204,17,17,.15); }
 
-        .table-area { display: flex; flex-direction: column; gap: 10px; overflow: hidden; }
-        .table-scroll {
-            background: rgba(0,0,0,0.8); border: 1px solid var(--border);
-            overflow-y: auto; flex: 1; border-radius: 5px;
+        /* WORKSPACE */
+        .workspace {
+            flex:1; display:grid; grid-template-columns:370px 1fr;
+            gap:14px; padding:14px; overflow:hidden; min-height:0;
         }
 
-        table { width: 100%; border-collapse: collapse; }
-        th { position: sticky; top: 0; background: #220000; padding: 12px; text-align: left; font-size: 0.65rem; color: var(--red); text-transform: uppercase; }
-        td { padding: 10px 12px; font-size: 0.75rem; border-bottom: 1px solid #220000; }
-
-        .console-wrapper {
-            background: var(--terminal); margin: 0 20px 10px 20px;
-            border: 1px solid #330000; border-radius: 5px; padding: 10px;
-            overflow-y: auto; display: flex; flex-direction: column; gap: 4px;
+        /* SIDE PANEL */
+        .side-panel {
+            background:var(--card); border:1px solid var(--border);
+            border-top:2px solid var(--red);
+            display:flex; flex-direction:column; gap:12px;
+            padding:16px; overflow-y:auto; position:relative;
         }
-        .console-line { font-size: 0.75rem; color: #888; }
+        .side-panel::before { content:''; position:absolute; top:0; left:0; bottom:0; width:3px; background:var(--red); box-shadow:0 0 8px var(--red); }
 
-        .action-btns { display: flex; gap: 5px; }
-        .mini-btn { padding: 4px 6px; font-size: 0.6rem; cursor: pointer; background: transparent; border: 1px solid #444; color: #888; border-radius: 3px; }
+        .panel-title {
+            font-family:'Orbitron',sans-serif; font-size:.6rem; font-weight:700;
+            letter-spacing:3px; color:var(--red);
+            border-left:none; padding-left:10px;
+        }
 
-        .bottom-bar { background: #000; border-top: 1px solid var(--red); display: flex; align-items: center; padding: 0 25px; font-size: 0.7rem; }
-        
-        canvas { display: none; }
+        .form-grid { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+        .full { grid-column:span 2; }
 
-        /* Estilo para los botones de backup nuevos */
-        .backup-zone { display: flex; gap: 5px; margin-top: 5px; }
-        .btn-secondary { background: #1a0000; border: 1px solid #440000; color: #666; font-size: 0.55rem; padding: 5px; cursor: pointer; flex: 1; text-transform: uppercase; }
-        .btn-secondary:hover { color: var(--red); border-color: var(--red); }
+        .f-label { font-family:'Orbitron',sans-serif; font-size:.45rem; letter-spacing:2px; color:var(--muted); display:block; margin-bottom:4px; }
+        .f-input, .f-select, .f-textarea {
+            width:100%; background:#070a0d; border:1px solid var(--border);
+            color:#fff; padding:9px 10px; font-family:'Share Tech Mono',monospace;
+            font-size:.72rem; letter-spacing:1px; outline:none;
+            transition:border-color .2s;
+        }
+        .f-input:focus, .f-select:focus, .f-textarea:focus { border-color:var(--red); }
+        .f-textarea { height:60px; resize:none; }
+        .f-select { cursor:pointer; }
+        .f-select option { background:#0a0d10; }
+
+        .btn-execute {
+            width:100%; background:transparent; border:1px solid var(--red);
+            color:var(--red); padding:13px; font-family:'Orbitron',sans-serif;
+            font-size:.62rem; font-weight:700; letter-spacing:4px; cursor:pointer;
+            position:relative; overflow:hidden; transition:color .3s;
+        }
+        .btn-execute::before {
+            content:''; position:absolute; inset:0;
+            background:var(--red); transform:scaleX(0); transform-origin:left;
+            transition:transform .35s; z-index:0;
+        }
+        .btn-execute:hover::before { transform:scaleX(1); }
+        .btn-execute:hover { color:#fff; }
+        .btn-execute span { position:relative; z-index:1; }
+
+        .backup-row { display:grid; grid-template-columns:1fr 1fr; gap:8px; }
+        .btn-secondary {
+            background:transparent; border:1px solid var(--border); color:var(--muted);
+            font-family:'Orbitron',sans-serif; font-size:.45rem; letter-spacing:2px;
+            padding:8px; cursor:pointer; transition:all .2s;
+        }
+        .btn-secondary:hover { border-color:var(--gold); color:var(--gold); }
+
+        /* TABLE AREA */
+        .table-area {
+            background:var(--card); border:1px solid var(--border);
+            display:flex; flex-direction:column; overflow:hidden;
+        }
+
+        .table-head {
+            padding:12px 16px; border-bottom:1px solid var(--border);
+            display:flex; align-items:center; justify-content:space-between;
+            background:rgba(204,17,17,.04); flex-shrink:0;
+        }
+        .table-title { font-family:'Orbitron',sans-serif; font-size:.58rem; letter-spacing:3px; color:var(--red); }
+        .count-badge {
+            font-family:'Orbitron',sans-serif; font-size:.45rem; letter-spacing:2px;
+            background:rgba(204,17,17,.12); border:1px solid rgba(204,17,17,.3);
+            color:var(--red); padding:3px 10px;
+        }
+
+        /* Search in table */
+        .table-search { padding:10px 14px; border-bottom:1px solid var(--border); flex-shrink:0; }
+        .table-search input {
+            width:100%; background:#070a0d; border:1px solid var(--border);
+            color:#fff; padding:8px 12px; font-family:'Share Tech Mono',monospace;
+            font-size:.7rem; letter-spacing:2px; outline:none;
+        }
+        .table-search input:focus { border-color:var(--red); }
+        .table-search input::placeholder { color:var(--muted); }
+
+        .table-scroll { flex:1; overflow-y:auto; }
+        .table-scroll::-webkit-scrollbar { width:3px; }
+        .table-scroll::-webkit-scrollbar-thumb { background:rgba(204,17,17,.3); }
+
+        table { width:100%; border-collapse:collapse; }
+        thead th {
+            position:sticky; top:0; background:rgba(10,8,8,.98);
+            padding:10px 14px; text-align:left;
+            font-family:'Orbitron',sans-serif; font-size:.46rem; letter-spacing:2px;
+            color:var(--red); border-bottom:1px solid rgba(204,17,17,.2);
+        }
+        tbody tr { transition:background .15s; }
+        tbody tr:hover { background:rgba(204,17,17,.04); }
+        td { padding:9px 14px; font-size:.7rem; border-bottom:1px solid rgba(255,255,255,.03); }
+
+        .td-name { color:#fff; font-weight:bold; }
+        .td-id   { font-family:'Orbitron',sans-serif; font-size:.5rem; color:var(--red); letter-spacing:1px; }
+        .td-sanc {
+            font-family:'Orbitron',sans-serif; font-size:.48rem; letter-spacing:1px;
+            padding:2px 8px; background:rgba(204,17,17,.12); border:1px solid rgba(204,17,17,.25);
+            color:var(--red); white-space:nowrap;
+        }
+        .td-sanc.strike { background:rgba(245,197,24,.1); border-color:rgba(245,197,24,.25); color:var(--gold); }
+        .td-sanc.temp   { background:rgba(255,140,0,.1); border-color:rgba(255,140,0,.25); color:#ff8800; }
+        .td-reason { color:var(--muted); font-size:.62rem; max-width:180px; }
+        .td-date { color:#2a3a4a; font-size:.55rem; white-space:nowrap; }
+
+        .mini-btn {
+            background:transparent; border:1px solid var(--border); color:var(--muted);
+            font-family:'Orbitron',sans-serif; font-size:.42rem; letter-spacing:1px;
+            padding:3px 7px; cursor:pointer; transition:all .15s; margin-right:3px;
+        }
+        .mini-btn:hover { border-color:var(--gold); color:var(--gold); }
+        .mini-btn.del:hover { border-color:var(--red); color:var(--red); }
+
+        .empty-state {
+            text-align:center; padding:40px 20px;
+            font-family:'Orbitron',sans-serif; font-size:.55rem; letter-spacing:3px; color:var(--muted);
+        }
+
+        /* CONSOLE */
+        .console-wrap {
+            height:110px; flex-shrink:0;
+            background:rgba(5,4,4,.95); border-top:1px solid rgba(204,17,17,.15);
+            padding:8px 14px; overflow-y:auto; display:flex; flex-direction:column; gap:3px;
+        }
+        .console-wrap::-webkit-scrollbar { width:2px; }
+        .console-wrap::-webkit-scrollbar-thumb { background:rgba(204,17,17,.2); }
+        .console-line { font-size:.65rem; letter-spacing:1px; line-height:1.5; }
+        .c-info    { color:#3a4a5a; }
+        .c-success { color:var(--green); }
+        .c-warn    { color:var(--red); }
+
+        /* BOTTOM BAR */
+        .bottom-bar {
+            height:36px; flex-shrink:0;
+            background:rgba(6,8,10,.95); border-top:1px solid var(--border);
+            display:flex; align-items:center; padding:0 18px; gap:14px;
+            font-size:.5rem; letter-spacing:2px; color:var(--muted);
+        }
+        .bottom-bar .dev { color:var(--gold); font-family:'Orbitron',sans-serif; font-size:.45rem; }
+
+        @keyframes blink { 0%,100%{opacity:1} 50%{opacity:.2} }
+        .live-dot {
+            display:inline-block; width:6px; height:6px; border-radius:50%;
+            background:var(--green); box-shadow:0 0 6px var(--green);
+            animation:blink 1.4s ease-in-out infinite; margin-right:5px;
+        }
+
+        canvas { display:none; }
     </style>
 </head>
 <body>
 
-    <div id="login-screen">
-        <div class="login-box">
-            <div style="color:var(--red); font-size: 2rem; margin-bottom: 10px;">☣</div>
-            <h3 style="color:#fff; margin: 0 0 20px 0; letter-spacing: 2px;">S.U.K.V. LOGIN</h3>
-            <input type="password" id="pass_input" placeholder="CONTRASEÑA" style="text-align: center; margin-bottom: 20px;">
-            <button class="btn-ban" onclick="tryLogin()">DESBLOQUEAR SISTEMA</button>
-            <p id="error-msg" style="color: var(--red); font-size: 0.6rem; margin-top: 15px; visibility: hidden;">ERROR: LLAVE INVÁLIDA</p>
+<div class="particles" id="particles"></div>
+
+<!-- ══════ LOGIN ══════ -->
+<div id="login-screen">
+    <div class="login-box" id="loginBox">
+        <div class="login-scan" id="loginScan"></div>
+        <div class="login-inner">
+            <div class="login-logo">
+                <div class="login-skull">☣</div>
+                <div class="login-title">S.U.K.V. SANCIONES</div>
+                <div class="login-sub">◆ COLOMBIA WARS RP · SISTEMA RESTRINGIDO ◆</div>
+            </div>
+            <div class="login-eyebrow">⚠ ACCESO RESTRINGIDO — NIVEL ADMIN</div>
+            <div class="field-group">
+                <label class="field-label">CONTRASEÑA DE ACCESO</label>
+                <div class="field-wrap">
+                    <span class="field-icon">⚿</span>
+                    <input class="field-input" id="passInput" type="password" placeholder="••••••••" autocomplete="off" onkeydown="if(event.key==='Enter')doLogin()"/>
+                </div>
+            </div>
+            <div class="login-error" id="loginError"></div>
+            <button class="btn-login" onclick="doLogin()"><span>⛔ DESBLOQUEAR SISTEMA</span></button>
+            <div class="login-footer">SISTEMA DE GESTIÓN MILITAR · GUERRAS MUNDIALES RP · DEV: SAM SUKV</div>
         </div>
     </div>
+</div>
 
-    <div id="main-system">
-        <div class="os-wrapper">
-            <nav class="top-bar">
-                <div style="color: var(--red); font-size: 0.7rem;">ADMINISTRADOR: CONECTADO</div>
-                <div style="font-weight: 900; letter-spacing: 5px; color: #fff;">SANCIONES MTA:RP</div>
-                <div id="clock" style="color: var(--red);">00:00:00</div>
-            </nav>
+<!-- ══════ APP ══════ -->
+<div id="app">
+    <div class="flag-bar"></div>
 
-            <div class="workspace">
-                <aside class="glass-panel">
-                    <h2>Registrar Sanción</h2>
-                    <div class="form-grid">
-                        <div class="full-width">
-                            <label>Nombre Completo IC</label>
-                            <input type="text" id="b_name" placeholder="Ej: Juan_Perez">
-                        </div>
-                        <div>
-                            <label>ID / Placa</label>
-                            <input type="text" id="b_placa" placeholder="ID-000">
-                        </div>
-                        <div>
-                            <label>Discord</label>
-                            <input type="text" id="b_discord" placeholder="user#0000">
-                        </div>
-                        <div class="full-width">
-                            <label>Gravedad</label>
-                            <select id="b_time">
-                                <option>STRIKE 1</option>
-                                <option>STRIKE 2</option>
-                                <option>BANEO TEMPORAL</option>
-                                <option>BANEO 7 DÍAS</option>
-                                <option>BANEO PERMANENTE</option>
-                                <option>BLACKLIST TOTAL</option>
-                            </select>
-                        </div>
-                        <div class="full-width">
-                            <label>Razón Legal</label>
-                            <textarea id="b_reason" placeholder="Describa la falta..."></textarea>
-                        </div>
-                    </div>
-                    <button class="btn-ban" onclick="ejecutarSancion()">EJECUTAR PROTOCOLO</button>
-                    
-                    <div class="backup-zone">
-                        <button class="btn-secondary" onclick="exportData()">Guardar Respaldo</button>
-                        <button class="btn-secondary" onclick="document.getElementById('importInput').click()">Cargar Respaldo</button>
-                        <input type="file" id="importInput" style="display:none" onchange="importData(event)">
-                    </div>
-                </aside>
-
-                <main class="table-area">
-                    <div class="table-scroll">
-                        <table>
-                            <thead>
-                                <tr>
-                                    <th>Sujeto</th>
-                                    <th>ID</th>
-                                    <th>Sanción</th>
-                                    <th>Razón</th>
-                                    <th>Acción</th>
-                                </tr>
-                            </thead>
-                            <tbody id="ban-list"></tbody>
-                        </table>
-                    </div>
-                </main>
-            </div>
-
-            <div class="console-wrapper" id="console">
-                <div class="console-line">[SYS] Base de datos sincronizada.</div>
-            </div>
-
-            <footer class="bottom-bar">
-                <span style="color: var(--red);">DEV:</span> 
-                <span style="margin-left: 10px; color: #666;">SAM SUKV</span>
-                <button onclick="logout()" style="margin-left: auto; background: none; border: 1px solid #ff3c3c; color: #ff3c3c; cursor: pointer; font-size: 0.6rem; padding: 2px 10px;">CERRAR SESIÓN</button>
-            </footer>
+    <nav class="topbar">
+        <div class="topbar-logo">S.U.K.V.</div>
+        <div class="topbar-sep"></div>
+        <div class="topbar-sub">SISTEMA DE SANCIONES · MTA:RP · COLOMBIA WARS</div>
+        <div class="topbar-right">
+            <div class="admin-badge">⛔ ADMIN CONECTADO</div>
+            <div id="clock">00:00:00</div>
+            <button class="btn-logout" onclick="doLogout()">⏻ SALIR</button>
         </div>
+    </nav>
+
+    <div class="workspace">
+
+        <!-- SIDE FORM -->
+        <aside class="side-panel">
+            <div class="panel-title">⚠ REGISTRAR SANCIÓN</div>
+
+            <div class="form-grid">
+                <div class="full">
+                    <label class="f-label">NOMBRE IC COMPLETO</label>
+                    <input class="f-input" id="b_name" type="text" placeholder="Ej: Juan_Perez" autocomplete="off"/>
+                </div>
+                <div>
+                    <label class="f-label">ID / PLACA</label>
+                    <input class="f-input" id="b_placa" type="text" placeholder="ID-000"/>
+                </div>
+                <div>
+                    <label class="f-label">DISCORD</label>
+                    <input class="f-input" id="b_discord" type="text" placeholder="user#0000"/>
+                </div>
+                <div class="full">
+                    <label class="f-label">GRAVEDAD</label>
+                    <select class="f-select" id="b_time">
+                        <option>STRIKE 1</option>
+                        <option>STRIKE 2</option>
+                        <option>BANEO TEMPORAL</option>
+                        <option>BANEO 7 DÍAS</option>
+                        <option>BANEO PERMANENTE</option>
+                        <option>BLACKLIST TOTAL</option>
+                    </select>
+                </div>
+                <div class="full">
+                    <label class="f-label">RAZÓN / FALTA COMETIDA</label>
+                    <textarea class="f-textarea" id="b_reason" placeholder="Describa la falta..."></textarea>
+                </div>
+            </div>
+
+            <button class="btn-execute" onclick="ejecutarSancion()"><span>⚡ EJECUTAR PROTOCOLO</span></button>
+
+            <div class="backup-row">
+                <button class="btn-secondary" onclick="exportData()">▼ GUARDAR RESPALDO</button>
+                <button class="btn-secondary" onclick="document.getElementById('importInput').click()">▲ CARGAR RESPALDO</button>
+                <input type="file" id="importInput" style="display:none" onchange="importData(event)"/>
+            </div>
+        </aside>
+
+        <!-- TABLE -->
+        <main class="table-area">
+            <div class="table-head">
+                <span class="table-title">⛔ REGISTRO DE SANCIONES ACTIVAS</span>
+                <span class="count-badge" id="sanc-count">0 REGISTROS</span>
+            </div>
+            <div class="table-search">
+                <input type="text" id="tableSearch" placeholder="> BUSCAR POR NOMBRE, ID O TIPO..." onkeyup="renderTable()" autocomplete="off"/>
+            </div>
+            <div class="table-scroll">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>SUJETO</th>
+                            <th>ID / PLACA</th>
+                            <th>SANCIÓN</th>
+                            <th>RAZÓN</th>
+                            <th>FECHA</th>
+                            <th>ACCIÓN</th>
+                        </tr>
+                    </thead>
+                    <tbody id="ban-list"></tbody>
+                </table>
+                <div class="empty-state" id="empty-state" style="display:none">
+                    NO HAY REGISTROS EN BASE DE DATOS
+                </div>
+            </div>
+        </main>
+
     </div>
 
-    <canvas id="c_ban" width="500" height="400"></canvas>
+    <!-- CONSOLE -->
+    <div class="console-wrap" id="console">
+        <div class="console-line c-info">[SYS] Base de datos sincronizada. Colombia Wars RP — Sistema de sanciones activo.</div>
+    </div>
 
-    <script>
-        const MASTER_KEY = "Adm666";
-        let banDB = JSON.parse(localStorage.getItem('Panel_Admin')) || [];
+    <!-- BOTTOM -->
+    <div class="bottom-bar">
+        <span class="live-dot"></span>
+        <span>SISTEMA OPERATIVO</span>
+        <span style="margin-left:auto;">DEV: <span class="dev">SAM SUKV</span></span>
+        <span>·</span>
+        <span>ENC: AES-256</span>
+        <span>·</span>
+        <span>COLOMBIA WARS RP 2026</span>
+    </div>
+</div>
 
-        // VERIFICACIÓN INICIAL DE SESIÓN
-        window.onload = () => {
-            const session = localStorage.getItem('sukv_session');
-            if(session === "active") {
-                showSystem();
-            }
-            setInterval(() => {
-                document.getElementById('clock').innerText = new Date().toLocaleTimeString();
-            }, 1000);
+<canvas id="c_ban" width="520" height="420"></canvas>
+
+<script>
+    /* ── PARTICLES ── */
+    const pc = document.getElementById('particles');
+    for (let i = 0; i < 16; i++) {
+        const el = document.createElement('div');
+        el.className = 'p';
+        el.style.cssText = `left:${Math.random()*100}%;width:2px;height:2px;
+            animation-duration:${8+Math.random()*14}s;
+            animation-delay:${Math.random()*14}s;
+            --d:${(Math.random()-.5)*70}px;
+            background:${Math.random()>.6?'#f5c518':'#cc1111'};`;
+        pc.appendChild(el);
+    }
+
+    /* ── AUTH ── */
+    const MASTER_KEY = "Adm666";
+    let banDB = JSON.parse(localStorage.getItem('Panel_Admin_v2')) || [];
+
+    window.onload = () => {
+        if (localStorage.getItem('sukv_session') === 'active') showSystem();
+        setInterval(() => {
+            const n = new Date();
+            document.getElementById('clock').textContent =
+                [n.getHours(),n.getMinutes(),n.getSeconds()].map(v=>v.toString().padStart(2,'0')).join(':');
+        }, 1000);
+    };
+
+    function doLogin() {
+        const val = document.getElementById('passInput').value;
+        const err = document.getElementById('loginError');
+        const box = document.getElementById('loginBox');
+        err.textContent = '';
+
+        if (!val) { err.textContent = '⚠ INGRESA LA CONTRASEÑA'; return; }
+
+        if (val === MASTER_KEY) {
+            box.classList.add('scanning');
+            err.style.color = 'var(--green)';
+            err.textContent = '[ VERIFICANDO... ]';
+            setTimeout(() => {
+                err.textContent = '[ ✔ ACCESO CONCEDIDO ]';
+                setTimeout(() => {
+                    localStorage.setItem('sukv_session', 'active');
+                    const screen = document.getElementById('login-screen');
+                    screen.classList.add('fade-out');
+                    setTimeout(() => { screen.style.display='none'; showSystem(); }, 600);
+                }, 600);
+            }, 1300);
+        } else {
+            err.style.color = 'var(--red)';
+            err.textContent = '⛔ LLAVE INVÁLIDA — ACCESO DENEGADO';
+            box.style.borderColor = 'rgba(204,17,17,.8)';
+            document.getElementById('passInput').value = '';
+            setTimeout(() => { box.style.borderColor=''; err.textContent=''; }, 2200);
+        }
+    }
+
+    function doLogout() {
+        if (!confirm('¿Cerrar sesión del sistema?')) return;
+        localStorage.removeItem('sukv_session');
+        const app = document.getElementById('app');
+        app.style.opacity = 0; app.style.transition = 'opacity .4s';
+        setTimeout(() => location.reload(), 400);
+    }
+
+    function showSystem() {
+        document.getElementById('app').classList.add('visible');
+        renderTable();
+        pushConsole('Autenticación activa. Sesión iniciada.', 'success');
+    }
+
+    /* ── CONSOLE ── */
+    function pushConsole(msg, type='info') {
+        const con = document.getElementById('console');
+        const line = document.createElement('div');
+        line.className = `console-line c-${type}`;
+        const t = new Date().toLocaleTimeString();
+        line.textContent = `[${t}] > ${msg}`;
+        con.appendChild(line);
+        con.scrollTop = con.scrollHeight;
+    }
+
+    /* ── SANCTION ── */
+    function ejecutarSancion() {
+        const nom = document.getElementById('b_name').value.trim();
+        const pla = document.getElementById('b_placa').value.trim();
+        const raz = document.getElementById('b_reason').value.trim();
+        if (!nom || !pla || !raz) { pushConsole('ERROR: Campos incompletos.', 'warn'); return; }
+
+        const entry = {
+            id: Date.now(),
+            nombre: nom,
+            placa: pla,
+            discord: document.getElementById('b_discord').value.trim() || 'N/A',
+            tiempo: document.getElementById('b_time').value,
+            razon: raz,
+            fecha: new Date().toLocaleDateString('es-CO')
         };
 
-        function tryLogin() {
-            const val = document.getElementById('pass_input').value;
-            if(val === MASTER_KEY) {
-                localStorage.setItem('sukv_session', 'active');
-                showSystem();
-            } else {
-                const err = document.getElementById('error-msg');
-                err.style.visibility = 'visible';
-                setTimeout(() => { err.style.visibility = 'hidden'; }, 2000);
-            }
-        }
+        banDB.push(entry);
+        save();
+        pushConsole(`REGISTRO: ${pla} → ${entry.tiempo} procesado.`, 'success');
+        ['b_name','b_placa','b_discord','b_reason'].forEach(id => document.getElementById(id).value='');
+    }
 
-        function logout() {
-            localStorage.removeItem('sukv_session');
-            location.reload();
-        }
+    /* ── RENDER TABLE ── */
+    function renderTable() {
+        const q = (document.getElementById('tableSearch')?.value || '').toUpperCase();
+        const filtered = banDB.filter(b =>
+            b.nombre.toUpperCase().includes(q) ||
+            b.placa.toUpperCase().includes(q) ||
+            b.tiempo.toUpperCase().includes(q)
+        );
 
-        function showSystem() {
-            document.getElementById('login-screen').style.display = 'none';
-            document.getElementById('main-system').style.display = 'block';
-            setTimeout(() => { document.getElementById('main-system').style.opacity = '1'; }, 50);
-            renderTable();
-            pushConsole("Autenticación permanente activa.", "success");
-        }
+        const list = document.getElementById('ban-list');
+        const empty = document.getElementById('empty-state');
 
-        function pushConsole(msg, type = 'info') {
-            const con = document.getElementById('console');
-            const line = document.createElement('div');
-            line.style.color = type === 'success' ? '#00ff88' : (type === 'warn' ? '#ff3c3c' : '#888');
-            line.className = 'console-line';
-            line.innerHTML = `> ${msg}`;
-            con.appendChild(line);
-            con.scrollTop = con.scrollHeight;
-        }
-
-        function ejecutarSancion() {
-            const nom = document.getElementById('b_name').value;
-            const pla = document.getElementById('b_placa').value;
-            const raz = document.getElementById('b_reason').value;
-
-            if(!nom || !pla || !raz) {
-                pushConsole("ERROR: Campos incompletos.", "warn");
-                return;
-            }
-
-            const baneo = {
-                id: Date.now(),
-                nombre: nom,
-                placa: pla,
-                discord: document.getElementById('b_discord').value || "N/A",
-                tiempo: document.getElementById('b_time').value,
-                razon: raz,
-                fecha: new Date().toLocaleString()
-            };
-
-            banDB.push(baneo);
-            save();
-            pushConsole(`REGISTRO: ${pla} procesado correctamente.`, "success");
-            
-            document.getElementById('b_name').value = "";
-            document.getElementById('b_placa').value = "";
-            document.getElementById('b_reason').value = "";
-        }
-
-        function renderTable() {
-            const list = document.getElementById('ban-list');
-            list.innerHTML = banDB.map(b => `
+        if (filtered.length === 0) {
+            list.innerHTML = '';
+            empty.style.display = 'block';
+        } else {
+            empty.style.display = 'none';
+            list.innerHTML = filtered.map(b => {
+                const sClass = b.tiempo.includes('STRIKE') ? 'strike' : b.tiempo.includes('TEMPORAL') ? 'temp' : '';
+                return `
                 <tr>
-                    <td><b>${b.nombre}</b></td>
-                    <td><code style="color:var(--red)">${b.placa}</code></td>
-                    <td>${b.tiempo}</td>
-                    <td style="font-size: 0.65rem; color: #aaa;">${b.razon}</td>
-                    <td class="action-btns">
+                    <td class="td-name">${b.nombre}</td>
+                    <td><span class="td-id">${b.placa}</span></td>
+                    <td><span class="td-sanc ${sClass}">${b.tiempo}</span></td>
+                    <td class="td-reason">${b.razon.substring(0,50)}${b.razon.length>50?'…':''}</td>
+                    <td class="td-date">${b.fecha}</td>
+                    <td>
                         <button class="mini-btn" onclick="exportarFicha(${b.id})">PNG</button>
-                        <button class="mini-btn" style="color:var(--red);" onclick="revocar(${b.id})">DEL</button>
+                        <button class="mini-btn del" onclick="revocar(${b.id})">DEL</button>
                     </td>
-                </tr>
-            `).join('');
+                </tr>`;
+            }).join('');
         }
 
-        function revocar(id) {
-            if(confirm("¿ELIMINAR ESTE REGISTRO PERMANENTEMENTE?")) {
-                banDB = banDB.filter(x => x.id !== id);
-                save();
-                pushConsole("Registro eliminado.", "warn");
-            }
-        }
+        document.getElementById('sanc-count').textContent = `${banDB.length} REGISTROS`;
+    }
 
-        function save() {
-            localStorage.setItem('Panel_Admin', JSON.stringify(banDB));
-            renderTable();
-        }
+    function revocar(id) {
+        if (!confirm('¿ELIMINAR ESTE REGISTRO PERMANENTEMENTE?')) return;
+        banDB = banDB.filter(x => x.id !== id);
+        save();
+        pushConsole('Registro eliminado del sistema.', 'warn');
+    }
 
-        // --- NUEVAS FUNCIONES DE DATOS ---
-        function exportData() {
-            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(banDB));
-            const downloadAnchorNode = document.createElement('a');
-            downloadAnchorNode.setAttribute("href", dataStr);
-            downloadAnchorNode.setAttribute("download", "SUKV_BACKUP_" + Date.now() + ".json");
-            document.body.appendChild(downloadAnchorNode);
-            downloadAnchorNode.click();
-            downloadAnchorNode.remove();
-            pushConsole("Respaldo descargado.", "success");
-        }
+    function save() {
+        localStorage.setItem('Panel_Admin_v2', JSON.stringify(banDB));
+        renderTable();
+    }
 
-        function importData(event) {
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                try {
-                    const imported = JSON.parse(e.target.result);
-                    if(Array.isArray(imported)) {
-                        banDB = imported;
-                        save();
-                        pushConsole("Base de datos importada con éxito.", "success");
-                    }
-                } catch(err) {
-                    pushConsole("Error al importar archivo.", "warn");
+    /* ── EXPORT / IMPORT ── */
+    function exportData() {
+        const a = document.createElement('a');
+        a.href = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(banDB));
+        a.download = `SUKV_BACKUP_${Date.now()}.json`;
+        a.click();
+        pushConsole('Respaldo descargado.', 'success');
+    }
+
+    function importData(e) {
+        const reader = new FileReader();
+        reader.onload = ev => {
+            try {
+                const data = JSON.parse(ev.target.result);
+                if (Array.isArray(data)) {
+                    banDB = data; save();
+                    pushConsole(`Base de datos importada. ${data.length} registros cargados.`, 'success');
                 }
-            };
-            reader.readAsText(event.target.files[0]);
-        }
-        // -------------------------------
+            } catch { pushConsole('Error al importar archivo.', 'warn'); }
+        };
+        reader.readAsText(e.target.files[0]);
+    }
 
-        function exportarFicha(id) {
-            const b = banDB.find(x => x.id === id);
-            const can = document.getElementById('c_ban');
-            const ctx = can.getContext('2d');
-            ctx.fillStyle = "#050000"; ctx.fillRect(0,0,500,400);
-            ctx.strokeStyle = "#ff3c3c"; ctx.lineWidth = 10; ctx.strokeRect(0,0,500,400);
-            ctx.fillStyle = "#ff3c3c"; ctx.font = "bold 20px Courier New";
-            ctx.fillText("S.U.K.V. BLACKLIST SYSTEM", 30, 50);
-            ctx.font = "16px Courier New"; ctx.fillStyle = "#fff";
-            ctx.fillText("SUJETO: " + b.nombre, 40, 100);
-            ctx.fillText("ID/PLACA: " + b.placa, 40, 130);
-            ctx.fillText("SANCION: " + b.tiempo, 40, 160);
-            ctx.fillText("RAZÓN: " + b.razon.substring(0, 35) + "...", 40, 200);
-            
-            const l = document.createElement('a');
-            l.download = `SANCION_${b.placa}.png`;
-            l.href = can.toDataURL();
-            l.click();
-        }
+    /* ── EXPORT PNG ── */
+    function exportarFicha(id) {
+        const b = banDB.find(x => x.id === id);
+        const can = document.getElementById('c_ban');
+        const ctx = can.getContext('2d');
 
-        document.getElementById('pass_input').addEventListener("keyup", (e) => {
-            if (e.key === "Enter") tryLogin();
+        ctx.fillStyle = '#050608'; ctx.fillRect(0,0,520,420);
+
+        // Flag stripe
+        ctx.fillStyle = '#fcd116'; ctx.fillRect(0,0,173,6);
+        ctx.fillStyle = '#003087'; ctx.fillRect(173,0,174,6);
+        ctx.fillStyle = '#ce1126'; ctx.fillRect(347,0,173,6);
+
+        // Border
+        ctx.strokeStyle = '#cc1111'; ctx.lineWidth = 2; ctx.strokeRect(8,10,504,402);
+
+        // Title
+        ctx.fillStyle = '#cc1111'; ctx.font = 'bold 16px Courier New';
+        ctx.fillText('S.U.K.V. SANCTION RECORD', 30, 45);
+        ctx.fillStyle = '#3a4a5a'; ctx.font = '10px Courier New';
+        ctx.fillText('COLOMBIA WARS RP · SISTEMA DE SANCIONES · 2026', 30, 60);
+
+        // Divider
+        ctx.strokeStyle = 'rgba(204,17,17,0.4)'; ctx.lineWidth = 1;
+        ctx.beginPath(); ctx.moveTo(30,70); ctx.lineTo(490,70); ctx.stroke();
+
+        // Data
+        ctx.font = '11px Courier New';
+        const rows = [
+            ['SUJETO',  b.nombre],
+            ['ID/PLACA', b.placa],
+            ['DISCORD', b.discord],
+            ['SANCIÓN',  b.tiempo],
+            ['RAZÓN',    b.razon],
+            ['FECHA',    b.fecha]
+        ];
+        rows.forEach(([lbl, val], i) => {
+            ctx.fillStyle = '#cc1111';
+            ctx.fillText(lbl + ':', 30, 100 + i*42);
+            ctx.fillStyle = '#ffffff';
+            ctx.fillText(val.substring(0,55), 30, 118 + i*42);
         });
-    </script>
+
+        const a = document.createElement('a');
+        a.download = `SANCION_${b.placa}.png`;
+        a.href = can.toDataURL();
+        a.click();
+        pushConsole(`Ficha PNG exportada: ${b.placa}`, 'success');
+    }
+</script>
 </body>
 </html>
