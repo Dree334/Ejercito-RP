@@ -2,102 +2,45 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>S.U.K.V. - Tribunal Militar</title>
+    <title>S.U.K.V. V4.0 - Gestión de Sanciones</title>
 </head>
-<body style="font-family: sans-serif; padding: 20px;">
+<body style="background-color: #020814; color: white; font-family: sans-serif;">
 
-    <h2>REGISTRO DE SANCIÓN MILITAR (S.U.K.V. V4.0)</h2>
-    
-    <div style="border: 1px solid #ccc; padding: 20px; max-width: 500px; margin-bottom: 30px;">
-        <p><strong>Nombre IC del Soldado:</strong><br>
-        <input type="text" id="nombre_ic" style="width: 100%;"></p>
-        
-        <p><strong>Placa Militar:</strong><br>
-        <input type="text" id="placa" style="width: 100%;"></p>
-        
-        <p><strong>ID/Nombre Discord:</strong><br>
-        <input type="text" id="discord" style="width: 100%;"></p>
-        
-        <p><strong>Nivel de Strike:</strong><br>
-        <select id="nivel" style="width: 100%;">
-            <option value="1">STRIKE 1</option>
-            <option value="2">STRIKE 2</option>
-            <option value="3">STRIKE 3</option>
-        </select></p>
-        
-        <p><strong>Motivo del Reporte:</strong><br>
-        <textarea id="motivo" style="width: 100%;" rows="4"></textarea></p>
-        
-        <button onclick="enviarSancion()" style="padding: 10px 20px; cursor: pointer;">EJECUTAR PROTOCOLO</button>
+    <h1>SISTEMA DE SANCIONES S.U.K.V.</h1>
+
+    <div style="border: 1px solid #1a2a44; padding: 20px; width: 300px;">
+        <input type="text" id="nombre_ic" placeholder="NOMBRE IC DEL SOLDADO">
+        <input type="text" id="placa" placeholder="PLACA MILITAR">
+        <input type="text" id="discord" placeholder="ID DISCORD">
+        <textarea id="motivo" placeholder="MOTIVO DEL REPORTE"></textarea>
+        <button onclick="ejecutarSancion()">EJECUTAR PROTOCOLO</button>
     </div>
 
     <hr>
 
-    <h2>SANCIONES REGISTRADAS</h2>
-    <table border="1" style="width: 100%; border-collapse: collapse; text-align: left;">
-        <thead style="background: #f0f0f0;">
+    <table border="1" style="width: 100%; border-collapse: collapse;">
+        <thead>
             <tr>
-                <th style="padding: 10px;">SOLDADO</th>
-                <th>PLACA</th>
+                <th>SOLDADO</th>
+                <th>PLACAS</th>
                 <th>NIVEL</th>
                 <th>FECHA</th>
-                <th>MOTIVO</th>
             </tr>
         </thead>
-        <tbody id="tabla-cuerpo">
+        <tbody id="tabla-registros">
             </tbody>
     </table>
 
     <script>
-        // 1. CARGAR LA TABLA DESDE D1
-        async function cargarSanciones() {
-            try {
-                const res = await fetch('/api/sancionar');
-                if (!res.ok) throw new Error("Error al conectar con la API");
-                
-                const data = await res.json();
-                const tabla = document.getElementById('tabla-cuerpo');
-                tabla.innerHTML = "";
-
-                if (data.length === 0) {
-                    tabla.innerHTML = "<tr><td colspan='5' style='padding:10px; text-align:center;'>No hay sanciones registradas</td></tr>";
-                    return;
-                }
-
-                data.forEach(s => {
-                    tabla.innerHTML += `
-                        <tr>
-                            <td style="padding: 10px;">${s.nombre_ic}</td>
-                            <td>${s.placa}</td>
-                            <td><strong>Strike ${s.nivel}</strong></td>
-                            <td>${s.fecha}</td>
-                            <td>${s.motivo}</td>
-                        </tr>`;
-                });
-            } catch (err) {
-                console.error("Error al cargar tabla:", err);
-            }
-        }
-
-        // 2. ENVIAR LA SANCIÓN A LA DB Y DISCORD
-        async function enviarSancion() {
-            const btn = document.querySelector('button');
+        async function ejecutarSancion() {
             const payload = {
                 nombre_ic: document.getElementById('nombre_ic').value,
                 placa: document.getElementById('placa').value,
-                discord: document.getElementById('discord').value, // Se guardará en nombre_discord
-                nivel: parseInt(document.getElementById('nivel').value),
+                discord: document.getElementById('discord').value,
+                nivel: 3, // Puedes hacerlo dinámico luego
                 motivo: document.getElementById('motivo').value,
                 fecha: new Date().toLocaleDateString('es-CO')
             };
-
-            if (!payload.nombre_ic || !payload.motivo) {
-                alert("⚠️ Debe completar el nombre y el motivo.");
-                return;
-            }
-
-            btn.disabled = true;
-            btn.innerText = "ENVIANDO...";
 
             try {
                 const res = await fetch('/api/sancionar', {
@@ -107,27 +50,39 @@
                 });
 
                 if (res.ok) {
-                    alert("✅ Sanción registrada y enviada a Discord.");
-                    // Limpiar campos
-                    document.getElementById('nombre_ic').value = "";
-                    document.getElementById('motivo').value = "";
-                    // Actualizar tabla
-                    cargarSanciones();
+                    alert("✅ REGISTRADO");
+                    cargarRegistros();
                 } else {
-                    const errorMsg = await res.text();
-                    alert("❌ Error en el servidor: " + errorMsg);
+                    const err = await res.json();
+                    alert("❌ ERROR: " + err.error);
                 }
-            } catch (err) {
-                alert("❌ Error de red: No se pudo conectar con el servidor.");
-            } finally {
-                btn.disabled = false;
-                btn.innerText = "EJECUTAR PROTOCOLO";
+            } catch (e) {
+                alert("❌ Fallo de conexión.");
             }
         }
 
-        // Iniciar carga al abrir la web
-        document.addEventListener('DOMContentLoaded', cargarSanciones);
-    </script>
+        async function cargarRegistros() {
+            try {
+                const res = await fetch('/api/sancionar');
+                const datos = await res.json();
+                const tabla = document.getElementById('tabla-registros');
+                
+                tabla.innerHTML = "";
+                datos.forEach(s => {
+                    tabla.innerHTML += `
+                        <tr>
+                            <td>${s.nombre_ic}</td>
+                            <td>${s.placa}</td>
+                            <td>STRIKE ${s.nivel}</td>
+                            <td>${s.fecha}</td>
+                        </tr>`;
+                });
+            } catch (e) {
+                console.error("Error al sincronizar tabla.");
+            }
+        }
 
+        document.addEventListener('DOMContentLoaded', cargarRegistros);
+    </script>
 </body>
 </html>
