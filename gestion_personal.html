@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>S.U.K.V. - Gestión de Personal</title>
+    <title>S.U.K.V. - Gestión de Personal (Rango Bajo)</title>
     <style>
         :root {
             --primary: #4eef3a;
@@ -11,17 +11,15 @@
             --border: #30363d;
         }
         body { background: var(--bg); color: white; font-family: 'Segoe UI', sans-serif; padding: 20px; }
-        
-        /* Bloqueo de seguridad inicial */
         #app-gestion { display: none; }
 
         .admin-box { 
             background: var(--card); border: 1px solid var(--border); 
             padding: 25px; border-radius: 8px; margin-bottom: 30px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.5);
         }
         h2 { color: var(--primary); border-bottom: 1px solid var(--border); padding-bottom: 10px; }
         
+        /* Formulario simple: Solo 2 columnas */
         .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
         input, select { 
             padding: 12px; background: #010409; border: 1px solid var(--border); 
@@ -32,65 +30,60 @@
         button.btn-add { 
             grid-column: span 2; background: #238636; color: white; 
             font-weight: bold; border: none; padding: 15px; cursor: pointer; margin-top: 10px;
-            transition: 0.3s; text-transform: uppercase; letter-spacing: 1px;
+            text-transform: uppercase;
         }
         button.btn-add:hover { background: #2ea043; }
 
-        table { width: 100%; border-collapse: collapse; background: var(--card); border-radius: 8px; overflow: hidden; margin-top: 10px; }
-        th { background: #161b22; color: var(--primary); padding: 15px; text-align: left; font-size: 0.9em; }
+        table { width: 100%; border-collapse: collapse; background: var(--card); border-radius: 8px; overflow: hidden; }
+        th { background: #161b22; color: var(--primary); padding: 15px; text-align: left; }
         td { padding: 15px; border-bottom: 1px solid var(--border); }
         
-        .badge { padding: 5px 10px; border-radius: 12px; font-size: 0.75em; font-weight: bold; text-transform: uppercase; }
-        .infanteria { background: #4b5320; color: #fff; }
-        .aerea { background: #1e90ff; color: #fff; }
-        .inteligencia { background: #8b0000; color: #fff; }
-        .especiales { background: #4a0082; color: #fff; }
-
-        nav a { color: var(--primary); text-decoration: none; font-weight: bold; font-size: 0.9em; }
-        nav a:hover { text-decoration: underline; }
+        .badge { padding: 5px 10px; border-radius: 12px; font-size: 0.75em; font-weight: bold; }
+        .infanteria { background: #4b5320; }
     </style>
 </head>
 <body>
 
     <div id="app-gestion">
-        <nav style="margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center;">
-            <a href="index_admin.html">← VOLVER AL PANEL DE CONTROL</a>
-            <span style="color: #444; font-size: 0.7em; letter-spacing: 2px;">SISTEMA REGISTRO MILITAR V4.0</span>
+        <nav style="margin-bottom: 20px;">
+            <a href="index_admin.html" style="color: var(--primary); text-decoration: none;">← VOLVER AL PANEL</a>
         </nav>
 
         <div class="admin-box">
-            <h2>🪖 ALTA DE PERSONAL MILITAR</h2>
+            <h2>🪖 ALTA RÁPIDA DE PERSONAL</h2>
             <div class="form-grid">
-                <input type="text" id="nombre_ic" placeholder="Nombre Completo (IC)">
+                <input type="text" id="nombre_ic" placeholder="Nombre IC">
                 <input type="text" id="placa" placeholder="Número de Placa">
-                <input type="text" id="rango" placeholder="Rango Asignado">
+                <input type="text" id="rango" placeholder="Rango">
+                <input type="text" id="pais" placeholder="País" value="Colombia">
+                
                 <select id="division">
-                    <option value="INFANTERÍA">INFANTERÍA</option>
-                    <option value="FUERZA AÉREA">FUERZA AÉREA</option>
-                    <option value="INTELIGENCIA MILITAR">INTELIGENCIA MILITAR</option>
-                    <option value="FUERZAS ESPECIALES">FUERZAS ESPECIALES</option>
+                    <option value="Infantería">Infantería</option>
+                    <option value="Fuerza Aérea">Fuerza Aérea</option>
+                    <option value="Inteligencia">Inteligencia Militar</option>
+                    <option value="Especiales">Fuerzas Especiales</option>
                 </select>
-                <button class="btn-add" id="btn-confirmar" onclick="registrarMilitar()">CONFIRMAR ALTA EN EL SISTEMA</button>
+
+                <button class="btn-add" id="btn-confirmar" onclick="registrarMilitar()">REGISTRAR SOLDADO</button>
             </div>
         </div>
 
-        <h2>📋 PERSONAL ACTIVO REGISTRADO</h2>
+        <h2>📋 PERSONAL EN CAMPO</h2>
         <table>
             <thead>
                 <tr>
                     <th>PLACA</th>
-                    <th>SOLDADO</th>
+                    <th>NOMBRE IC</th>
                     <th>RANGO</th>
                     <th>DIVISIÓN</th>
                 </tr>
             </thead>
-            <tbody id="tabla-gestion">
-                </tbody>
+            <tbody id="tabla-gestion"></tbody>
         </table>
     </div>
 
     <script>
-        // SEGURIDAD: Solo permite ver si está logueado
+        // Seguridad: Se mantiene el login general
         if (sessionStorage.getItem('sukv_auth') !== '1') {
             window.location.href = "index_admin.html";
         } else {
@@ -103,37 +96,37 @@
                 const soldados = await res.json();
                 const tabla = document.getElementById('tabla-gestion');
                 tabla.innerHTML = "";
-
                 soldados.forEach(s => {
-                    let claseBadge = "infanteria";
-                    if(s.division.includes("AÉREA")) claseBadge = "aerea";
-                    if(s.division.includes("INTELIGENCIA")) claseBadge = "inteligencia";
-                    if(s.division.includes("ESPECIALES")) claseBadge = "especiales";
-
                     tabla.innerHTML += `
                         <tr>
-                            <td style="color: #8b949e; font-family: monospace;">#${s.placa}</td>
-                            <td style="font-weight: bold; letter-spacing: 0.5px;">${s.nombre_ic}</td>
+                            <td style="color: var(--primary);">#${s.placa}</td>
+                            <td style="font-weight: bold;">${s.nombre_ic}</td>
                             <td>${s.rango}</td>
-                            <td><span class="badge ${claseBadge}">${s.division}</span></td>
+                            <td><span class="badge infanteria">${s.division}</span></td>
                         </tr>`;
                 });
-            } catch (error) {
-                console.error("Error al cargar personal");
-            }
+            } catch (e) { console.error("Error al cargar"); }
         }
 
         async function registrarMilitar() {
             const btn = document.getElementById('btn-confirmar');
+            
+            // Los campos que NO pedimos se envían con valores genéricos para que la DB no de error
             const data = {
-                nombre_ic: document.getElementById('nombre_ic').value.trim(),
-                placa: document.getElementById('placa').value.trim(),
-                rango: document.getElementById('rango').value.trim(),
-                division: document.getElementById('division').value
+                nombre_ic: document.getElementById('nombre_ic').value,
+                placa: document.getElementById('placa').value,
+                rango: document.getElementById('rango').value,
+                division: document.getElementById('division').value,
+                pais: document.getElementById('pais').value,
+                // VALORES AUTOMÁTICOS (Invisibles para el admin bajo)
+                correo: "sin_correo_" + Date.now() + "@sukv.com",
+                password: "militar123",
+                nombre_discord: "No Registrado",
+                edad: 0
             };
 
-            if (!data.nombre_ic || !data.placa || !data.rango) {
-                alert("⚠ Todos los campos son obligatorios para el registro.");
+            if (!data.nombre_ic || !data.placa) {
+                alert("⚠ Nombre y Placa son obligatorios.");
                 return;
             }
 
@@ -148,19 +141,16 @@
                 });
 
                 if (res.ok) {
-                    alert("✅ Registro militar completado.");
-                    document.getElementById('nombre_ic').value = "";
-                    document.getElementById('placa').value = "";
-                    document.getElementById('rango').value = "";
-                    cargarPersonal();
+                    alert("✅ Soldado registrado con éxito.");
+                    location.reload();
                 } else {
-                    alert("❌ Error en la base de datos.");
+                    alert("❌ Error: La base de datos rechazó el registro. Asegúrate de que el servidor acepte estos campos.");
                 }
             } catch (err) {
-                alert("❌ Error de comunicación con el servidor.");
+                alert("❌ Error de comunicación.");
             } finally {
                 btn.disabled = false;
-                btn.innerText = "CONFIRMAR ALTA EN EL SISTEMA";
+                btn.innerText = "REGISTRAR SOLDADO";
             }
         }
 
