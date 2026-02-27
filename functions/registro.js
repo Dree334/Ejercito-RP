@@ -4,18 +4,29 @@ export async function onRequestPost(context) {
     const data = await request.json();
     const { correo, password, discord, nombre_ic, edad, pais } = data;
 
-    // ── 1. GENERAR PLACA SECUENCIAL ──
-    // Contamos cuántos soldados hay actualmente en la BD
-    const countResult = await env.DB.prepare(
-      `SELECT COUNT(*) as total FROM soldados`
+    // ── 1. VERIFICAR CORREO DUPLICADO ANTES DE INSERTAR ──
+    const existe = await env.DB.prepare(
+      `SELECT correo FROM soldados WHERE correo = ?`
+    ).bind(correo).first();
+
+    if (existe) {
+      return new Response(JSON.stringify({ message: "Ese correo ya está registrado en el sistema." }), {
+        status: 400,
+        headers: { "Content-Type": "application/json" },
+      });
+    }
+
+    // ── 2. GENERAR PLACA SECUENCIAL CON MAX ──
+    // MAX nunca repite placa aunque se borren usuarios
+    const maxResult = await env.DB.prepare(
+      `SELECT MAX(CAST(REPLACE(placa, 'INF-', '') AS INTEGER)) as ultimo FROM soldados WHERE placa LIKE 'INF-%'`
     ).first();
 
-    const total = countResult?.total ?? 0;
-    // Empieza en REC-023, sube de uno en uno
-    const numero = 23 + total;
+    const ultimo = maxResult?.ultimo ?? 22; // BD vacía → primer registro será INF-023
+    const numero = ultimo + 1;
     const placa = "INF-" + String(numero).padStart(3, "0");
 
-    // ── 2. INSERTAR EN BD ──
+    // ── 3. INSERTAR EN BD ──
     await env.DB.prepare(`
       INSERT INTO soldados (correo, password, nombre_discord, nombre_ic, edad, pais, rango, placa)
       VALUES (?, ?, ?, ?, ?, ?, ?, ?)
@@ -30,7 +41,7 @@ export async function onRequestPost(context) {
       placa
     ).run();
 
-    // ── 3. NOTIFICACIÓN DISCORD WEBHOOK ──
+    // ── 4. NOTIFICACIÓN DISCORD WEBHOOK ──
     const webhookUrl = "https://discord.com/api/webhooks/1476777653418590289/LXUCVO-L6eRDMxvnB5UIHpqg4FfrYm7DI_01222jszT5TWNOhfhkf9TxaV8dhOQcjFiy";
 
     const fecha = new Date().toLocaleString("es-CO", {
@@ -67,56 +78,20 @@ export async function onRequestPost(context) {
               value: "**━━━━━━━  DATOS DEL SOLDADO  ━━━━━━━**",
               inline: false
             },
-            {
-              name: "🪖  Nombre IC",
-              value: `\`\`${nombre_ic}\`\``,
-              inline: true
-            },
-            {
-              name: "🆔  Placa Militar",
-              value: `\`\`${placa}\`\``,
-              inline: true
-            },
-            {
-              name: "🎖️  Rango Inicial",
-              value: "``Recluta``",
-              inline: true
-            },
-            {
-              name: "🎮  Discord",
-              value: `${discord}`,
-              inline: true
-            },
-            {
-              name: "🌍  País de Origen",
-              value: `${pais}`,
-              inline: true
-            },
-            {
-              name: "🎂  Edad",
-              value: `${edad} años`,
-              inline: true
-            },
+            { name: "🪖  Nombre IC",       value: `\`\`${nombre_ic}\`\``, inline: true },
+            { name: "🆔  Placa Militar",   value: `\`\`${placa}\`\``,     inline: true },
+            { name: "🎖️  Rango Inicial",  value: "``Recluta``",           inline: true },
+            { name: "🎮  Discord",         value: `${discord}`,            inline: true },
+            { name: "🌍  País de Origen",  value: `${pais}`,               inline: true },
+            { name: "🎂  Edad",            value: `${edad} años`,          inline: true },
             {
               name: "​",
               value: "**━━━━━━━  ESTADO DEL SISTEMA  ━━━━━━━**",
               inline: false
             },
-            {
-              name: "📅  Fecha de Alistamiento",
-              value: `${fecha} (COL)`,
-              inline: true
-            },
-            {
-              name: "✅  Estado",
-              value: "``ACTIVO EN SISTEMA``",
-              inline: true
-            },
-            {
-              name: "🔢  Número de Registro",
-              value: `\`\`#${numero}\`\``,
-              inline: true
-            },
+            { name: "📅  Fecha de Alistamiento", value: `${fecha} (COL)`,       inline: true },
+            { name: "✅  Estado",                value: "``ACTIVO EN SISTEMA``", inline: true },
+            { name: "🔢  Número de Registro",    value: `\`\`#${numero}\`\``,   inline: true },
             {
               name: "​",
               value: [
@@ -141,17 +116,15 @@ export async function onRequestPost(context) {
       })
     });
 
-    // ── 4. RESPUESTA AL FRONTEND (incluye placa generada) ──
+    // ── 5. RESPUESTA AL FRONTEND ──
     return new Response(JSON.stringify({ success: true, placa, nombre_ic }), {
       headers: { "Content-Type": "application/json" },
     });
 
   } catch (error) {
-    return new Response(JSON.stringify({ error: error.message }), {
+    return new Response(JSON.stringify({ message: error.message }), {
       status: 400,
       headers: { "Content-Type": "application/json" },
     });
   }
 }
-
-
