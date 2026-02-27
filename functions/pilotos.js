@@ -1,6 +1,9 @@
 export async function onRequestPost(context) {
   const { request, env } = context;
 
+  // Tu Webhook oficial insertado directamente
+  const DISCORD_WEBHOOK = "https://discord.com/api/webhooks/1476777629355999404/F_xJlgg52JDIGIJlBOATF3KwM8cu4jAOR9TO-ECeaW6bp1132om0N_pVemZ3xD6rIQZl";
+
   try {
     const data = await request.json();
     const { nombre_ic, rango, pais, nombre_discord } = data;
@@ -24,7 +27,7 @@ export async function onRequestPost(context) {
     const numero = 10 + total;
     const placaAuto = `CDT-${String(numero).padStart(3, "0")}`;
 
-    // 💾 Guardar en D1
+    // 💾 Guardar en la base de datos D1
     await env.DB.prepare(`
       INSERT INTO pilotos 
       (nombre_ic, rango, placa, pais, estado, fecha_ingreso, nombre_discord)
@@ -39,13 +42,12 @@ export async function onRequestPost(context) {
       )
       .run();
 
-    // 📢 Enviar a Discord
-    await fetch(env.DISCORD_WEBHOOK, {
+    // 📢 Enviar a Discord con el formato decorativo solicitado
+    await fetch(DISCORD_WEBHOOK, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        content:
-`𝐀𝐕𝐈𝐀𝐂𝐈𝐎́𝐍 𝐌𝐈𝐋𝐈𝐓𝐀𝐑
+        content: `𝐀𝐕𝐈𝐀𝐂𝐈𝐎́𝐍 𝐌𝐈𝐋𝐈𝐓𝐀𝐑
 ╔═════════════✦═════════════╗
   𝐎𝐅𝐈𝐂𝐈𝐀𝐋: 「 ${nombre_ic} 」
   𝐏𝐋𝐀𝐂𝐀: / ${placaAuto}
@@ -53,7 +55,8 @@ export async function onRequestPost(context) {
   𝐑𝐎𝐋: Piloto F-16
   𝐔𝐍𝐈𝐃𝐀𝐃: Aviación Militar
 ╚═════════════✦═════════════╝
-Honor • Disciplina • Lealtad`
+Honor • Disciplina • Lealtad
+Forjando alas para la patria`
       })
     });
 
