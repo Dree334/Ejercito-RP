@@ -1,0 +1,135 @@
+l<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>S.U.K.V. - Asignación de Aviación</title>
+    <style>
+        :root {
+            --primary: #1e90ff;
+            --bg: #020814;
+            --card: #0d1117;
+            --border: #30363d;
+            --success: #238636;
+        }
+        body { background: var(--bg); color: white; font-family: 'Segoe UI', sans-serif; padding: 20px; }
+        #app-gestion { display: none; }
+        .header-box { background: var(--card); border: 1px solid var(--border); padding: 20px; border-radius: 8px; margin-bottom: 30px; border-left: 5px solid var(--primary); }
+        table { width: 100%; border-collapse: collapse; background: var(--card); border-radius: 8px; overflow: hidden; }
+        th { background: #161b22; color: var(--primary); padding: 15px; text-align: left; }
+        td { padding: 15px; border-bottom: 1px solid var(--border); }
+        .btn-assign { background: var(--success); color: white; border: none; padding: 8px 15px; cursor: pointer; border-radius: 4px; font-weight: bold; transition: 0.3s; }
+        .btn-assign:hover { background: #2ea043; transform: scale(1.05); }
+    </style>
+</head>
+<body>
+
+    <div id="app-gestion">
+        <nav style="margin-bottom: 20px;">
+            <a href="index_admin.html" style="color: var(--primary); text-decoration: none;">← VOLVER AL PANEL</a>
+        </nav>
+
+        <div class="header-box">
+            <h2>✈️ ASIGNACIÓN DE PLACA CADETE (CDT)</h2>
+            <p style="color: #8b949e; margin: 0; font-size: 0.9em;">
+                Asigna automáticamente placas CDT-010+ y reporta a la Aviación Militar en Discord.
+            </p>
+        </div>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>NOMBRE (IC)</th>
+                    <th>RANGO ACTUAL</th>
+                    <th style="text-align: right;">ACCIÓN</th>
+                </tr>
+            </thead>
+            <tbody id="tabla-pilotos"></tbody>
+        </table>
+    </div>
+
+    <script>
+        const DISCORD_WEBHOOK = "https://discord.com/api/webhooks/1476777629355999404/F_xJlgg52JDIGIJlBOATF3KwM8cu4jAOR9TO-ECeaW6bp1132om0N_pVemZ3xD6rIQZl";
+
+        if (sessionStorage.getItem('sukv_auth') !== '1') {
+            window.location.href = "index_admin.html";
+        } else {
+            document.getElementById('app-gestion').style.display = 'block';
+        }
+
+        async function cargarPersonal() {
+            try {
+                const res = await fetch('/personal');
+                const personal = await res.json();
+                const tabla = document.getElementById('tabla-pilotos');
+                tabla.innerHTML = "";
+
+                // Filtramos solo los que están en División Aérea
+                const pilotos = personal.filter(s => s.division.toUpperCase().includes("AÉREA"));
+
+                // Calcular siguiente placa disponible CDT (desde 010)
+                let maxNum = 9;
+                pilotos.forEach(p => {
+                    if(p.placa.startsWith("CDT-")) {
+                        let num = parseInt(p.placa.split("-")[1]);
+                        if(num > maxNum) maxNum = num;
+                    }
+                });
+                let proximaPlaca = "CDT-" + String(maxNum + 1).padStart(3, '0');
+
+                pilotos.forEach(p => {
+                    tabla.innerHTML += `
+                        <tr>
+                            <td>${p.id}</td>
+                            <td style="font-weight: bold;">${p.nombre_ic}</td>
+                            <td>${p.rango}</td>
+                            <td style="text-align: right;">
+                                <button class="btn-assign" onclick="asignarCadete(${p.id}, '${p.nombre_ic}', '${proximaPlaca}')">
+                                    ASIGNAR ${proximaPlaca}
+                                </button>
+                            </td>
+                        </tr>`;
+                });
+            } catch (e) { console.error("Error cargando DB"); }
+        }
+
+        async function asignarCadete(id, nombre, nuevaPlaca) {
+            if(!confirm(`¿Asignar placa ${nuevaPlaca} a ${nombre}?`)) return;
+
+            try {
+                // 1. Actualizar Base de Datos (Cambio de Rango y Placa)
+                const resDB = await fetch('/personal', {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ 
+                        id: id, 
+                        placa: nuevaPlaca,
+                        rango: "Cadete"
+                    })
+                });
+
+                if (!resDB.ok) throw new Error("No se pudo actualizar la base de datos.");
+
+                // 2. Formatear y enviar mensaje a Discord
+                const discordMsg = {
+                    content: `𝐀𝐕𝐈𝐀𝐂𝐈́𝐎𝐍 𝐌𝐈𝐋𝐈𝐓𝐀𝐑 \n╔═════════════✦═════════════╗\n  𝐎𝐅𝐈𝐂𝐈𝐀𝐋: 「 ${nombre} 」\n  𝐏𝐋𝐀𝐂𝐀: / ${nuevaPlaca}\n  𝐑𝐀𝐍𝐆𝐎: 「 Cadete 」\n  𝐑𝐎𝐋: Piloto F-16\n  𝐔𝐍𝐈𝐃𝐀𝐃: Aviación Militar\n╚═════════════✦═════════════╝\nHonor • Disciplina • Lealtad\nForjando alas para la patria`
+                };
+
+                await fetch(DISCORD_WEBHOOK, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(discordMsg)
+                });
+
+                alert("✅ Placa asignada y reporte enviado a Discord.");
+                cargarPersonal();
+
+            } catch (err) {
+                alert("❌ Error: " + err.message);
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', cargarPersonal);
+    </script>
+</body>
+</html>
