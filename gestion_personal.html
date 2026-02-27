@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>S.U.K.V. - Gestión de Personal</title>
+    <style>
+        :root {
+            --primary: #4eef3a;
+            --bg: #020814;
+            --card: #0d1117;
+            --border: #30363d;
+        }
+        body { background: var(--bg); color: white; font-family: 'Segoe UI', sans-serif; padding: 20px; }
+        
+        /* Contenedor de formulario */
+        .admin-box { 
+            background: var(--card); border: 1px solid var(--border); 
+            padding: 25px; border-radius: 8px; margin-bottom: 30px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+        }
+        h2 { color: var(--primary); border-bottom: 1px solid var(--border); padding-bottom: 10px; }
+        
+        .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+        input, select { 
+            padding: 12px; background: #010409; border: 1px solid var(--border); 
+            color: white; border-radius: 4px; outline: none;
+        }
+        input:focus { border-color: var(--primary); }
+        
+        button.btn-add { 
+            grid-column: span 2; background: #238636; color: white; 
+            font-weight: bold; border: none; padding: 15px; cursor: pointer; margin-top: 10px;
+        }
+        button.btn-add:hover { background: #2ea043; }
+
+        /* Tabla de gestión */
+        table { width: 100%; border-collapse: collapse; background: var(--card); border-radius: 8px; overflow: hidden; }
+        th { background: #161b22; color: var(--primary); padding: 15px; text-align: left; }
+        td { padding: 15px; border-bottom: 1px solid var(--border); }
+        
+        .badge { padding: 5px 10px; border-radius: 12px; font-size: 0.75em; font-weight: bold; }
+        .infanteria { background: #4b5320; color: #fff; }
+        .aerea { background: #1e90ff; color: #fff; }
+        .inteligencia { background: #8b0000; color: #fff; }
+        .especiales { background: #4a0082; color: #fff; }
+
+        .btn-delete { background: #da3633; color: white; border: none; padding: 8px 12px; cursor: pointer; border-radius: 4px; }
+        .btn-delete:hover { background: #f85149; }
+    </style>
+</head>
+<body>
+
+    <nav style="margin-bottom: 20px;">
+        <a href="test.html" style="color: var(--primary); text-decoration: none;">← Volver a Sanciones</a>
+    </nav>
+
+    <div class="admin-box">
+        <h2>🪖 ALTA DE PERSONAL MILITAR</h2>
+        <div class="form-grid">
+            <input type="text" id="nombre_ic" placeholder="Nombre Completo (IC)">
+            <input type="text" id="placa" placeholder="Número de Placa">
+            <input type="text" id="rango" placeholder="Rango Asignado">
+            <select id="division">
+                <option value="INFANTERÍA">INFANTERÍA</option>
+                <option value="FUERZA AÉREA">FUERZA AÉREA</option>
+                <option value="INTELIGENCIA MILITAR">INTELIGENCIA MILITAR</option>
+                <option value="FUERZAS ESPECIALES">FUERZAS ESPECIALES</option>
+            </select>
+            <button class="btn-add" onclick="registrarMilitar()">CONFIRMAR ALTA EN EL SISTEMA</button>
+        </div>
+    </div>
+
+    <h2>📋 PERSONAL ACTIVO EN BASE DE DATOS</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>IDENTIFICACIÓN</th>
+                <th>SOLDADO</th>
+                <th>RANGO</th>
+                <th>DIVISIÓN</th>
+                <th>ACCIONES</th>
+            </tr>
+        </thead>
+        <tbody id="tabla-gestion">
+            </tbody>
+    </table>
+
+    <script>
+        // Cargar personal al iniciar
+        async function cargarPersonal() {
+            const res = await fetch('/personal');
+            const soldados = await res.json();
+            const tabla = document.getElementById('tabla-gestion');
+            tabla.innerHTML = "";
+
+            soldados.forEach(s => {
+                // Asignar clase de estilo según división
+                let claseBadge = "infanteria";
+                if(s.division.includes("AÉREA")) claseBadge = "aerea";
+                if(s.division.includes("INTELIGENCIA")) claseBadge = "inteligencia";
+                if(s.division.includes("ESPECIALES")) claseBadge = "especiales";
+
+                tabla.innerHTML += `
+                    <tr>
+                        <td style="color: #8b949e;">${s.placa}</td>
+                        <td style="font-weight: bold;">${s.nombre_ic}</td>
+                        <td>${s.rango}</td>
+                        <td><span class="badge ${claseBadge}">${s.division}</span></td>
+                        <td>
+                            <button class="btn-delete" onclick="darDeBaja(${s.id})">DAR DE BAJA</button>
+                        </td>
+                    </tr>`;
+            });
+        }
+
+        // Registrar militar
+        async function registrarMilitar() {
+            const data = {
+                nombre_ic: document.getElementById('nombre_ic').value,
+                placa: document.getElementById('placa').value,
+                rango: document.getElementById('rango').value,
+                division: document.getElementById('division').value
+            };
+
+            const res = await fetch('/personal', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify(data)
+            });
+
+            if (res.ok) {
+                alert("✅ Soldado registrado con éxito.");
+                location.reload();
+            }
+        }
+
+        // Eliminar militar
+        async function darDeBaja(id) {
+            if(!confirm("¿Está seguro de dar de baja a este soldado? Se borrará de index3.html y del login.")) return;
+
+            const res = await fetch('/personal', {
+                method: 'DELETE',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({ id: id })
+            });
+
+            if (res.ok) {
+                cargarPersonal();
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', cargarPersonal);
+    </script>
+</body>
+</html>
