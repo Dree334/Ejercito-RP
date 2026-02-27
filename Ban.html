@@ -2,91 +2,68 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>S.U.K.V. V4.0 - Panel de Sanciones</title>
+    <title>S.U.K.V. V4.0</title>
     <style>
-        body { background: #020814; color: white; font-family: 'Segoe UI', sans-serif; padding: 20px; }
-        .form-container { background: #050d1d; border: 1px solid #1a2a44; padding: 20px; width: 350px; margin-bottom: 20px; }
-        input, textarea { width: 90%; background: #0a1629; border: 1px solid #1e3a5f; color: white; padding: 10px; margin-bottom: 10px; }
-        button { background: #1e3a5f; color: white; border: none; padding: 12px; width: 97%; cursor: pointer; font-weight: bold; }
-        button:hover { background: #2a5284; }
+        body { background: #020814; color: white; font-family: sans-serif; padding: 20px; }
+        input, textarea { width: 300px; display: block; margin-bottom: 10px; padding: 10px; background: #0a1629; border: 1px solid #1e3a5f; color: white; }
+        button { background: #1e3a5f; color: white; padding: 10px 20px; border: none; cursor: pointer; }
         table { width: 100%; border-collapse: collapse; margin-top: 20px; }
-        th { background: #0a1629; color: #4eef3a; padding: 12px; text-align: left; border-bottom: 2px solid #1a2a44; }
-        td { padding: 12px; border-bottom: 1px solid #112244; }
+        th, td { padding: 10px; border-bottom: 1px solid #1a2a44; text-align: left; }
     </style>
 </head>
 <body>
 
-    <h2>ADMINISTRACIÓN DE JUSTICIA MILITAR</h2>
-
-    <div class="form-container">
-        <input type="text" id="nombre_ic" placeholder="NOMBRE IC">
-        <input type="text" id="placa" placeholder="NÚMERO DE PLACA">
-        <input type="text" id="discord" placeholder="DISCORD">
-        <textarea id="motivo" placeholder="MOTIVO DEL STRIKE" rows="3"></textarea>
-        <button onclick="ejecutarSancion()">REGISTRAR EN BASE DE DATOS</button>
-    </div>
+    <h3>REGISTRO DE STRIKE</h3>
+    <input type="text" id="nombre_ic" placeholder="Nombre IC">
+    <input type="text" id="placa" placeholder="Placa">
+    <input type="text" id="discord" placeholder="ID Discord">
+    <textarea id="motivo" placeholder="Motivo"></textarea>
+    <button onclick="ejecutarSancion()">ENVIAR SANCIÓN</button>
 
     <table>
         <thead>
-            <tr>
-                <th>SOLDADO</th>
-                <th>PLACA</th>
-                <th>ESTADO</th>
-                <th>FECHA</th>
-            </tr>
+            <tr><th>SOLDADO</th><th>PLACA</th><th>ESTADO</th><th>FECHA</th></tr>
         </thead>
-        <tbody id="tabla-registros">
-            </tbody>
+        <tbody id="tabla-cuerpo"></tbody>
     </table>
 
     <script>
-        // CARGAR SANCIONES AL INICIAR
         async function cargarRegistros() {
             try {
-                const res = await fetch('/api/sancionar');
-                const datos = await res.json();
-                const tabla = document.getElementById('tabla-registros');
+                // Ruta ajustada a /sancionar
+                const res = await fetch('/sancionar');
+                const data = await res.json();
+                const tabla = document.getElementById('tabla-cuerpo');
                 tabla.innerHTML = "";
-
-                if (datos.error) { console.error(datos.error); return; }
-
-                datos.forEach(s => {
-                    tabla.innerHTML += `
-                        <tr>
-                            <td>${s.nombre_ic}</td>
-                            <td>${s.placa}</td>
-                            <td style="color:#ff4d4d">STRIKE ${s.nivel}</td>
-                            <td>${s.fecha}</td>
-                        </tr>`;
+                data.forEach(s => {
+                    tabla.innerHTML += `<tr><td>${s.nombre_ic}</td><td>${s.placa}</td><td style="color:red">STRIKE ${s.nivel}</td><td>${s.fecha}</td></tr>`;
                 });
-            } catch (e) { console.error("Error de conexión"); }
+            } catch (e) { console.error("Error al cargar"); }
         }
 
-        // ENVIAR NUEVA SANCIÓN
         async function ejecutarSancion() {
             const payload = {
                 nombre_ic: document.getElementById('nombre_ic').value,
                 placa: document.getElementById('placa').value,
                 discord: document.getElementById('discord').value,
-                nivel: 3,
                 motivo: document.getElementById('motivo').value,
                 fecha: new Date().toLocaleDateString('es-CO')
             };
 
-            const res = await fetch('/api/sancionar', {
+            const res = await fetch('/sancionar', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(payload)
             });
 
             if (res.ok) {
-                alert("✅ Sanción Procesada");
+                alert("✅ Sanción registrada");
                 cargarRegistros();
             } else {
-                alert("❌ Error en el Servidor Central");
+                const err = await res.json();
+                alert("❌ Error: " + err.error);
             }
         }
-
         document.addEventListener('DOMContentLoaded', cargarRegistros);
     </script>
 </body>
