@@ -2,27 +2,47 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>S.U.K.V. V4.0</title>
+    <title>S.U.K.V. V4.0 - Panel de Control</title>
     <style>
         body { background: #020814; color: white; font-family: sans-serif; padding: 20px; }
-        input, textarea { width: 300px; display: block; margin-bottom: 10px; padding: 10px; background: #0a1629; border: 1px solid #1e3a5f; color: white; }
-        button { background: #1e3a5f; color: white; padding: 10px 20px; border: none; cursor: pointer; }
+        .form-box { background: #050d1d; border: 1px solid #1a2a44; padding: 20px; width: 350px; margin-bottom: 20px; }
+        input, textarea, select { width: 90%; display: block; margin-bottom: 10px; padding: 10px; background: #0a1629; border: 1px solid #1e3a5f; color: white; }
+        button { background: #1e3a5f; color: white; padding: 10px 20px; border: none; cursor: pointer; width: 97%; font-weight: bold; }
+        button:hover { background: #2a5284; }
         table { width: 100%; border-collapse: collapse; margin-top: 20px; }
-        th, td { padding: 10px; border-bottom: 1px solid #1a2a44; text-align: left; }
+        th, td { padding: 12px; border-bottom: 1px solid #1a2a44; text-align: left; }
+        .btn-eliminar { background: #600; color: white; padding: 5px 10px; border: none; cursor: pointer; border-radius: 4px; }
+        .btn-eliminar:hover { background: #f00; }
     </style>
 </head>
 <body>
 
-    <h3>REGISTRO DE STRIKE</h3>
-    <input type="text" id="nombre_ic" placeholder="Nombre IC">
-    <input type="text" id="placa" placeholder="Placa">
-    <input type="text" id="discord" placeholder="ID Discord">
-    <textarea id="motivo" placeholder="Motivo"></textarea>
-    <button onclick="ejecutarSancion()">ENVIAR SANCIÓN</button>
+    <h3>REGISTRO DE STRIKE - JUSTICIA MILITAR</h3>
+    
+    <div class="form-box">
+        <input type="text" id="nombre_ic" placeholder="Nombre IC del Soldado">
+        <input type="text" id="placa" placeholder="Número de Placa">
+        <input type="text" id="discord" placeholder="ID Discord">
+        
+        <select id="nivel_strike">
+            <option value="1">STRIKE 1 (Advertencia)</option>
+            <option value="2">STRIKE 2 (Sanción Intermedia)</option>
+            <option value="3">STRIKE 3 (Sanción Grave)</option>
+        </select>
+
+        <textarea id="motivo" placeholder="Motivo de la sanción"></textarea>
+        <button onclick="ejecutarSancion()">ENVIAR SANCIÓN</button>
+    </div>
 
     <table>
         <thead>
-            <tr><th>SOLDADO</th><th>PLACA</th><th>ESTADO</th><th>FECHA</th></tr>
+            <tr>
+                <th>SOLDADO</th>
+                <th>PLACA</th>
+                <th>ESTADO</th>
+                <th>FECHA</th>
+                <th>ACCIONES</th>
+            </tr>
         </thead>
         <tbody id="tabla-cuerpo"></tbody>
     </table>
@@ -30,15 +50,29 @@
     <script>
         async function cargarRegistros() {
             try {
-                // Ruta ajustada a /sancionar
                 const res = await fetch('/sancionar');
                 const data = await res.json();
                 const tabla = document.getElementById('tabla-cuerpo');
                 tabla.innerHTML = "";
+                
                 data.forEach(s => {
-                    tabla.innerHTML += `<tr><td>${s.nombre_ic}</td><td>${s.placa}</td><td style="color:red">STRIKE ${s.nivel}</td><td>${s.fecha}</td></tr>`;
+                    // Lógica de colores según nivel de strike
+                    let colorStrike = "#ffcc00"; // Amarillo para nivel 1
+                    if(s.nivel == 2) colorStrike = "#ff8000"; // Naranja para nivel 2
+                    if(s.nivel == 3) colorStrike = "#ff4d4d"; // Rojo para nivel 3
+
+                    tabla.innerHTML += `
+                        <tr>
+                            <td>${s.nombre_ic}</td>
+                            <td>${s.placa}</td>
+                            <td style="color:${colorStrike}; font-weight:bold;">STRIKE ${s.nivel}</td>
+                            <td>${s.fecha}</td>
+                            <td>
+                                <button class="btn-eliminar" onclick="eliminarSancion(${s.id})">ELIMINAR</button>
+                            </td>
+                        </tr>`;
                 });
-            } catch (e) { console.error("Error al cargar"); }
+            } catch (e) { console.error("Error al cargar datos de la DB"); }
         }
 
         async function ejecutarSancion() {
@@ -46,6 +80,7 @@
                 nombre_ic: document.getElementById('nombre_ic').value,
                 placa: document.getElementById('placa').value,
                 discord: document.getElementById('discord').value,
+                nivel: document.getElementById('nivel_strike').value, // Nivel dinámico
                 motivo: document.getElementById('motivo').value,
                 fecha: new Date().toLocaleDateString('es-CO')
             };
@@ -57,13 +92,32 @@
             });
 
             if (res.ok) {
-                alert("✅ Sanción registrada");
+                alert("✅ Sanción registrada en Base de Datos y Discord");
                 cargarRegistros();
             } else {
                 const err = await res.json();
                 alert("❌ Error: " + err.error);
             }
         }
+
+        // NUEVO: Función para eliminar desde la web
+        async function eliminarSancion(id) {
+            if(!confirm("¿Deseas eliminar permanentemente esta sanción de la base de datos?")) return;
+
+            const res = await fetch('/sancionar', {
+                method: 'DELETE',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ id: id, tabla: 'sanciones' }) // Indica el ID y la tabla
+            });
+
+            if (res.ok) {
+                alert("🗑️ Sanción eliminada con éxito");
+                cargarRegistros();
+            } else {
+                alert("❌ Error al intentar eliminar");
+            }
+        }
+
         document.addEventListener('DOMContentLoaded', cargarRegistros);
     </script>
 </body>
