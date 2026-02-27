@@ -2,61 +2,34 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>S.U.K.V. - Comando Aéreo Independiente</title>
+    <title>S.U.K.V. - Aviación Militar</title>
     <style>
-        :root {
-            --primary: #00d4ff; --bg: #050a14; --card: #0f172a;
-            --border: #1e293b; --success: #10b981;
-        }
-        body { background: var(--bg); color: white; font-family: 'Inter', sans-serif; padding: 20px; }
-        
-        .header-box { 
-            background: var(--card); border: 1px solid var(--border); 
-            padding: 20px; border-radius: 12px; margin-bottom: 25px;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.5); border-left: 5px solid var(--primary);
-        }
-
-        .register-box {
-            background: #1e293b; border: 1px solid var(--border);
-            padding: 20px; border-radius: 12px; margin-bottom: 30px;
-        }
-        .form-row { display: flex; gap: 10px; }
-        input { flex: 1; padding: 12px; background: #0f172a; border: 1px solid var(--border); color: white; border-radius: 6px; outline: none; }
+        :root { --primary: #00d4ff; --bg: #0b0f19; --card: #161b22; --border: #30363d; }
+        body { background: var(--bg); color: white; font-family: 'Segoe UI', sans-serif; padding: 20px; }
+        .panel { background: var(--card); border: 1px solid var(--border); padding: 25px; border-radius: 8px; border-left: 5px solid var(--primary); box-shadow: 0 4px 15px rgba(0,0,0,0.5); }
+        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 15px; margin-bottom: 20px; }
+        input { padding: 12px; background: #0d1117; border: 1px solid var(--border); color: white; border-radius: 4px; outline: none; }
         input:focus { border-color: var(--primary); }
-        
-        .btn-register { 
-            background: var(--primary); color: #000; border: none; padding: 0 25px;
-            font-weight: bold; cursor: pointer; border-radius: 6px; text-transform: uppercase;
-        }
-
-        table { width: 100%; border-collapse: collapse; background: var(--card); border-radius: 12px; overflow: hidden; }
-        th { background: #1e293b; color: var(--primary); padding: 15px; text-align: left; font-size: 0.9em; }
-        td { padding: 15px; border-bottom: 1px solid var(--border); }
-        
-        .btn-assign { 
-            background: var(--success); color: white; border: none; padding: 8px 15px; 
-            cursor: pointer; border-radius: 4px; font-weight: bold;
-        }
-        .btn-delete { background: #ef4444; color: white; border: none; padding: 8px 10px; cursor: pointer; border-radius: 4px; margin-left: 5px;}
-        
-        nav a { color: var(--primary); text-decoration: none; font-weight: bold; margin-bottom: 15px; display: inline-block; }
+        button { padding: 15px; background: var(--primary); color: black; border: none; font-weight: bold; cursor: pointer; border-radius: 4px; text-transform: uppercase; transition: 0.3s; }
+        button:hover { background: #008fb3; transform: scale(1.02); }
+        table { width: 100%; border-collapse: collapse; margin-top: 25px; background: var(--card); border-radius: 8px; overflow: hidden; }
+        th, td { padding: 15px; text-align: left; border-bottom: 1px solid var(--border); }
+        th { color: var(--primary); background: #1c2128; font-size: 0.85rem; text-transform: uppercase; }
+        .placa-badge { color: #00d4ff; font-family: 'Courier New', monospace; font-weight: bold; background: rgba(0, 212, 255, 0.1); padding: 4px 8px; border-radius: 4px; }
     </style>
 </head>
 <body>
 
-    <nav><a href="index_admin.html">← VOLVER AL PANEL</a></nav>
-
-    <div class="header-box">
-        <h2>🦅 COMANDO DE AVIACIÓN MILITAR (S.U.K.V.)</h2>
-        <p style="color: #94a3b8;">Base de Datos Independiente de Pilotos</p>
-    </div>
-
-    <div class="register-box">
-        <div class="form-row">
-            <input type="text" id="nombre_ic" placeholder="Nombre del Piloto (IC)">
-            <input type="text" id="rango_inicial" placeholder="Rango" value="Aspirante">
-            <button class="btn-register" onclick="agregarPiloto()">AÑADIR AL ESCUADRÓN</button>
+    <div class="panel">
+        <h2 style="margin-top:0;">🦅 COMANDO DE AVIACIÓN MILITAR</h2>
+        <p style="color: #8b949e; margin-bottom: 20px;">Registro Oficial de Pilotos - S.U.K.V.</p>
+        <div class="grid">
+            <input type="text" id="nombre_ic" placeholder="Nombre IC (Ej: Sam Sukv)">
+            <input type="number" id="edad" placeholder="Edad" value="20">
+            <input type="text" id="pais" placeholder="País" value="Colombia">
+            <input type="text" id="discord" placeholder="Usuario de Discord">
         </div>
+        <button onclick="registrarPiloto()">REGISTRAR Y GENERAR REPORTE</button>
     </div>
 
     <table>
@@ -65,7 +38,8 @@
                 <th>PILOTO</th>
                 <th>RANGO</th>
                 <th>INDICATIVO</th>
-                <th style="text-align: right;">GESTIÓN</th>
+                <th>PAÍS</th>
+                <th>FECHA INGRESO</th>
             </tr>
         </thead>
         <tbody id="lista-pilotos"></tbody>
@@ -73,96 +47,84 @@
 
     <script>
         const WEBHOOK = "https://discord.com/api/webhooks/1476777629355999404/F_xJlgg52JDIGIJlBOATF3KwM8cu4jAOR9TO-ECeaW6bp1132om0N_pVemZ3xD6rIQZl";
-        const DB_URL = "/gestion_pilotos"; // Nueva ruta solo para aviación
+        const API_URL = "/pilotos"; 
 
-        async function cargarPilotos() {
-            try {
-                const res = await fetch(DB_URL);
-                const pilotos = await res.json();
-                const tabla = document.getElementById('lista-pilotos');
-                tabla.innerHTML = "";
+        async function registrarPiloto() {
+            const nombre = document.getElementById('nombre_ic').value.trim();
+            const edad = document.getElementById('edad').value;
+            const pais = document.getElementById('pais').value;
+            const discord = document.getElementById('discord').value;
 
-                // Calcular siguiente CDT
-                let max = 9;
-                pilotos.forEach(p => {
-                    if(p.placa && p.placa.includes("CDT-")) {
-                        let n = parseInt(p.placa.split("-")[1]);
-                        if(n > max) max = n;
-                    }
-                });
-                let proxima = "CDT-" + String(max + 1).padStart(3, '0');
+            if(!nombre || !discord) return alert("Error: El nombre y Discord son obligatorios.");
 
-                pilotos.forEach(p => {
-                    tabla.innerHTML += `
-                        <tr>
-                            <td><b>${p.nombre}</b></td>
-                            <td><span style="color:#94a3b8">${p.rango}</span></td>
-                            <td style="font-family:monospace; color:${p.placa === 'S/P' ? '#64748b' : '#00d4ff'}">${p.placa}</td>
-                            <td style="text-align:right">
-                                <button class="btn-assign" onclick="ascender('${p.id}', '${p.nombre}', '${proxima}')">OFICIALIZAR</button>
-                                <button class="btn-delete" onclick="eliminar('${p.id}')">✖</button>
-                            </td>
-                        </tr>`;
-                });
-            } catch (e) { console.log("DB vacía o error."); }
-        }
+            // 1. Obtener pilotos para calcular la placa CDT-010+
+            const res = await fetch(API_URL);
+            const data = await res.json();
+            
+            let maxNum = 9;
+            data.forEach(p => {
+                if (p.placa && p.placa.startsWith("CDT-")) {
+                    let num = parseInt(p.placa.split("-")[1]);
+                    if (!isNaN(num) && num > maxNum) maxNum = num;
+                }
+            });
+            const placaGenerada = "CDT-" + String(maxNum + 1).padStart(3, '0');
 
-        async function agregarPiloto() {
-            const nombre = document.getElementById('nombre_ic').value;
-            const rango = document.getElementById('rango_inicial').value;
-            if(!nombre) return alert("Escribe un nombre");
+            // 2. Preparar datos completos para la tabla
+            const ahora = new Date();
+            const fechaSql = ahora.toISOString().slice(0, 10) + " " + ahora.toLocaleTimeString('it-IT');
 
-            const nuevo = {
-                id: "P-" + Date.now(),
-                nombre: nombre,
-                rango: rango,
-                placa: "S/P",
-                fecha: new Date().toLocaleDateString()
+            const payload = {
+                correo: `piloto_${Date.now()}@sukv.com`,
+                password: "123",
+                nombre_discord: discord,
+                nombre_ic: nombre,
+                edad: parseInt(edad),
+                pais: pais,
+                rango: "Aspirante",
+                placa: placaGenerada,
+                fecha_registro: fechaSql,
+                division: "Aviación"
             };
 
-            await fetch(DB_URL, {
+            // 3. Guardar en DB
+            const response = await fetch(API_URL, {
                 method: 'POST',
                 headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify(nuevo)
+                body: JSON.stringify(payload)
             });
 
-            document.getElementById('nombre_ic').value = "";
-            cargarPilotos();
+            if(response.ok) {
+                // 4. Enviar a Discord con TU DISEÑO
+                const msgDiscord = {
+                    content: `𝐀𝐕𝐈𝐀𝐂𝐈́𝐎𝐍 𝐌𝐈𝐋𝐈𝐓𝐀𝐑 \n╔═════════════✦═════════════╗\n  𝐎𝐅𝐈𝐂𝐈𝐀𝐋: 「 ${nombre} 」\n  𝐏𝐋𝐀𝐂𝐀: / ${placaGenerada}\n  𝐑𝐀𝐍𝐆𝐎: 「 Aspirante 」\n  𝐑𝐎𝐋: Piloto F-16\n  𝐔𝐍𝐈𝐃𝐀𝐃: Aviación Militar\n╚═════════════✦═════════════╝\nHonor • Disciplina • Lealtad\nForjando alas para la patria`
+                };
+
+                await fetch(WEBHOOK, {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify(msgDiscord)
+                });
+
+                alert(`✅ Piloto ${nombre} registrado como ${placaGenerada}`);
+                location.reload(); 
+            }
         }
 
-        async function ascender(id, nombre, placa) {
-            if(!confirm(`¿Asignar ${placa} a ${nombre}?`)) return;
-
-            await fetch(DB_URL, {
-                method: 'PUT',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({ id: id, placa: placa, rango: "Cadete" })
-            });
-
-            // Envío a Discord
-            fetch(WEBHOOK, {
-                method: 'POST',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({
-                    content: `𝐀𝐕𝐈𝐀𝐂𝐈́𝐎𝐍 𝐌𝐈𝐋𝐈𝐓𝐀𝐑 \n╔═════════════✦═════════════╗\n  𝐎𝐅𝐈𝐂𝐈𝐀𝐋: 「 ${nombre} 」\n  𝐏𝐋𝐀𝐂𝐀: / ${placa}\n  𝐑𝐀𝐍𝐆𝐎: 「 Cadete 」\n  𝐑𝐎𝐋: Piloto F-16\n╚═════════════✦═════════════╝`
-                })
-            });
-
-            alert("Piloto Oficializado.");
-            cargarPilotos();
-        }
-
-        async function eliminar(id) {
-            if(!confirm("¿Eliminar piloto del sistema?")) return;
-            await fetch(DB_URL, {
-                method: 'DELETE',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({ id: id })
-            });
-            cargarPilotos();
-        }
-
-        document.addEventListener('DOMContentLoaded', cargarPilotos);
+        window.onload = async () => {
+            const res = await fetch(API_URL);
+            const datos = await res.json();
+            const lista = document.getElementById('lista-pilotos');
+                datos.forEach(p => {
+                    lista.innerHTML += `<tr>
+                        <td><b>${p.nombre_ic}</b><br><small style="color:#8b949e">${p.nombre_discord}</small></td>
+                        <td>${p.rango}</td>
+                        <td><span class="placa-badge">${p.placa}</span></td>
+                        <td>${p.pais}</td>
+                        <td><small>${p.fecha_registro}</small></td>
+                    </tr>`;
+                });
+        };
     </script>
 </body>
 </html>
