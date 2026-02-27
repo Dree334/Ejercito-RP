@@ -1,586 +1,149 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8"/>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
-  <meta name="mobile-web-app-capable" content="yes"/>
-  <meta name="apple-mobile-web-app-capable" content="yes"/>
-  <meta name="theme-color" content="#000000"/>
-  <title>FAC - MTA:SA GUERRAS MUNDIALES RP</title>
-  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Share+Tech+Mono&display=swap" rel="stylesheet"/>
-  <style>
-    *, *::before, *::after {
-      box-sizing: border-box; margin: 0; padding: 0;
-      image-rendering: pixelated;
-      -webkit-tap-highlight-color: transparent;
-    }
+    <meta charset="UTF-8">
+    <title>S.U.K.V. - Monitor de Aviación Militar</title>
+    <style>
+        :root {
+            --primary: #1e90ff;
+            --bg: #010409;
+            --card: #0d1117;
+            --border: #30363d;
+            --glow: rgba(30, 144, 255, 0.3);
+        }
+        body { 
+            background: var(--bg); 
+            color: white; 
+            font-family: 'Segoe UI', sans-serif; 
+            padding: 40px;
+            background-image: radial-gradient(circle at top, #111e2d 0%, #010409 100%);
+        }
 
-    :root {
-      --orange: #ff8c00;
-      --yellow: #f5e642;
-      --green:  #55e043;
-      --red:    #e03030;
-      --cyan:   #00d4ff;
-      --white:  #ffffff;
-      --grey:   #888888;
-      --panel:  rgba(0,0,0,0.85);
-      --col-y:  #fcd116;
-      --col-b:  #003893;
-      --col-r:  #ce1126;
-    }
+        .display-header {
+            text-align: center;
+            border-bottom: 2px solid var(--primary);
+            padding-bottom: 20px;
+            margin-bottom: 40px;
+            text-shadow: 0 0 10px var(--glow);
+        }
 
-    html, body {
-      width: 100%; height: 100%;
-      background: #000;
-      color: var(--white);
-      font-family: 'Share Tech Mono', monospace;
-      overflow: hidden;
-    }
+        h1 { margin: 0; letter-spacing: 4px; font-size: 2.5em; color: var(--primary); }
+        .subtitle { color: #8b949e; text-transform: uppercase; letter-spacing: 2px; font-size: 0.9em; }
 
-    .bg {
-      position: fixed; inset: 0; z-index: 0;
-      background: linear-gradient(180deg, #080d14 0%, #0b1219 35%, #0e1a0b 65%, #080a06 100%);
-    }
-    .bg::before {
-      content: ''; position: absolute; inset: 0;
-      background-image:
-        radial-gradient(1px 1px at 8%  12%, rgba(255,255,255,.7) 0%, transparent 100%),
-        radial-gradient(1px 1px at 22% 6%,  rgba(255,255,255,.4) 0%, transparent 100%),
-        radial-gradient(1px 1px at 38% 18%, rgba(255,255,255,.5) 0%, transparent 100%),
-        radial-gradient(1px 1px at 55% 4%,  rgba(255,255,255,.6) 0%, transparent 100%),
-        radial-gradient(1px 1px at 72% 10%, rgba(255,255,255,.4) 0%, transparent 100%),
-        radial-gradient(1px 1px at 88% 16%, rgba(255,255,255,.6) 0%, transparent 100%),
-        radial-gradient(1px 1px at 14% 22%, rgba(255,255,255,.3) 0%, transparent 100%),
-        radial-gradient(1px 1px at 48% 8%,  rgba(255,255,255,.5) 0%, transparent 100%);
-    }
+        /* Contenedor de Pilotos Estilo "Fichas" */
+        .pilotos-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+        }
 
-    .scanlines {
-      position: fixed; inset: 0; z-index: 1; pointer-events: none;
-      background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,0,0,.13) 2px, rgba(0,0,0,.13) 4px);
-    }
+        .pilot-card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 20px;
+            position: relative;
+            transition: 0.3s;
+            overflow: hidden;
+        }
 
-    .plane-fx {
-      position: fixed; top: 8%; left: -60px; font-size: 20px; z-index: 2;
-      animation: fly 22s linear infinite;
-      filter: drop-shadow(0 0 6px rgba(0,212,255,.5));
-    }
-    @keyframes fly { from{left:-60px;top:8%} to{left:110%;top:4%} }
+        .pilot-card::before {
+            content: "";
+            position: absolute;
+            top: 0; left: 0; width: 4px; height: 100%;
+            background: var(--primary);
+        }
 
-    .colombia-bar {
-      position: fixed; top: 0; left: 0; width: 100%; height: 4px;
-      display: flex; z-index: 300;
-    }
-    .f-y{flex:2;background:var(--col-y);box-shadow:0 0 6px var(--col-y)}
-    .f-b{flex:1;background:var(--col-b)}
-    .f-r{flex:1;background:var(--col-r);box-shadow:0 0 4px var(--col-r)}
+        .pilot-card:hover {
+            border-color: var(--primary);
+            box-shadow: 0 0 15px var(--glow);
+            transform: translateY(-5px);
+        }
 
-    .panel {
-      background: var(--panel);
-      border: 1px solid rgba(255,255,255,.08);
-      position: relative; overflow: hidden;
-    }
-    .panel::before, .panel::after {
-      content: ''; position: absolute;
-      width: 8px; height: 8px;
-      border-color: var(--orange); border-style: solid;
-    }
-    .panel::before { top:3px; left:3px; border-width:2px 0 0 2px; }
-    .panel::after  { bottom:3px; right:3px; border-width:0 2px 2px 0; }
+        .pilot-name { font-size: 1.4em; font-weight: bold; margin-bottom: 5px; display: block; }
+        .pilot-rank { color: var(--primary); font-weight: bold; text-transform: uppercase; font-size: 0.85em; }
+        .pilot-plate { 
+            display: block; 
+            margin-top: 15px; 
+            font-family: monospace; 
+            color: #8b949e;
+            background: #161b22;
+            padding: 5px;
+            text-align: center;
+            border-radius: 4px;
+        }
 
-    /* ═══ ROOT LAYOUT ═══ */
-    .root {
-      position: relative; z-index: 10;
-      width: 100vw; height: 100dvh;
-      display: grid;
-      grid-template-rows: 48px 1fr 70px 20px;
-      padding: 4px 5px 0;
-      gap: 4px;
-    }
+        .status-dot {
+            height: 8px; width: 8px;
+            background-color: #4eef3a;
+            border-radius: 50%;
+            display: inline-block;
+            margin-right: 8px;
+            box-shadow: 0 0 8px #4eef3a;
+        }
 
-    /* TOPBAR */
-    .topbar {
-      display: flex; align-items: center; gap: 7px;
-      padding: 0 9px;
-    }
-    .logo {
-      font-family: 'Press Start 2P', monospace;
-      font-size: 6px; color: var(--orange);
-      text-shadow: 1px 1px 0 rgba(255,100,0,.4);
-      line-height: 1.6; white-space: nowrap;
-    }
-    .logo span { color: var(--yellow); display: block; font-size: 4.5px; margin-top: 2px; }
-    .divv { width: 2px; height: 26px; background: var(--orange); flex-shrink: 0; }
-    .stars { display: flex; gap: 3px; align-items: center; }
-    .star  { font-size: 12px; color: var(--grey); }
-    .star.lit { color: var(--yellow); filter: drop-shadow(0 0 4px var(--yellow)); }
-    .spacer { flex: 1; }
-    .server-tag {
-      font-size: 5.5px; color: var(--orange);
-      border: 1px solid rgba(255,140,0,.35);
-      padding: 3px 5px; letter-spacing: .07em; white-space: nowrap;
-    }
-    .clock {
-      font-family: 'Press Start 2P', monospace;
-      font-size: 8.5px; color: var(--yellow);
-      text-shadow: 0 0 6px rgba(245,230,66,.5);
-    }
-
-    /* MIDDLE */
-    .middle {
-      display: grid;
-      grid-template-columns: 120px 1fr 108px;
-      gap: 4px;
-      min-height: 0;
-    }
-
-    /* ─ LISTA ─ */
-    .pilot-list {
-      display: flex; flex-direction: column;
-      overflow-y: auto; overflow-x: hidden;
-      -webkit-overflow-scrolling: touch;
-    }
-    .pilot-list::-webkit-scrollbar { width: 2px; }
-    .pilot-list::-webkit-scrollbar-thumb { background: rgba(255,140,0,.3); }
-
-    .ptitle {
-      font-family: 'Press Start 2P', monospace;
-      font-size: 5px; color: var(--orange);
-      padding: 6px 6px 4px; letter-spacing: .07em;
-      border-bottom: 1px solid rgba(255,140,0,.25);
-      flex-shrink: 0;
-    }
-    .sec-lbl {
-      font-family: 'Press Start 2P', monospace;
-      font-size: 4px; color: var(--grey);
-      padding: 4px 6px 2px; flex-shrink: 0;
-    }
-    .divider { height: 1px; background: rgba(255,255,255,.06); flex-shrink: 0; margin: 2px 0; }
-
-    .prow {
-      display: flex; align-items: center; gap: 5px;
-      padding: 7px 5px; cursor: pointer;
-      border: 1px solid transparent;
-      transition: all .15s; position: relative;
-      flex-shrink: 0;
-    }
-    .prow:active, .prow.sel {
-      background: rgba(255,140,0,.12);
-      border-color: rgba(255,140,0,.4);
-    }
-    .prow.sel::before {
-      content: '▶'; position: absolute; left: 0;
-      color: var(--orange); font-size: 6px;
-    }
-    .prow.elite { border-left: 2px solid var(--yellow); }
-
-    .avatar {
-      width: 24px; height: 24px; flex-shrink: 0;
-      background: rgba(255,255,255,.04);
-      border: 1px solid rgba(255,255,255,.09);
-      display: grid; place-items: center;
-      font-size: 12px;
-    }
-    .pinfo { flex: 1; min-width: 0; }
-    .pid { font-family: 'Press Start 2P', monospace; font-size: 4px; color: var(--cyan); margin-bottom: 2px; }
-    .pname { font-size: 8.5px; color: var(--white); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    .pcraft { font-size: 6.5px; color: var(--grey); margin-top: 1px; }
-
-    .dot { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; animation: blink 1.5s infinite; }
-    .dot-g { background: var(--green); box-shadow: 0 0 5px var(--green); }
-    .dot-y { background: var(--yellow); box-shadow: 0 0 5px var(--yellow); }
-    @keyframes blink { 0%,100%{opacity:1} 50%{opacity:.3} }
-
-    /* ─ PERFIL ─ */
-    .profile { display: flex; flex-direction: column; gap: 5px; padding: 7px; }
-
-    .craft-view {
-      flex: 1; min-height: 0;
-      background: rgba(0,0,0,.6);
-      border: 1px solid rgba(255,140,0,.18);
-      display: flex; flex-direction: column;
-      align-items: center; justify-content: center;
-      position: relative; overflow: hidden;
-    }
-    .craft-view::before {
-      content: ''; position: absolute; inset: 0;
-      background:
-        linear-gradient(rgba(0,212,255,.04) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(0,212,255,.04) 1px, transparent 1px);
-      background-size: 18px 18px;
-    }
-    .craft-view::after {
-      content: ''; position: absolute;
-      top:50%; left:50%; transform:translate(-50%,-50%);
-      width: 52px; height: 52px;
-      border: 1px solid rgba(255,140,0,.25); border-radius: 50%;
-      box-shadow: 0 0 0 1px rgba(255,140,0,.08), inset 0 0 16px rgba(255,140,0,.04);
-    }
-    .plane-big {
-      font-size: 60px; z-index: 1;
-      filter: drop-shadow(0 0 18px rgba(0,212,255,.6));
-      animation: hover3d 3s ease-in-out infinite;
-    }
-    @keyframes hover3d {
-      0%,100%{transform:translateY(0) rotate(-2deg)}
-      50%{transform:translateY(-7px) rotate(2deg)}
-    }
-    .craft-lbl {
-      position: absolute; bottom: 7px;
-      font-family: 'Press Start 2P', monospace;
-      font-size: 4.5px; color: var(--orange); letter-spacing: .1em; text-align: center;
-    }
-    .craft-lbl span { color: var(--white); }
-
-    .ret { position: absolute; width: 11px; height: 11px; border-color: rgba(255,140,0,.45); border-style: solid; }
-    .rt { top:5px;left:5px; border-width:2px 0 0 2px; }
-    .rT { top:5px;right:5px; border-width:2px 2px 0 0; }
-    .rb { bottom:5px;left:5px; border-width:0 0 2px 2px; }
-    .rB { bottom:5px;right:5px; border-width:0 2px 2px 0; }
-
-    .pilot-name-big {
-      font-family: 'Press Start 2P', monospace;
-      font-size: 9px; color: var(--yellow);
-      text-shadow: 2px 2px 0 rgba(200,150,0,.4), 0 0 14px rgba(245,230,66,.4);
-      letter-spacing: .06em; text-align: center; line-height: 1.5;
-    }
-    .pilot-rank-big {
-      font-size: 8px; color: var(--orange); text-align: center;
-      letter-spacing: .06em; margin-top: 1px;
-    }
-    .back-btn {
-      display: flex; align-items: center; justify-content: center;
-      padding: 8px;
-      background: rgba(255,140,0,.1);
-      border: 1px solid rgba(255,140,0,.4);
-      color: var(--orange);
-      font-family: 'Press Start 2P', monospace;
-      font-size: 5px; letter-spacing: .07em;
-      text-decoration: none; cursor: pointer;
-      transition: all .2s; flex-shrink: 0;
-    }
-    .back-btn:active { background: rgba(255,140,0,.25); }
-
-    /* ─ RADAR ─ */
-    .radar-col { display: flex; flex-direction: column; gap: 4px; padding: 6px 5px; }
-    .radar-title {
-      font-family: 'Press Start 2P', monospace;
-      font-size: 5px; color: var(--orange);
-      letter-spacing: .07em; padding: 0 2px 4px;
-      border-bottom: 1px solid rgba(255,140,0,.25);
-      flex-shrink: 0;
-    }
-    .minimap-wrap { position: relative; width: 100%; flex-shrink: 0; }
-    .minimap-wrap::before { content: ''; display: block; padding-top: 100%; }
-    .minimap {
-      position: absolute; inset: 0;
-      border: 2px solid rgba(255,255,255,.14);
-      border-radius: 50%; overflow: hidden;
-      background: radial-gradient(circle, #1a2810 0%, #0d1508 60%, #050809 100%);
-    }
-    .minimap::before {
-      content: ''; position: absolute; inset: 0;
-      background:
-        linear-gradient(rgba(255,255,255,.03) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(255,255,255,.03) 1px, transparent 1px);
-      background-size: 20% 20%; border-radius: 50%;
-    }
-    .minimap::after {
-      content: ''; position: absolute; inset: 0;
-      background: conic-gradient(from 0deg, rgba(255,140,0,.22) 0deg, transparent 50deg);
-      border-radius: 50%;
-      animation: sweep 4s linear infinite;
-    }
-    @keyframes sweep { from{transform:rotate(0deg)} to{transform:rotate(360deg)} }
-    .road { position: absolute; background: rgba(255,255,255,.1); }
-    .blip { position: absolute; border-radius: 50%; transform: translate(-50%,-50%); }
-    .blip-me { width:9px;height:9px;background:var(--cyan);box-shadow:0 0 8px var(--cyan);top:50%;left:50%; }
-    .blip-a  { width:6px;height:6px;background:var(--yellow);box-shadow:0 0 5px var(--yellow); }
-    .blip-e  { width:5px;height:5px;background:var(--red);box-shadow:0 0 5px var(--red);animation:blink .8s infinite; }
-    .map-lbl { font-family:'Press Start 2P',monospace; font-size:4px; color:var(--grey); text-align:center; margin-top:4px; }
-
-    .drow {
-      display: flex; justify-content: space-between; align-items: center;
-      padding: 4px 2px; border-bottom: 1px solid rgba(255,255,255,.05); flex-shrink: 0;
-    }
-    .dk { font-size: 7px; color: var(--grey); }
-    .dv { font-family:'Press Start 2P',monospace; font-size:5px; color:var(--orange); }
-    .dv.g { color: var(--green); }
-    .dv.c { color: var(--cyan); }
-    .dv.r { color: var(--red); }
-
-    /* BOTTOM HUD — estilo GTA SA puro */
-    .bottom-hud {
-      display: grid;
-      grid-template-columns: 1fr auto 1fr;
-      align-items: center;
-      padding: 0 10px; gap: 8px;
-    }
-    .hud-left { display: flex; flex-direction: column; gap: 2px; }
-    .hud-mission-lbl {
-      font-family: 'Press Start 2P', monospace;
-      font-size: 5px; color: var(--grey); letter-spacing: .05em;
-    }
-    .hud-mission-val {
-      font-family: 'Press Start 2P', monospace;
-      font-size: 7px; color: var(--green);
-      text-shadow: 0 0 8px rgba(85,224,67,.4);
-    }
-    .hud-faction { font-size: 8px; color: var(--cyan); margin-top: 1px; }
-
-    .hud-center { text-align: center; }
-    .hud-money {
-      font-family: 'Press Start 2P', monospace;
-      font-size: 9px; color: var(--green);
-      text-shadow: 0 0 10px rgba(85,224,67,.45), 1px 1px 0 rgba(0,80,0,.5);
-      white-space: nowrap;
-    }
-    .hud-money-lbl { font-size: 6.5px; color: var(--grey); margin-top: 2px; }
-
-    .hud-right { display: flex; align-items: center; justify-content: flex-end; gap: 7px; }
-    .weapon-info { text-align: right; }
-    .weapon-name { font-family:'Press Start 2P',monospace; font-size:6px; color:var(--white); }
-    .weapon-ammo { font-family:'Press Start 2P',monospace; font-size:9px; color:var(--orange); margin-top:2px; }
-    .weapon-ico  { font-size:24px; filter:drop-shadow(0 0 6px rgba(255,140,0,.45)); }
-
-    /* TICKER */
-    .ticker { display: flex; align-items: center; overflow: hidden; background: rgba(255,140,0,.9); }
-    .ticker-tag {
-      background: rgba(0,0,0,.6); padding: 0 7px;
-      font-family:'Press Start 2P',monospace; font-size:5px; color:var(--yellow);
-      white-space: nowrap; height:100%;
-      display:flex; align-items:center; flex-shrink:0;
-      border-right:1px solid rgba(0,0,0,.3);
-    }
-    .ticker-text {
-      font-family:'Press Start 2P',monospace; font-size:5px; color:#000;
-      white-space:nowrap; animation:scroll 26s linear infinite; letter-spacing:.05em;
-    }
-    @keyframes scroll { from{transform:translateX(100vw)} to{transform:translateX(-100%)} }
-
-    /* NOTIF */
-    .notif {
-      position: fixed; top: 58px; right: 8px; z-index: 400;
-      background: rgba(0,0,0,.92);
-      border-left: 3px solid var(--orange);
-      padding: 8px 11px;
-      font-family:'Press Start 2P',monospace;
-      font-size:5.5px; color:var(--white);
-      max-width:170px; line-height:1.8;
-      display:none; animation:nslide .3s ease;
-    }
-    @keyframes nslide { from{transform:translateX(100%);opacity:0} to{transform:translateX(0);opacity:1} }
-    .notif-t { color:var(--yellow); margin-bottom:3px; font-size:6.5px; }
-  </style>
+        /* Decoración de radar */
+        .radar-decor {
+            position: fixed;
+            bottom: 20px; right: 20px;
+            opacity: 0.2;
+            pointer-events: none;
+        }
+    </style>
 </head>
 <body>
 
-<div class="colombia-bar"><div class="f-y"></div><div class="f-b"></div><div class="f-r"></div></div>
-<div class="bg"></div>
-<div class="scanlines"></div>
-<div class="plane-fx">✈️</div>
-
-<div class="notif" id="notif">
-  <div class="notif-t">★ PILOTO SELECCIONADO</div>
-  <div id="notif-txt">---</div>
-</div>
-
-<div class="root">
-
-  <!-- TOPBAR -->
-  <div class="panel topbar">
-    <div class="logo">
-      ✈ FAC · GUERRAS MUNDIALES RP
-      <span>FUERZA AEREA ROLEPLAY COLOMBIA</span>
+    <div class="display-header">
+        <h1>𝐀𝐕𝐈𝐀𝐂𝐈́𝐎𝐍 𝐌𝐈𝐋𝐈𝐓𝐀𝐑</h1>
+        <div class="subtitle">Escuadrón de Combate S.U.K.V. - Estado de Fuerza</div>
     </div>
-    <div class="divv"></div>
-    <div class="stars">
-      <span class="star lit">★</span>
-      <span class="star lit">★</span>
-      <span class="star lit">★</span>
-      <span class="star">★</span>
-      <span class="star">★</span>
-      <span class="star">★</span>
-    </div>
-    <div class="spacer"></div>
-    <div class="server-tag">MTA:SA GUERRAS MUNDIALES</div>
-    <div class="clock" id="clock">00:00:00</div>
-  </div>
 
-  <!-- MIDDLE: lista | perfil | radar -->
-  <div class="middle">
-
-    <!-- LISTA -->
-    <div class="panel pilot-list">
-      <div class="ptitle">▶ CONTACTOS ID.</div>
-      <div class="sec-lbl">── PILOTOS ÉLITE ──</div>
-
-      <div class="prow elite sel" id="pr-0" onclick="sel(0,'SAM SUKV','Coronel Superior','F-16 Falcon','ECO-024')">
-        <div class="avatar">🦅</div>
-        <div class="pinfo">
-          <div class="pid">[ECO-024]</div>
-          <div class="pname">SAM SUKV</div>
-          <div class="pcraft">F-16 FALCON</div>
+    <div class="pilotos-grid" id="grid-visual">
         </div>
-        <div class="dot dot-y"></div>
-      </div>
 
-      <div class="prow elite" id="pr-1" onclick="sel(1,'BLACK ROSSE','Piloto Oficial','F-22 Raptor','ECO-001')">
-        <div class="avatar">🦅</div>
-        <div class="pinfo">
-          <div class="pid">[ECO-001]</div>
-          <div class="pname">BLACK ROSSE</div>
-          <div class="pcraft">F-22 RAPTOR</div>
-        </div>
-        <div class="dot dot-y"></div>
-      </div>
-
-      <div class="divider"></div>
-      <div class="sec-lbl">── CADETES ──</div>
-
-      <div class="prow" id="pr-2" onclick="sel(2,'ROBERT NOEIL','Cadete','F-22 Raptor','CDT-A02')">
-        <div class="avatar">🪖</div>
-        <div class="pinfo">
-          <div class="pid">[CDT-A02]</div>
-          <div class="pname">ROBERT NOEIL</div>
-          <div class="pcraft">F-22 RAPTOR</div>
-        </div>
-        <div class="dot dot-g"></div>
-      </div>
-
-      <div class="prow" id="pr-3" onclick="sel(3,'JUAN BERMUDEZ','Cadete','Ala-Rotatoria','CDT-034')">
-        <div class="avatar">🪖</div>
-        <div class="pinfo">
-          <div class="pid">[CDT-034]</div>
-          <div class="pname">JUAN BERMUDEZ</div>
-          <div class="pcraft">ALA-ROTATORIA</div>
-        </div>
-        <div class="dot dot-g"></div>
-      </div>
-
-      <div class="prow" id="pr-4" onclick="sel(4,'JHON CONNOR','Cadete','Ala-Rotatoria','CDT-027')">
-        <div class="avatar">🪖</div>
-        <div class="pinfo">
-          <div class="pid">[CDT-027]</div>
-          <div class="pname">JHON CONNOR</div>
-          <div class="pcraft">ALA-ROTATORIA</div>
-        </div>
-        <div class="dot dot-g"></div>
-      </div>
-
-      <div class="prow" id="pr-5" onclick="sel(5,'JOSE PEREIRA','Cadete','Ala-Rotatoria','CDT-052')">
-        <div class="avatar">🪖</div>
-        <div class="pinfo">
-          <div class="pid">[CDT-052]</div>
-          <div class="pname">JOSE PEREIRA</div>
-          <div class="pcraft">ALA-ROTATORIA</div>
-        </div>
-        <div class="dot dot-g"></div>
-      </div>
-
-      <div class="prow" id="pr-6" onclick="sel(6,'JORGUE PERLA','Cadete','Ala-Rotatoria','CDT-055')">
-        <div class="avatar">🪖</div>
-        <div class="pinfo">
-          <div class="pid">[CDT-055]</div>
-          <div class="pname">JORGUE PERLA</div>
-          <div class="pcraft">ALA-ROTATORIA</div>
-        </div>
-        <div class="dot dot-g"></div>
-      </div>
+    <div class="radar-decor">
+        <svg width="100" height="100" viewBox="0 0 100 100">
+            <circle cx="50" cy="50" r="45" stroke="#1e90ff" stroke-width="1" fill="none" />
+            <circle cx="50" cy="50" r="30" stroke="#1e90ff" stroke-width="1" fill="none" />
+            <line x1="50" y1="5" x2="50" y2="95" stroke="#1e90ff" stroke-width="1" />
+            <line x1="5" y1="50" x2="95" y2="50" stroke="#1e90ff" stroke-width="1" />
+        </svg>
     </div>
 
-    <!-- PERFIL -->
-    <div class="panel profile">
-      <div class="craft-view">
-        <div class="ret rt"></div><div class="ret rT"></div>
-        <div class="ret rb"></div><div class="ret rB"></div>
-        <div class="plane-big" id="plane-ico">✈️</div>
-        <div class="craft-lbl">AERONAVE: <span id="craft-lbl">F-16 FALCON</span></div>
-      </div>
-      <div style="text-align:center">
-        <div class="pilot-name-big" id="pname-big">SAM SUKV</div>
-        <div class="pilot-rank-big" id="prank-big">CORONEL SUPERIOR · ECO-024</div>
-      </div>
-      <a href="index1.html" class="back-btn">← VOLVER AL MANDO CENTRAL</a>
-    </div>
+    <script>
+        async function actualizarPantallaVisual() {
+            try {
+                const res = await fetch('/personal');
+                const datos = await res.json();
+                const grid = document.getElementById('grid-visual');
+                grid.innerHTML = "";
 
-    <!-- RADAR -->
-    <div class="panel radar-col">
-      <div class="radar-title">▶ RADAR TÁCTICO</div>
-      <div class="minimap-wrap">
-        <div class="minimap">
-          <div class="road" style="width:1px;top:10%;bottom:10%;left:44%"></div>
-          <div class="road" style="height:1px;left:10%;right:10%;top:47%"></div>
-          <div class="road" style="width:1px;top:20%;bottom:28%;left:64%"></div>
-          <div class="blip blip-a" style="top:34%;left:60%"></div>
-          <div class="blip blip-a" style="top:55%;left:34%"></div>
-          <div class="blip blip-e" style="top:27%;left:71%"></div>
-          <div class="blip blip-e" style="top:67%;left:24%"></div>
-          <div class="blip blip-me"></div>
-        </div>
-      </div>
-      <div class="map-lbl">4.711 / -74.072 · G6</div>
-      <div class="drow"><span class="dk">MISIÓN</span><span class="dv g">TOMAR LS</span></div>
-      <div class="drow"><span class="dk">FACCIÓN</span><span class="dv c">FAC COL</span></div>
-      <div class="drow"><span class="dk">SEÑAL</span><span class="dv g">ESTABLE</span></div>
-      <div class="drow"><span class="dk">ESTADO</span><span class="dv r">⬤ CIFRADO</span></div>
-    </div>
+                // FILTRO: Solo pilotos
+                const pilotos = datos.filter(s => s.division.toUpperCase().includes("AÉREA"));
 
-  </div>
+                if (pilotos.length === 0) {
+                    grid.innerHTML = "<p style='text-align:center; width:100%; color:#444;'>NO HAY UNIDADES EN DESPLIEGUE</p>";
+                    return;
+                }
 
-  <!-- BOTTOM HUD GTA SA -->
-  <div class="panel bottom-hud">
-    <div class="hud-left">
-      <div class="hud-mission-lbl">MISIÓN ACTIVA</div>
-      <div class="hud-mission-val">TOMAR LS Y SF</div>
-      <div class="hud-faction">◉ FAC COL</div>
-    </div>
-    <div class="hud-center">
-      <div class="hud-money">PERSONAL ACTIVO</div>
-      <div class="hud-money-lbl">DESARROLLADOR SAM SUKV</div>
-    </div>
-    <div class="hud-right">
-      <div class="weapon-info">
-        <div class="weapon-name">HYDRA JET</div>
-        <div class="weapon-ammo">∞ MISILES</div>
-      </div>
-      <div class="weapon-ico">🚀</div>
-    </div>
-  </div>
+                pilotos.forEach(p => {
+                    grid.innerHTML += `
+                        <div class="pilot-card">
+                            <span class="pilot-rank">${p.rango}</span>
+                            <span class="pilot-name">${p.nombre_ic}</span>
+                            <div><span class="status-dot"></span> <small style="color:#4eef3a">EN SERVICIO</small></div>
+                            <span class="pilot-plate">INDICATIVO: ${p.placa || 'PENDIENTE'}</span>
+                        </div>
+                    `;
+                });
+            } catch (err) {
+                console.error("Error cargando el monitor visual");
+            }
+        }
 
-  <!-- TICKER -->
-  <div class="ticker">
-    <div class="ticker-tag">★ FAC COL</div>
-    <div class="ticker-text">
-      ★ GUERRAS MUNDIALES RP · SERVIDOR MTA:SA #1 · SISTEMA FICTICIO PARA VIDEOJUEGOS
-      &nbsp;&nbsp;&nbsp;&nbsp;★ GUERRAS MUNDIALES RP · SERVIDOR MTA:SA #1 · FUERZA AEREA COLOMBIA RP
-    </div>
-  </div>
-
-</div>
-
-<script>
-  function tick(){
-    const n=new Date();
-    document.getElementById('clock').textContent=
-      n.getHours().toString().padStart(2,'0')+':'+
-      n.getMinutes().toString().padStart(2,'0')+':'+
-      n.getSeconds().toString().padStart(2,'0');
-  }
-  setInterval(tick,1000); tick();
-
-  function sel(idx,name,rank,aircraft,code){
-    document.querySelectorAll('.prow').forEach(r=>r.classList.remove('sel'));
-    document.getElementById('pr-'+idx).classList.add('sel');
-    document.getElementById('pname-big').textContent=name;
-    document.getElementById('prank-big').textContent=rank+' · '+code;
-    document.getElementById('craft-lbl').textContent=aircraft.toUpperCase();
-    document.getElementById('plane-ico').textContent=aircraft.includes('Rotat')?'🚁':'✈️';
-    const n=document.getElementById('notif');
-    document.getElementById('notif-txt').innerHTML=code+'<br>'+name+'<br>'+rank;
-    n.style.display='block';
-    n.style.animation='none'; void n.offsetWidth; n.style.animation='nslide .3s ease';
-    clearTimeout(n._t); n._t=setTimeout(()=>n.style.display='none',2500);
-  }
-</script>
+        // Se actualiza solo cada 30 segundos para que siempre esté al día
+        setInterval(actualizarPantallaVisual, 30000);
+        document.addEventListener('DOMContentLoaded', actualizarPantallaVisual);
+    </script>
 </body>
 </html>
