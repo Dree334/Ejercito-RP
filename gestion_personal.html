@@ -2,155 +2,132 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>S.U.K.V. - Gestión de Personal (Rango Bajo)</title>
+    <title>S.U.K.V. - Control de Bajas de Personal</title>
     <style>
         :root {
             --primary: #4eef3a;
             --bg: #020814;
             --card: #0d1117;
             --border: #30363d;
+            --danger: #da3633;
         }
         body { background: var(--bg); color: white; font-family: 'Segoe UI', sans-serif; padding: 20px; }
         #app-gestion { display: none; }
 
-        .admin-box { 
+        .header-box { 
             background: var(--card); border: 1px solid var(--border); 
-            padding: 25px; border-radius: 8px; margin-bottom: 30px;
+            padding: 20px; border-radius: 8px; margin-bottom: 30px;
+            border-left: 5px solid var(--danger);
         }
-        h2 { color: var(--primary); border-bottom: 1px solid var(--border); padding-bottom: 10px; }
+        h2 { color: var(--primary); margin-top: 0; }
         
-        /* Formulario simple: Solo 2 columnas */
-        .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
-        input, select { 
-            padding: 12px; background: #010409; border: 1px solid var(--border); 
-            color: white; border-radius: 4px; outline: none;
-        }
-        input:focus { border-color: var(--primary); }
-        
-        button.btn-add { 
-            grid-column: span 2; background: #238636; color: white; 
-            font-weight: bold; border: none; padding: 15px; cursor: pointer; margin-top: 10px;
-            text-transform: uppercase;
-        }
-        button.btn-add:hover { background: #2ea043; }
-
         table { width: 100%; border-collapse: collapse; background: var(--card); border-radius: 8px; overflow: hidden; }
-        th { background: #161b22; color: var(--primary); padding: 15px; text-align: left; }
+        th { background: #161b22; color: var(--primary); padding: 15px; text-align: left; font-size: 0.85em; text-transform: uppercase; }
         td { padding: 15px; border-bottom: 1px solid var(--border); }
         
-        .badge { padding: 5px 10px; border-radius: 12px; font-size: 0.75em; font-weight: bold; }
+        .badge { padding: 5px 10px; border-radius: 12px; font-size: 0.75em; font-weight: bold; text-transform: uppercase; }
         .infanteria { background: #4b5320; }
+
+        .btn-delete { 
+            background: transparent; border: 1px solid var(--danger); color: var(--danger); 
+            padding: 8px 15px; cursor: pointer; border-radius: 4px; font-weight: bold;
+            transition: 0.3s; font-size: 0.75em;
+        }
+        .btn-delete:hover { background: var(--danger); color: white; box-shadow: 0 0 10px rgba(218, 54, 51, 0.4); }
+
+        nav a { color: var(--primary); text-decoration: none; font-weight: bold; }
     </style>
 </head>
 <body>
 
     <div id="app-gestion">
         <nav style="margin-bottom: 20px;">
-            <a href="index_admin.html" style="color: var(--primary); text-decoration: none;">← VOLVER AL PANEL</a>
+            <a href="index_admin.html">← VOLVER AL PANEL PRINCIPAL</a>
         </nav>
 
-        <div class="admin-box">
-            <h2>🪖 ALTA RÁPIDA DE PERSONAL</h2>
-            <div class="form-grid">
-                <input type="text" id="nombre_ic" placeholder="Nombre IC">
-                <input type="text" id="placa" placeholder="Número de Placa">
-                <input type="text" id="rango" placeholder="Rango">
-                <input type="text" id="pais" placeholder="País" value="Colombia">
-                
-                <select id="division">
-                    <option value="Infantería">Infantería</option>
-                    <option value="Fuerza Aérea">Fuerza Aérea</option>
-                    <option value="Inteligencia">Inteligencia Militar</option>
-                    <option value="Especiales">Fuerzas Especiales</option>
-                </select>
-
-                <button class="btn-add" id="btn-confirmar" onclick="registrarMilitar()">REGISTRAR SOLDADO</button>
-            </div>
+        <div class="header-box">
+            <h2>⚠️ PANEL DE BAJAS MILITARES</h2>
+            <p style="color: #8b949e; margin: 0; font-size: 0.9em;">
+                Desde este módulo de rango bajo, solo se permite la desvinculación de personal de la base de datos oficial.
+            </p>
         </div>
 
-        <h2>📋 PERSONAL EN CAMPO</h2>
         <table>
             <thead>
                 <tr>
                     <th>PLACA</th>
-                    <th>NOMBRE IC</th>
+                    <th>IDENTIDAD (IC)</th>
                     <th>RANGO</th>
                     <th>DIVISIÓN</th>
+                    <th style="text-align: right;">ACCIONES</th>
                 </tr>
             </thead>
-            <tbody id="tabla-gestion"></tbody>
+            <tbody id="tabla-gestion">
+                </tbody>
         </table>
     </div>
 
     <script>
-        // Seguridad: Se mantiene el login general
+        // Verificación de sesión
         if (sessionStorage.getItem('sukv_auth') !== '1') {
             window.location.href = "index_admin.html";
         } else {
             document.getElementById('app-gestion').style.display = 'block';
         }
 
+        // Cargar lista de soldados
         async function cargarPersonal() {
             try {
                 const res = await fetch('/personal');
                 const soldados = await res.json();
                 const tabla = document.getElementById('tabla-gestion');
                 tabla.innerHTML = "";
+
+                if (soldados.length === 0) {
+                    tabla.innerHTML = "<tr><td colspan='5' style='text-align:center; padding:40px; color:#444;'>NO HAY PERSONAL ACTIVO</td></tr>";
+                    return;
+                }
+
                 soldados.forEach(s => {
                     tabla.innerHTML += `
                         <tr>
-                            <td style="color: var(--primary);">#${s.placa}</td>
+                            <td style="color: #8b949e; font-family: monospace;">#${s.placa}</td>
                             <td style="font-weight: bold;">${s.nombre_ic}</td>
                             <td>${s.rango}</td>
                             <td><span class="badge infanteria">${s.division}</span></td>
+                            <td style="text-align: right;">
+                                <button class="btn-delete" onclick="darDeBaja(${s.id}, '${s.nombre_ic}')">
+                                    ELIMINAR REGISTRO
+                                </button>
+                            </td>
                         </tr>`;
                 });
-            } catch (e) { console.error("Error al cargar"); }
+            } catch (e) {
+                console.error("Error cargando personal");
+            }
         }
 
-        async function registrarMilitar() {
-            const btn = document.getElementById('btn-confirmar');
+        // Función para eliminar (Dar de baja)
+        async function darDeBaja(id, nombre) {
+            const confirmacion = confirm(`¿Está seguro de eliminar permanentemente al soldado ${nombre}?\nEsta acción no se puede deshacer.`);
             
-            // Los campos que NO pedimos se envían con valores genéricos para que la DB no de error
-            const data = {
-                nombre_ic: document.getElementById('nombre_ic').value,
-                placa: document.getElementById('placa').value,
-                rango: document.getElementById('rango').value,
-                division: document.getElementById('division').value,
-                pais: document.getElementById('pais').value,
-                // VALORES AUTOMÁTICOS (Invisibles para el admin bajo)
-                correo: "sin_correo_" + Date.now() + "@sukv.com",
-                password: "militar123",
-                nombre_discord: "No Registrado",
-                edad: 0
-            };
-
-            if (!data.nombre_ic || !data.placa) {
-                alert("⚠ Nombre y Placa son obligatorios.");
-                return;
-            }
-
-            btn.disabled = true;
-            btn.innerText = "REGISTRANDO...";
+            if (!confirmacion) return;
 
             try {
                 const res = await fetch('/personal', {
-                    method: 'POST',
+                    method: 'DELETE',
                     headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify(data)
+                    body: JSON.stringify({ id: id })
                 });
 
                 if (res.ok) {
-                    alert("✅ Soldado registrado con éxito.");
-                    location.reload();
+                    alert("✅ Registro eliminado de la base de datos.");
+                    cargarPersonal(); // Recarga la tabla
                 } else {
-                    alert("❌ Error: La base de datos rechazó el registro. Asegúrate de que el servidor acepte estos campos.");
+                    alert("❌ Error al intentar eliminar el registro.");
                 }
             } catch (err) {
-                alert("❌ Error de comunicación.");
-            } finally {
-                btn.disabled = false;
-                btn.innerText = "REGISTRAR SOLDADO";
+                alert("❌ Error de comunicación con el servidor.");
             }
         }
 
