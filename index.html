@@ -1,527 +1,799 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8"/>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
-  <title>Ejercito RP - SAM SUKV</title>
-  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=JetBrains+Mono:wght@300;400;500&display=swap" rel="stylesheet"/>
-  <style>
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Colombia Wars RP — Panel de Mando</title>
+<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&family=Exo+2:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,700&family=Share+Tech+Mono&family=Bebas+Neue&display=swap" rel="stylesheet">
+<style>
+:root {
+  --col:#0033a0;
+  --col2:#ce1126;
+  --col3:#fcd116;
+  --ink:#0a0e1a;
+  --ink2:#111624;
+  --g100:rgba(255,255,255,.07);
+  --g200:rgba(255,255,255,.12);
+  --g300:rgba(255,255,255,.2);
+  --g500:rgba(255,255,255,.45);
+  --g700:rgba(255,255,255,.75);
+  --glow-b:0 0 40px rgba(0,51,160,.4);
+  --glow-y:0 0 40px rgba(252,209,22,.3);
+}
+*, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+html { scroll-behavior:smooth; }
+body {
+  background:var(--ink);
+  color:white;
+  font-family:'Exo 2',sans-serif;
+  -webkit-font-smoothing:antialiased;
+  overflow-x:hidden;
+  min-height:100vh;
+}
 
-    :root {
-      --bg:      #0a0b0f;
-      --surface: #10121a;
-      --surface2:#181b26;
-      --border:  #1e2235;
-      --accent:  #4eef3a;
-      --cyan:    #00f2ff;
-      --gold:    #fcd116;
-      --danger:  #ce1126;
-      --text:    #e2e8f0;
-      --muted:   #4a5168;
-      --col-y: #fcd116; --col-b: #003893; --col-r: #ce1126;
-    }
+/* ── BACKGROUND ── */
+.bg-field {
+  position:fixed;inset:0;z-index:0;
+  background: radial-gradient(ellipse 80% 60% at 50% 0%, rgba(0,40,130,.5) 0%, transparent 70%),
+              radial-gradient(ellipse 50% 40% at 80% 80%, rgba(206,17,38,.12) 0%, transparent 60%),
+              linear-gradient(160deg, #05091a 0%, #0a0e1a 50%, #0e0613 100%);
+}
+.bg-grid {
+  position:fixed;inset:0;z-index:0;
+  background-image:
+    linear-gradient(rgba(0,51,160,.08) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0,51,160,.08) 1px, transparent 1px);
+  background-size:44px 44px;
+  mask-image: radial-gradient(ellipse 100% 80% at 50% 50%, black 40%, transparent 100%);
+}
+.bg-noise {
+  position:fixed;inset:0;z-index:0;opacity:.018;
+  background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
 
-    html, body {
-      height: 100%; width: 100%;
-      background: var(--bg);
-      color: var(--text);
-      font-family: 'JetBrains Mono', monospace;
-      overflow: hidden;
-      display: flex; align-items: center; justify-content: center;
-    }
+/* ── COLOMBIA STRIPE ── */
+.col-stripe {
+  position:fixed;top:0;left:0;right:0;height:5px;z-index:999;
+  background:linear-gradient(90deg,#fcd116 33.3%,#003893 33.3% 66.6%,#ce1126 66.6%);
+}
 
-    /* ── SCANLINE ──────────────────────────── */
-    .scanline {
-      position: fixed; left: 0; width: 100%; height: 3px;
-      background: rgba(78,239,58,0.07);
-      z-index: 10; pointer-events: none;
-      animation: moveScan 6s linear infinite;
-    }
-    @keyframes moveScan { from { top: -2%; } to { top: 102%; } }
+/* ── TOP BAR ── */
+.topbar {
+  position:fixed;top:5px;left:0;right:0;z-index:200;
+  height:58px;
+  background:rgba(10,14,26,.85);
+  backdrop-filter:blur(20px);
+  border-bottom:1px solid rgba(255,255,255,.06);
+  display:flex;align-items:center;justify-content:space-between;
+  padding:0 40px;gap:20px;
+}
+.tb-logo { display:flex;align-items:center;gap:12px;text-decoration:none; }
+.tb-flag { display:flex;flex-direction:column;width:32px;height:22px;border-radius:4px;overflow:hidden;box-shadow:0 2px 8px rgba(0,51,160,.4);flex-shrink:0; }
+.tb-flag .fy{flex:1;background:#fcd116;} .tb-flag .fb{flex:2;background:#003893;} .tb-flag .fr{flex:1;background:#ce1126;}
+.tb-brand { font-family:'Rajdhani',sans-serif;font-size:.95rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:white; }
+.tb-brand span { color:#fcd116; }
+.tb-sub { font-family:'Share Tech Mono',monospace;font-size:.5rem;color:rgba(255,255,255,.3);letter-spacing:.1em;display:block;margin-top:1px; }
+.tb-status { display:flex;align-items:center;gap:7px;font-family:'Share Tech Mono',monospace;font-size:.6rem;color:#4ade80;letter-spacing:.08em; }
+.tb-dot { width:7px;height:7px;border-radius:50%;background:#4ade80;animation:pdot 2s ease infinite; }
+@keyframes pdot{0%,100%{box-shadow:0 0 0 0 rgba(74,222,128,.5)}50%{box-shadow:0 0 0 6px rgba(74,222,128,0)}}
 
-    /* ── NOISE ─────────────────────────────── */
-    body::before {
-      content: '';
-      position: fixed; inset: 0;
-      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
-      pointer-events: none; z-index: 0; opacity: 0.35;
-    }
+/* ── MAIN LAYOUT ── */
+.page {
+  position:relative;z-index:1;
+  min-height:100vh;
+  display:flex;align-items:center;justify-content:center;
+  padding:80px 20px 40px;
+}
 
-    /* ── COLOMBIA BAR ──────────────────────── */
-    .colombia-bar {
-      position: fixed; top: 0; left: 0; width: 100%; height: 3px;
-      display: flex; z-index: 200;
-    }
-    .f-y { flex: 2; background: var(--col-y); box-shadow: 0 0 8px var(--col-y); }
-    .f-b { flex: 1; background: var(--col-b); }
-    .f-r { flex: 1; background: var(--col-r); }
+.page-inner {
+  width:100%;max-width:1100px;
+  display:grid;grid-template-columns:1fr 1fr;
+  gap:0;
+  background:rgba(8,12,28,.7);
+  border:1px solid rgba(255,255,255,.07);
+  border-radius:24px;
+  overflow:hidden;
+  box-shadow:0 40px 120px rgba(0,0,0,.6), 0 0 0 1px rgba(0,51,160,.15);
+  backdrop-filter:blur(16px);
+}
 
-    /* ── CORNER DECORATIONS ────────────────── */
-    .corner {
-      position: fixed; width: 20px; height: 20px;
-      border-color: rgba(78,239,58,0.3); border-style: solid;
-      z-index: 5;
-    }
-    .corner-tl { top: 12px; left: 12px; border-width: 1px 0 0 1px; }
-    .corner-tr { top: 12px; right: 12px; border-width: 1px 1px 0 0; }
-    .corner-bl { bottom: 12px; left: 12px; border-width: 0 0 1px 1px; }
-    .corner-br { bottom: 12px; right: 12px; border-width: 0 1px 1px 0; }
+/* ── LEFT PANEL (FLAG & HERO) ── */
+.left-panel {
+  background:linear-gradient(160deg, #001040 0%, #003893 60%, #001835 100%);
+  padding:50px 44px;
+  display:flex;flex-direction:column;justify-content:space-between;
+  position:relative;overflow:hidden;
+}
+.left-panel::before {
+  content:"";position:absolute;inset:0;
+  background-image:repeating-linear-gradient(45deg,rgba(255,255,255,.025) 0,rgba(255,255,255,.025) 1px,transparent 1px,transparent 22px),
+                   repeating-linear-gradient(-45deg,rgba(255,255,255,.025) 0,rgba(255,255,255,.025) 1px,transparent 1px,transparent 22px);
+}
+.left-panel::after {
+  content:"";position:absolute;bottom:0;left:0;right:0;height:4px;
+  background:linear-gradient(90deg,#fcd116 33.3%,#003893 33.3% 66.6%,#ce1126 66.6%);
+}
 
-    /* ── MAIN CARD ─────────────────────────── */
-    .boot-card {
-      position: relative; z-index: 5;
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 0;
-      width: min(480px, 92vw);
-      overflow: hidden;
-      box-shadow:
-        0 0 0 1px rgba(78,239,58,0.06),
-        0 40px 80px rgba(0,0,0,0.8),
-        inset 0 0 60px rgba(0,0,0,0.3);
-      animation: cardIn 0.8s cubic-bezier(0.16,1,0.3,1) both;
-    }
+.lp-top { position:relative;z-index:1; }
+.lp-tag { font-family:'Share Tech Mono',monospace;font-size:.58rem;letter-spacing:.16em;text-transform:uppercase;color:rgba(255,255,255,.3);margin-bottom:20px; }
+.lp-title { font-family:'Bebas Neue',sans-serif;font-size:3rem;line-height:.95;color:white;letter-spacing:.04em;margin-bottom:8px; }
+.lp-title span { color:#fcd116; }
+.lp-sub { font-family:'Rajdhani',sans-serif;font-size:.8rem;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:rgba(255,255,255,.4);margin-bottom:24px; }
 
-    @keyframes cardIn {
-      from { opacity: 0; transform: translateY(30px) scale(0.97); }
-      to   { opacity: 1; transform: translateY(0) scale(1); }
-    }
+/* ── WAVING FLAG ── */
+.flag-stage {
+  position:relative;z-index:1;
+  margin:24px 0;
+  perspective:600px;
+}
+.flag-pole {
+  position:absolute;left:0;top:0;bottom:0;
+  width:4px;background:linear-gradient(180deg,#c8a96e,#8a6a30,#c8a96e);
+  border-radius:2px;z-index:5;
+  box-shadow:2px 0 6px rgba(0,0,0,.4);
+}
+.flag-pole::before {
+  content:"★";position:absolute;top:-18px;left:50%;transform:translateX(-50%);
+  font-size:14px;color:#fcd116;text-shadow:0 0 8px rgba(252,209,22,.6);
+}
+.flag-wrap {
+  margin-left:10px;
+  width:200px;height:120px;
+  overflow:hidden;
+  position:relative;
+}
+.flag-canvas {
+  width:240px;height:120px;
+  display:flex;flex-direction:column;
+  transform-origin:left center;
+  animation:flagWave 2.2s ease-in-out infinite;
+}
+@keyframes flagWave {
+  0%   { transform:rotateY(0deg) skewY(0deg); }
+  15%  { transform:rotateY(-6deg) skewY(1.5deg); }
+  30%  { transform:rotateY(0deg) skewY(0deg); }
+  45%  { transform:rotateY(5deg) skewY(-1deg); }
+  60%  { transform:rotateY(0deg) skewY(0deg); }
+  75%  { transform:rotateY(-4deg) skewY(1deg); }
+  100% { transform:rotateY(0deg) skewY(0deg); }
+}
+.flag-y { flex:1;background:linear-gradient(90deg,#d4a000,#fcd116,#d4a000);position:relative; }
+.flag-b { flex:2;background:linear-gradient(90deg,#002070,#003893,#002070);position:relative;display:flex;align-items:center;justify-content:center; }
+.flag-r { flex:1;background:linear-gradient(90deg,#a00020,#ce1126,#a00020);position:relative; }
 
-    /* Top accent line */
-    .card-accent {
-      height: 2px;
-      background: linear-gradient(90deg, var(--accent), var(--cyan), transparent);
-    }
+/* Coat of arms simplified */
+.escudo {
+  width:36px;height:36px;border-radius:50%;
+  background:radial-gradient(circle,rgba(252,209,22,.3),rgba(0,56,147,.4));
+  border:2px solid rgba(252,209,22,.5);
+  display:flex;align-items:center;justify-content:center;
+  font-size:18px;
+  box-shadow:0 0 12px rgba(252,209,22,.3);
+}
 
-    /* Colombia stripe */
-    .card-flag {
-      height: 3px; display: flex;
-    }
-    .card-flag div { flex: 1; }
-    .cf-y { flex: 2 !important; background: var(--col-y); }
-    .cf-b { background: var(--col-b); }
-    .cf-r { background: var(--col-r); }
+/* Flag sheen */
+.flag-sheen {
+  position:absolute;inset:0;
+  background:linear-gradient(135deg,rgba(255,255,255,.15) 0%,transparent 40%,rgba(0,0,0,.1) 100%);
+  pointer-events:none;z-index:2;
+  animation:sheen 2.2s ease-in-out infinite;
+}
+@keyframes sheen {
+  0%,100% { opacity:.6; }
+  50% { opacity:.2; }
+}
 
-    /* Card header */
-    .card-header {
-      padding: 28px 32px 20px;
-      display: flex; align-items: center; gap: 16px;
-      border-bottom: 1px solid var(--border);
-      background: linear-gradient(180deg, rgba(78,239,58,0.03) 0%, transparent 100%);
-    }
+/* shadow under flag */
+.flag-shadow {
+  width:160px;height:8px;
+  background:radial-gradient(ellipse,rgba(0,0,0,.4),transparent 70%);
+  margin-left:10px;margin-top:-4px;
+}
 
-    .header-emblem {
-      width: 52px; height: 52px; flex-shrink: 0;
-      background: linear-gradient(135deg, var(--surface2), rgba(78,239,58,0.08));
-      border: 1px solid rgba(78,239,58,0.25);
-      border-radius: 4px;
-      display: grid; place-items: center;
-      font-size: 24px;
-      box-shadow: 0 0 20px rgba(78,239,58,0.12);
-    }
+/* stats mini */
+.lp-stats {
+  position:relative;z-index:1;
+  display:flex;gap:0;
+  border:1px solid rgba(255,255,255,.1);
+  border-radius:10px;overflow:hidden;
+  margin-top:18px;
+}
+.lps { flex:1;text-align:center;padding:14px 8px;border-right:1px solid rgba(255,255,255,.1); }
+.lps:last-child { border-right:none; }
+.lps-n { font-family:'Bebas Neue',sans-serif;font-size:1.6rem;color:#fcd116;line-height:1; }
+.lps-l { font-family:'Share Tech Mono',monospace;font-size:.48rem;letter-spacing:.09em;color:rgba(255,255,255,.35);text-transform:uppercase;margin-top:2px; }
 
-    .header-text { flex: 1; min-width: 0; }
+.lp-credit {
+  position:relative;z-index:1;
+  margin-top:20px;
+  display:flex;align-items:center;gap:8px;
+  padding:10px 14px;
+  background:rgba(252,209,22,.06);
+  border:1px solid rgba(252,209,22,.15);
+  border-radius:8px;
+}
+.lp-credit-icon { font-size:16px; }
+.lp-credit-text { font-family:'Share Tech Mono',monospace;font-size:.56rem;color:rgba(255,255,255,.35);letter-spacing:.07em;line-height:1.5; }
+.lp-credit-text strong { color:rgba(252,209,22,.8);display:block;font-size:.6rem; }
 
-    .sys-title {
-      font-family: 'Syne', sans-serif;
-      font-weight: 800; font-size: 15px;
-      letter-spacing: 0.1em; text-transform: uppercase;
-      color: #fff; line-height: 1.2;
-    }
+/* ── RIGHT PANEL (AUTH) ── */
+.right-panel {
+  padding:50px 44px;
+  background:rgba(6,9,22,.6);
+  position:relative;overflow:hidden;
+  display:flex;flex-direction:column;
+}
 
-    .sys-sub {
-      font-size: 9px; color: var(--accent);
-      letter-spacing: 0.18em; margin-top: 4px;
-    }
+/* TAB SWITCHER */
+.auth-tabs {
+  display:flex;gap:4px;
+  background:rgba(255,255,255,.04);
+  border:1px solid rgba(255,255,255,.07);
+  border-radius:10px;
+  padding:4px;
+  margin-bottom:32px;
+}
+.auth-tab {
+  flex:1;padding:10px;
+  font-family:'Rajdhani',sans-serif;font-size:.82rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;
+  color:rgba(255,255,255,.35);
+  background:none;border:none;cursor:pointer;
+  border-radius:7px;
+  transition:all .25s;
+}
+.auth-tab.active {
+  background:var(--col);color:white;
+  box-shadow:0 4px 16px rgba(0,51,160,.35);
+}
+.auth-tab:not(.active):hover { color:rgba(255,255,255,.6);background:rgba(255,255,255,.04); }
 
-    .sys-sub2 {
-      font-size: 8px; color: var(--muted);
-      letter-spacing: 0.12em; margin-top: 2px;
-    }
+/* FORMS */
+.auth-form { display:none;flex-direction:column;gap:18px; }
+.auth-form.visible { display:flex; }
+.form-title { font-family:'Bebas Neue',sans-serif;font-size:2rem;letter-spacing:.06em;color:white;line-height:1;margin-bottom:4px; }
+.form-title span { color:#fcd116; }
+.form-sub { font-family:'Share Tech Mono',monospace;font-size:.58rem;letter-spacing:.1em;color:rgba(255,255,255,.3);text-transform:uppercase;margin-bottom:8px; }
 
-    /* Status badge */
-    .status-row {
-      display: flex; align-items: center; gap: 6px;
-      margin-top: 8px;
-    }
+.field-group { display:flex;flex-direction:column;gap:6px; }
+.field-group.half-grid { display:grid;grid-template-columns:1fr 1fr;gap:12px; }
+.field-label {
+  font-family:'Rajdhani',sans-serif;font-size:.68rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;
+  color:rgba(255,255,255,.35);
+  display:flex;align-items:center;gap:6px;
+}
+.field-label .fl-icon { font-size:.75rem; }
 
-    .status-pip {
-      width: 6px; height: 6px; border-radius: 50%;
-      background: var(--accent); box-shadow: 0 0 6px var(--accent);
-      animation: blink 1.4s infinite;
-    }
+.field-input {
+  background:rgba(255,255,255,.04);
+  border:1px solid rgba(255,255,255,.1);
+  border-radius:8px;
+  padding:11px 14px;
+  color:white;
+  font-family:'Exo 2',sans-serif;font-size:.85rem;
+  outline:none;
+  transition:border-color .2s, box-shadow .2s, background .2s;
+  width:100%;
+}
+.field-input::placeholder { color:rgba(255,255,255,.2);font-size:.8rem; }
+.field-input:focus {
+  border-color:rgba(0,51,160,.7);
+  background:rgba(0,51,160,.08);
+  box-shadow:0 0 0 3px rgba(0,51,160,.2);
+}
 
-    .status-text { font-size: 9px; color: var(--accent); letter-spacing: 0.1em; }
+/* Submit button */
+.btn-submit {
+  width:100%;padding:14px;
+  background:linear-gradient(135deg,#003893,#0044c0);
+  border:1px solid rgba(0,56,147,.5);
+  border-radius:9px;
+  color:white;
+  font-family:'Rajdhani',sans-serif;font-size:.9rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;
+  cursor:pointer;
+  transition:all .25s;
+  position:relative;overflow:hidden;
+  display:flex;align-items:center;justify-content:center;gap:8px;
+  box-shadow:0 4px 20px rgba(0,51,160,.3);
+  margin-top:4px;
+}
+.btn-submit::before {
+  content:"";position:absolute;inset:0;
+  background:linear-gradient(135deg,rgba(255,255,255,.1),transparent);
+}
+.btn-submit:hover { transform:translateY(-2px);box-shadow:0 8px 30px rgba(0,51,160,.45);background:linear-gradient(135deg,#0044c0,#0055e0); }
+.btn-submit:disabled { opacity:.5;cursor:not-allowed;transform:none; }
 
-    @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.2} }
+/* Message */
+.msg-box {
+  padding:12px 16px;
+  border-radius:8px;
+  font-family:'Rajdhani',sans-serif;font-size:.82rem;font-weight:600;letter-spacing:.04em;
+  display:none;align-items:center;gap:9px;
+  animation:fadeIn .3s ease;
+}
+@keyframes fadeIn{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:translateY(0)}}
+.msg-box.show{display:flex;}
+.msg-box.ok{background:rgba(74,222,128,.1);border:1px solid rgba(74,222,128,.25);color:#4ade80;}
+.msg-box.err{background:rgba(206,17,38,.1);border:1px solid rgba(206,17,38,.25);color:#ff6b6b;}
+.msg-box.info{background:rgba(0,51,160,.12);border:1px solid rgba(0,51,160,.3);color:#93c5fd;}
 
-    /* Card body */
-    .card-body { padding: 22px 28px; }
+/* Divider */
+.auth-divider {
+  display:flex;align-items:center;gap:12px;margin:4px 0;
+}
+.auth-divider::before,.auth-divider::after{content:"";flex:1;height:1px;background:rgba(255,255,255,.08);}
+.auth-divider-txt{font-family:'Share Tech Mono',monospace;font-size:.55rem;letter-spacing:.1em;color:rgba(255,255,255,.2);text-transform:uppercase;}
 
-    /* Terminal */
-    .terminal-box {
-      background: #05070a;
-      border: 1px solid var(--border);
-      border-radius: 4px;
-      padding: 16px 18px;
-      min-height: 110px;
-      margin-bottom: 22px;
-      position: relative;
-      overflow: hidden;
-    }
+/* Login profile card (shown after login) */
+.profile-card {
+  display:none;flex-direction:column;gap:16px;
+  animation:fadeIn .4s ease;
+}
+.profile-card.show{display:flex;}
+.pc-banner {
+  background:linear-gradient(135deg,#001f6b,#003893);
+  border:1px solid rgba(0,56,147,.4);
+  border-radius:12px;padding:22px;
+  display:flex;align-items:center;gap:16px;
+  position:relative;overflow:hidden;
+}
+.pc-banner::before{content:"";position:absolute;inset:0;background-image:repeating-linear-gradient(45deg,rgba(255,255,255,.02) 0,rgba(255,255,255,.02) 1px,transparent 1px,transparent 10px);}
+.pc-avatar {
+  width:54px;height:54px;border-radius:50%;
+  background:linear-gradient(135deg,#fcd116,#003893);
+  display:flex;align-items:center;justify-content:center;
+  font-size:1.5rem;flex-shrink:0;
+  border:2px solid rgba(252,209,22,.4);
+  position:relative;z-index:1;
+}
+.pc-info{position:relative;z-index:1;}
+.pc-welcome{font-family:'Share Tech Mono',monospace;font-size:.56rem;letter-spacing:.12em;color:rgba(255,255,255,.4);text-transform:uppercase;}
+.pc-name{font-family:'Bebas Neue',sans-serif;font-size:1.4rem;color:white;letter-spacing:.05em;line-height:1.1;}
+.pc-placa{font-family:'Share Tech Mono',monospace;font-size:.6rem;color:#fcd116;letter-spacing:.08em;}
+.pc-rango{display:inline-flex;align-items:center;gap:5px;background:rgba(252,209,22,.12);border:1px solid rgba(252,209,22,.25);border-radius:5px;padding:3px 10px;font-family:'Rajdhani',sans-serif;font-size:.68rem;font-weight:700;color:#fcd116;letter-spacing:.08em;text-transform:uppercase;margin-top:6px;}
 
-    .terminal-box::before {
-      content: 'TERMINAL // MODO SEGURO';
-      position: absolute; top: 8px; right: 12px;
-      font-size: 8px; color: rgba(78,239,58,0.3); letter-spacing: 0.12em;
-    }
+.pc-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.pc-stat{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.07);border-radius:8px;padding:12px;text-align:center;}
+.pc-stat-n{font-family:'Bebas Neue',sans-serif;font-size:1.4rem;color:var(--col3);line-height:1;}
+.pc-stat-l{font-family:'Share Tech Mono',monospace;font-size:.5rem;letter-spacing:.09em;color:rgba(255,255,255,.3);text-transform:uppercase;margin-top:2px;}
 
-    .terminal-line {
-      font-size: 11px; line-height: 2;
-      color: var(--accent); display: block;
-    }
+.btn-dashboard{
+  width:100%;padding:14px;
+  background:linear-gradient(135deg,#b59000,#fcd116);
+  border:none;border-radius:9px;
+  color:#0a0e1a;
+  font-family:'Rajdhani',sans-serif;font-size:.9rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;
+  cursor:pointer;transition:all .25s;
+  display:flex;align-items:center;justify-content:center;gap:8px;
+  box-shadow:0 4px 20px rgba(252,209,22,.25);
+}
+.btn-dashboard:hover{transform:translateY(-2px);box-shadow:0 8px 30px rgba(252,209,22,.4);}
+.btn-logout{
+  background:none;border:1px solid rgba(255,255,255,.1);color:rgba(255,255,255,.4);
+  font-family:'Rajdhani',sans-serif;font-size:.75rem;font-weight:600;letter-spacing:.1em;text-transform:uppercase;
+  padding:9px;border-radius:7px;cursor:pointer;transition:all .2s;width:100%;
+}
+.btn-logout:hover{border-color:rgba(206,17,38,.4);color:#ff6b6b;}
 
-    .terminal-cursor {
-      display: inline-block; width: 7px; height: 13px;
-      background: var(--accent); vertical-align: middle;
-      animation: cursorBlink 0.7s infinite;
-      margin-left: 2px;
-    }
+/* ── DASHBOARD PANEL ── */
+#dashboard-view {
+  display:none;
+  position:relative;z-index:1;
+  width:100%;max-width:1100px;
+  padding:20px;
+}
+#dashboard-view.show{display:block;}
 
-    @keyframes cursorBlink { 0%,49%{opacity:1} 50%,100%{opacity:0} }
+.dash-header{
+  background:rgba(8,12,28,.8);border:1px solid rgba(255,255,255,.07);border-radius:16px;
+  padding:28px 32px;margin-bottom:20px;
+  display:flex;align-items:center;justify-content:space-between;gap:20px;
+  backdrop-filter:blur(12px);
+}
+.dash-welcome{font-family:'Bebas Neue',sans-serif;font-size:2rem;color:white;letter-spacing:.06em;}
+.dash-welcome span{color:#fcd116;}
+.dash-meta{font-family:'Share Tech Mono',monospace;font-size:.58rem;color:rgba(255,255,255,.3);letter-spacing:.1em;margin-top:4px;}
+.dash-logout{background:none;border:1px solid rgba(206,17,38,.3);color:rgba(255,255,255,.4);font-family:'Rajdhani',sans-serif;font-size:.72rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;padding:8px 18px;border-radius:7px;cursor:pointer;transition:all .2s;}
+.dash-logout:hover{border-color:var(--col2);color:#ff6b6b;}
 
-    /* Boot button */
-    .btn-boot {
-      width: 100%;
-      padding: 14px;
-      background: transparent;
-      border: 1px solid rgba(78,239,58,0.3);
-      border-radius: 3px;
-      color: var(--muted);
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 11px; letter-spacing: 0.2em; text-transform: uppercase;
-      cursor: pointer;
-      transition: all 0.3s;
-      position: relative; overflow: hidden;
-    }
+.dash-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:20px;}
+.dash-card{
+  background:rgba(8,12,28,.8);border:1px solid rgba(255,255,255,.07);border-radius:14px;
+  padding:26px 22px;transition:all .3s;cursor:pointer;
+  backdrop-filter:blur(12px);position:relative;overflow:hidden;
+}
+.dash-card::before{content:"";position:absolute;top:0;left:0;right:0;height:3px;background:transparent;transition:background .3s;}
+.dash-card:hover{transform:translateY(-4px);box-shadow:0 20px 50px rgba(0,0,0,.4);border-color:rgba(0,51,160,.3);}
+.dash-card:hover::before{background:linear-gradient(90deg,#fcd116,#003893,#ce1126);}
+.dc-icon{font-size:2rem;margin-bottom:12px;}
+.dc-title{font-family:'Rajdhani',sans-serif;font-size:.95rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:white;margin-bottom:6px;}
+.dc-desc{font-size:.78rem;color:rgba(255,255,255,.4);line-height:1.6;}
+.dc-badge{display:inline-flex;align-items:center;gap:5px;margin-top:10px;background:rgba(0,51,160,.15);border:1px solid rgba(0,51,160,.3);border-radius:5px;padding:3px 10px;font-family:'Share Tech Mono',monospace;font-size:.54rem;color:#93c5fd;letter-spacing:.07em;}
 
-    .btn-boot.locked {
-      pointer-events: none;
-    }
+.dash-footer{background:rgba(8,12,28,.8);border:1px solid rgba(255,255,255,.07);border-radius:12px;padding:16px 24px;backdrop-filter:blur(12px);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;}
+.df-stat{display:flex;align-items:center;gap:8px;font-family:'Rajdhani',sans-serif;font-size:.78rem;color:rgba(255,255,255,.5);letter-spacing:.06em;}
+.df-dot{width:6px;height:6px;border-radius:50%;}
+.df-credit{font-family:'Share Tech Mono',monospace;font-size:.54rem;color:rgba(255,255,255,.2);letter-spacing:.07em;}
+.df-credit strong{color:rgba(252,209,22,.5);}
 
-    .btn-boot.ready {
-      border-color: var(--accent);
-      color: var(--accent);
-      box-shadow: 0 0 20px rgba(78,239,58,0.1);
-      animation: readyPulse 2s infinite;
-    }
-
-    .btn-boot.ready:hover {
-      background: rgba(78,239,58,0.1);
-      box-shadow: 0 0 30px rgba(78,239,58,0.2);
-    }
-
-    .btn-boot.ready::before {
-      content: '';
-      position: absolute; top: 0; left: -100%;
-      width: 100%; height: 100%;
-      background: linear-gradient(90deg, transparent, rgba(78,239,58,0.06), transparent);
-      animation: shimmer 2.5s infinite;
-    }
-
-    @keyframes readyPulse { 0%,100%{box-shadow:0 0 20px rgba(78,239,58,0.1)} 50%{box-shadow:0 0 30px rgba(78,239,58,0.25)} }
-    @keyframes shimmer { from{left:-100%} to{left:200%} }
-
-    /* Card footer */
-    .card-footer {
-      padding: 12px 28px 20px;
-      display: flex; justify-content: space-between; align-items: center;
-      border-top: 1px solid var(--border);
-    }
-
-    .footer-info { font-size: 8px; color: var(--muted); letter-spacing: 0.1em; line-height: 1.8; }
-    .footer-info span { color: var(--accent); }
-
-    .footer-ver {
-      font-size: 8px; color: var(--muted); letter-spacing: 0.1em; text-align: right;
-    }
-
-    /* ── LOADER OVERLAY ────────────────────── */
-    #loader-screen {
-      position: fixed; inset: 0;
-      background: radial-gradient(circle at center, #0a101a 0%, var(--bg) 100%);
-      z-index: 500;
-      display: none; flex-direction: column; align-items: center; justify-content: center;
-      gap: 24px;
-    }
-
-    .loader-emblem {
-      font-size: 48px;
-      filter: drop-shadow(0 0 20px var(--cyan));
-      animation: floatEmb 3s ease-in-out infinite;
-    }
-
-    @keyframes floatEmb { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-8px)} }
-
-    .loader-title {
-      font-family: 'Syne', sans-serif;
-      font-weight: 800; font-size: 13px;
-      letter-spacing: 0.2em; text-transform: uppercase;
-      color: var(--cyan); text-shadow: 0 0 14px rgba(0,242,255,0.5);
-    }
-
-    .shield-wrap { width: 340px; }
-
-    .shield-label {
-      font-size: 9px; color: var(--cyan); letter-spacing: 0.2em;
-      text-align: center; margin-bottom: 8px;
-      text-shadow: 0 0 8px rgba(0,242,255,0.4);
-    }
-
-    .shield-track {
-      height: 14px;
-      background: var(--surface2);
-      border: 1px solid var(--border);
-      border-radius: 2px;
-      padding: 2px; position: relative; overflow: hidden;
-    }
-
-    .shield-fill {
-      height: 100%; width: 0%;
-      background: linear-gradient(90deg, #0055ff, var(--cyan));
-      border-radius: 1px;
-      box-shadow: 0 0 16px rgba(0,242,255,0.5);
-      transition: width 0.1s ease-out;
-      position: relative;
-    }
-
-    .shield-fill::after {
-      content: ''; position: absolute; right: 0; top: 0; bottom: 0; width: 20px;
-      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3));
-      animation: fillShine 0.5s linear infinite;
-    }
-
-    @keyframes fillShine { from{opacity:0.5} to{opacity:1} }
-
-    .shield-pct {
-      font-family: 'Syne', sans-serif; font-weight: 800;
-      font-size: 28px; color: var(--cyan);
-      text-align: center; margin-top: 10px;
-      text-shadow: 0 0 16px rgba(0,242,255,0.5);
-      letter-spacing: 0.05em;
-    }
-
-    .shield-msg {
-      font-size: 10px; color: var(--muted); text-align: center;
-      letter-spacing: 0.15em; margin-top: 4px;
-    }
-
-    /* segment dots */
-    .seg-dots {
-      display: flex; gap: 6px; justify-content: center; margin-top: 14px;
-    }
-
-    .seg-dot {
-      width: 6px; height: 6px; border-radius: 50%;
-      background: var(--border); transition: all 0.3s;
-    }
-
-    .seg-dot.lit { background: var(--cyan); box-shadow: 0 0 6px var(--cyan); }
-
-    /* ─ responsive ─ */
-    @media (max-width: 500px) {
-      .card-header { padding: 20px 20px 16px; gap: 12px; }
-      .card-body { padding: 18px 20px; }
-      .card-footer { padding: 10px 20px 16px; }
-      .shield-wrap { width: 85vw; }
-    }
-  </style>
+/* Responsive */
+@media(max-width:820px){
+  .page-inner{grid-template-columns:1fr;}
+  .left-panel{padding:36px 28px;min-height:auto;}
+  .flag-wrap{width:160px;}
+  .right-panel{padding:36px 28px;}
+  .dash-grid{grid-template-columns:1fr 1fr;}
+}
+@media(max-width:500px){
+  .topbar{padding:0 16px;}
+  .right-panel,.left-panel{padding:28px 20px;}
+  .dash-grid{grid-template-columns:1fr;}
+}
+</style>
 </head>
-<body onclick="initAudio()">
+<body>
 
-<!-- Colombia bar -->
-<div class="colombia-bar"><div class="f-y"></div><div class="f-b"></div><div class="f-r"></div></div>
+<div class="bg-field"></div>
+<div class="bg-grid"></div>
+<div class="bg-noise"></div>
+<div class="col-stripe"></div>
 
-<!-- Corners -->
-<div class="corner corner-tl"></div>
-<div class="corner corner-tr"></div>
-<div class="corner corner-bl"></div>
-<div class="corner corner-br"></div>
-
-<!-- Scanline -->
-<div class="scanline"></div>
-
-<!-- ══ LOADER ══════════════════════════════════════════ -->
-<div id="loader-screen">
-  <div class="loader-emblem">🦅</div>
-  <div class="loader-title">Recargando Escudos de Energía</div>
-  <div class="shield-wrap">
-    <div class="shield-label">SINCRONIZACIÓN DE ARMADURA EN CURSO</div>
-    <div class="shield-track">
-      <div class="shield-fill" id="shield-fill"></div>
+<!-- TOP BAR -->
+<div class="topbar">
+  <a href="index.html" class="tb-logo">
+    <div class="tb-flag"><div class="fy"></div><div class="fb"></div><div class="fr"></div></div>
+    <div>
+      <div class="tb-brand">Colombia <span>Wars</span> RP</div>
+      <span class="tb-sub">GTA SA · MTA · Guerras Mundiales Roleplay</span>
     </div>
-    <div class="shield-pct" id="load-pct">0%</div>
-    <div class="shield-msg" id="load-msg">INICIANDO PROTOCOLO...</div>
-    <div class="seg-dots" id="seg-dots">
-      <div class="seg-dot" id="d0"></div>
-      <div class="seg-dot" id="d1"></div>
-      <div class="seg-dot" id="d2"></div>
-      <div class="seg-dot" id="d3"></div>
-      <div class="seg-dot" id="d4"></div>
-    </div>
-  </div>
+  </a>
+  <div class="tb-status"><div class="tb-dot"></div>SERVIDOR MTA ONLINE</div>
 </div>
 
-<!-- ══ BOOT CARD ═══════════════════════════════════════ -->
-<div class="boot-card" id="boot-card">
-  <div class="card-accent"></div>
-  <div class="card-flag"><div class="cf-y"></div><div class="cf-b"></div><div class="cf-r"></div></div>
+<!-- ══ AUTH PAGE ══ -->
+<div class="page" id="auth-page">
+  <div class="page-inner">
 
-  <div class="card-header">
-    <div class="header-emblem">🦅</div>
-    <div class="header-text">
-      <div class="sys-title">Ejército Roleplay Col</div>
-      <div class="sys-sub">GUERRAS MUNDIALES RP · INFO FAC COL</div>
-      <div class="sys-sub2">DESAROLLADOR SAM SUKV · MODO SEGURO · ENCRIPTADO</div>
-      <div class="status-row">
-        <div class="status-pip"></div>
-        <div class="status-text">SISTEMA ACTIVO</div>
+    <!-- LEFT PANEL -->
+    <div class="left-panel">
+      <div class="lp-top">
+        <div class="lp-tag">// GTA San Andreas · MTA · Roleplay</div>
+        <div class="lp-title">PANEL DE<br><span>MANDO</span></div>
+        <div class="lp-sub">⚔ Bando Colombia · Guerras Mundiales RP</div>
+
+        <!-- WAVING FLAG -->
+        <div class="flag-stage">
+          <div class="flag-pole"></div>
+          <div class="flag-wrap">
+            <div class="flag-canvas">
+              <div class="flag-y"></div>
+              <div class="flag-b"><div class="escudo">🛡</div></div>
+              <div class="flag-r"></div>
+            </div>
+            <div class="flag-sheen"></div>
+          </div>
+          <div class="flag-shadow"></div>
+        </div>
+
+        <div class="lp-stats">
+          <div class="lps"><div class="lps-n">248</div><div class="lps-l">Soldados</div></div>
+          <div class="lps"><div class="lps-n">134</div><div class="lps-l">Batallas</div></div>
+          <div class="lps"><div class="lps-n">89%</div><div class="lps-l">Victorias</div></div>
+        </div>
+      </div>
+
+      <!-- CREDITS -->
+      <div class="lp-credit">
+        <div class="lp-credit-icon">🎖</div>
+        <div class="lp-credit-text">
+          <strong>Diseñado por Sam Sukv</strong>
+          Colombia Wars RP · Guerras Mundiales · MTA SA · Ficción
+        </div>
       </div>
     </div>
-  </div>
 
-  <div class="card-body">
-    <div class="terminal-box">
-      <div id="typewriter"></div>
-      <span class="terminal-cursor" id="cursor"></span>
-    </div>
+    <!-- RIGHT PANEL -->
+    <div class="right-panel">
 
-    <button class="btn-boot locked" id="nav-btn" onclick="triggerLoading()">
-      ESPERANDO SEÑAL...
-    </button>
-  </div>
+      <!-- TABS -->
+      <div class="auth-tabs">
+        <button class="auth-tab active" onclick="switchTab('login')">🔐 Ingresar</button>
+        <button class="auth-tab" onclick="switchTab('register')">🪖 Enlistarse</button>
+      </div>
 
-  <div class="card-footer">
-    <div class="footer-info">
-      USUARIO: <span>SAM SUKV</span><br>
-      ESTADO: <span>ENCRIPTADO · COL</span>
-    </div>
-    <div class="footer-ver">
-      v3.2.1<br>
-      <span style="color:var(--accent)">●</span> ONLINE
+      <!-- MESSAGE BOX -->
+      <div class="msg-box" id="msgBox"></div>
+
+      <!-- ─ LOGIN FORM ─ -->
+      <div class="auth-form visible" id="loginForm">
+        <div>
+          <div class="form-title">BIENVENIDO <span>SOLDADO</span></div>
+          <div class="form-sub">// Accede con tus credenciales del Bando Colombia</div>
+        </div>
+        <div class="field-group">
+          <label class="field-label"><span class="fl-icon">📧</span>Correo Electrónico</label>
+          <input type="email" class="field-input" id="log_correo" placeholder="soldado@colombia-wars.rp">
+        </div>
+        <div class="field-group">
+          <label class="field-label"><span class="fl-icon">🔒</span>Contraseña</label>
+          <input type="password" class="field-input" id="log_password" placeholder="••••••••">
+        </div>
+        <button class="btn-submit" id="btnLog" onclick="handleLogin()">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+          ENTRAR AL SISTEMA
+        </button>
+        <div class="auth-divider"><span class="auth-divider-txt">¿Primera vez?</span></div>
+        <button class="btn-logout" onclick="switchTab('register')">🪖 ENLISTARSE AL BANDO COLOMBIA →</button>
+      </div>
+
+      <!-- ─ PROFILE CARD (post login) ─ -->
+      <div class="profile-card" id="profileCard">
+        <div class="pc-banner">
+          <div class="pc-avatar">🪖</div>
+          <div class="pc-info">
+            <div class="pc-welcome">// Acceso verificado · Bando Colombia</div>
+            <div class="pc-name" id="pc_nombre">SOLDADO</div>
+            <div class="pc-placa" id="pc_placa">PLACA: —</div>
+            <div class="pc-rango">🎖 <span id="pc_rango">Recluta</span></div>
+          </div>
+        </div>
+        <div class="pc-grid">
+          <div class="pc-stat"><div class="pc-stat-n">🇨🇴</div><div class="pc-stat-l">Bando Colombia</div></div>
+          <div class="pc-stat"><div class="pc-stat-n">T3</div><div class="pc-stat-l">Temporada 3</div></div>
+        </div>
+        <button class="btn-dashboard" onclick="goToDashboard()">
+          🗺 IR AL PANEL DE MANDO
+        </button>
+        <button class="btn-logout" onclick="handleLogout()">Cerrar sesión</button>
+      </div>
+
+      <!-- ─ REGISTER FORM ─ -->
+      <div class="auth-form" id="registerForm">
+        <div>
+          <div class="form-title">ENLISTARSE EN<br><span>COLOMBIA</span></div>
+          <div class="form-sub">// Regístrate para defender la patria en el servidor MTA</div>
+        </div>
+        <div class="field-group half-grid">
+          <div>
+            <label class="field-label"><span class="fl-icon">📧</span>Correo</label>
+            <input type="email" class="field-input" id="reg_correo" placeholder="tu@correo.com">
+          </div>
+          <div>
+            <label class="field-label"><span class="fl-icon">🎮</span>Discord</label>
+            <input type="text" class="field-input" id="reg_discord" placeholder="usuario#1234">
+          </div>
+        </div>
+        <div class="field-group">
+          <label class="field-label"><span class="fl-icon">🪖</span>Nombre IC (In-Character)</label>
+          <input type="text" class="field-input" id="reg_nombre_ic" placeholder="Nombre de tu personaje">
+        </div>
+        <div class="field-group half-grid">
+          <div>
+            <label class="field-label"><span class="fl-icon">🌎</span>País</label>
+            <input type="text" class="field-input" id="reg_pais" placeholder="Colombia">
+          </div>
+          <div>
+            <label class="field-label"><span class="fl-icon">📅</span>Edad</label>
+            <input type="number" class="field-input" id="reg_edad" placeholder="18" min="13" max="99">
+          </div>
+        </div>
+        <div class="field-group">
+          <label class="field-label"><span class="fl-icon">🔒</span>Contraseña</label>
+          <input type="password" class="field-input" id="reg_password" placeholder="Mínimo 6 caracteres">
+        </div>
+        <button class="btn-submit" id="btnReg" onclick="handleRegister()">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 5v14M5 12h14"/></svg>
+          UNIRSE AL BANDO COLOMBIA
+        </button>
+        <div class="auth-divider"><span class="auth-divider-txt">¿Ya tienes cuenta?</span></div>
+        <button class="btn-logout" onclick="switchTab('login')">🔐 INGRESAR AL SISTEMA →</button>
+      </div>
+
     </div>
   </div>
 </div>
 
-<audio id="click-sound" src="https://www.soundjay.com/communication/sounds/teletype-01.mp3" preload="auto"></audio>
-<audio id="radio-static" src="https://www.soundjay.com/mechanical/sounds/radio-static-1.mp3" loop preload="auto"></audio>
+<!-- ══ DASHBOARD ══ -->
+<div class="page" id="dashboard-page" style="display:none;">
+  <div style="width:100%;max-width:1100px;">
+
+    <div class="dash-header">
+      <div>
+        <div class="dash-welcome">PANEL DE <span>MANDO</span></div>
+        <div class="dash-meta" id="dash-meta">// Bando Colombia · Sesión activa</div>
+      </div>
+      <button class="dash-logout" onclick="handleLogout()">✕ CERRAR SESIÓN</button>
+    </div>
+
+    <div class="dash-grid">
+      <div class="dash-card">
+        <div class="dc-icon">🎖</div>
+        <div class="dc-title">Gestión de Personal</div>
+        <div class="dc-desc">Soldados activos, rangos, historiales de combate y condecoraciones del Bando Colombia.</div>
+        <div class="dc-badge">● 248 Activos</div>
+      </div>
+      <div class="dash-card">
+        <div class="dc-icon">🗺</div>
+        <div class="dc-title">Operaciones de Guerra</div>
+        <div class="dc-desc">Planifica y coordina batallas contra Chile y Argentina. Frentes activos y misiones.</div>
+        <div class="dc-badge">⚔ 3 Frentes Activos</div>
+      </div>
+      <div class="dash-card">
+        <div class="dc-icon">📡</div>
+        <div class="dc-title">Comunicaciones</div>
+        <div class="dc-desc">Frecuencias de radio in-game, protocolos y canales de voz para batallas en MTA.</div>
+        <div class="dc-badge">● Frecuencia Alpha ON</div>
+      </div>
+      <div class="dash-card">
+        <div class="dc-icon">🏆</div>
+        <div class="dc-title">Sistema de Rangos</div>
+        <div class="dc-desc">Jerarquía militar del Bando Colombia. Criterios de ascenso y condecoraciones.</div>
+        <div class="dc-badge">🎖 Tu rango: <span id="dash-rango-badge">Recluta</span></div>
+      </div>
+      <div class="dash-card">
+        <div class="dc-icon">📋</div>
+        <div class="dc-title">Informes de Batalla</div>
+        <div class="dc-desc">Reportes post-batalla, KDAs, capturas de territorio y estadísticas de temporada.</div>
+        <div class="dc-badge">📊 T3 · Activa</div>
+      </div>
+      <div class="dash-card">
+        <div class="dc-icon">🔐</div>
+        <div class="dc-title">Control de Acceso</div>
+        <div class="dc-desc">Gestión de usuarios y permisos diferenciados por rango. Área de Alto Mando.</div>
+        <div class="dc-badge">🔒 Acceso Verificado</div>
+      </div>
+    </div>
+
+    <div class="dash-footer">
+      <div style="display:flex;gap:20px;flex-wrap:wrap;">
+        <div class="df-stat"><div class="df-dot" style="background:#4ade80;animation:pdot 2s ease infinite;"></div>Servidor MTA Online</div>
+        <div class="df-stat"><div class="df-dot" style="background:#fcd116;"></div>Temporada 3 Activa</div>
+        <div class="df-stat"><div class="df-dot" style="background:#ce1126;"></div>⚔ 3 Frentes en combate</div>
+      </div>
+      <div class="df-credit">Diseñado por <strong>Sam Sukv</strong> · Colombia Wars RP · Ficción</div>
+    </div>
+
+  </div>
+</div>
 
 <script>
-  const terminal  = document.getElementById('typewriter');
-  const cursor    = document.getElementById('cursor');
-  const btn       = document.getElementById('nav-btn');
-  const sfxClick  = document.getElementById('click-sound');
-  const sfxRadio  = document.getElementById('radio-static');
-  let audioStarted = false;
+// ── TAB SWITCHER ──
+function switchTab(tab) {
+  document.querySelectorAll('.auth-tab').forEach((t,i)=>{
+    t.classList.toggle('active', (i===0&&tab==='login')||(i===1&&tab==='register'));
+  });
+  document.getElementById('loginForm').classList.toggle('visible', tab==='login');
+  document.getElementById('registerForm').classList.toggle('visible', tab==='register');
+  document.getElementById('profileCard').classList.remove('show');
+  clearMsg();
+}
 
-  const lines = [
-    { text: '> ACCEDIENDO A RED PRIVADA...', delay: 500 },
-    { text: '> CARGANDO HUD DE COMBATE...', delay: 600 },
-    { text: '> [SISTEMA] AUTORIZADO POR SAM SUKV.', delay: 400 },
-    { text: '> BIENVENIDO, SOLDADO.', delay: 300 }
-  ];
+function showMsg(text, type='info') {
+  const b = document.getElementById('msgBox');
+  b.className = `msg-box show ${type}`;
+  const icons = {ok:'✅', err:'❌', info:'ℹ️'};
+  b.innerHTML = `<span>${icons[type]||'ℹ️'}</span><span>${text}</span>`;
+}
+function clearMsg() {
+  document.getElementById('msgBox').className = 'msg-box';
+}
 
-  let seqIdx = 0;
+// ── REGISTER ──
+async function handleRegister() {
+  const correo   = document.getElementById('reg_correo').value.trim();
+  const discord  = document.getElementById('reg_discord').value.trim();
+  const nombre   = document.getElementById('reg_nombre_ic').value.trim();
+  const pais     = document.getElementById('reg_pais').value.trim();
+  const edad     = document.getElementById('reg_edad').value;
+  const password = document.getElementById('reg_password').value;
 
-  function initAudio() {
-    if (!audioStarted) {
-      sfxRadio.volume = 0.04;
-      sfxRadio.play().catch(() => {});
-      audioStarted = true;
+  if (!correo||!discord||!nombre||!pais||!edad||!password) {
+    showMsg('Completa todos los campos, Soldado.','err'); return;
+  }
+  if (password.length < 6) {
+    showMsg('La contraseña debe tener al menos 6 caracteres.','err'); return;
+  }
+
+  const btn = document.getElementById('btnReg');
+  btn.disabled = true;
+  btn.textContent = 'PROCESANDO...';
+  showMsg('Procesando enlistamiento...','info');
+
+  const placa = "RP-" + Math.floor(Math.random()*9000+1000);
+  const datos = { correo, discord, nombre_ic:nombre, pais, edad:parseInt(edad), password, placa };
+
+  try {
+    const res = await fetch('/registro', {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify(datos)
+    });
+    if (res.ok) {
+      showMsg(`¡Bienvenido al Bando Colombia, ${nombre}! Tu placa: ${placa}`, 'ok');
+      document.getElementById('registerForm').querySelectorAll('input').forEach(i=>i.value='');
+      setTimeout(()=>switchTab('login'),2500);
+    } else {
+      const err = await res.json().catch(()=>({}));
+      showMsg(err.message||'Ese correo ya está registrado en el sistema.','err');
     }
+  } catch(e) {
+    showMsg('Error de conexión con el servidor MTA.','err');
+  } finally {
+    btn.disabled=false; btn.innerHTML='<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 5v14M5 12h14"/></svg> UNIRSE AL BANDO COLOMBIA';
+  }
+}
+
+// ── LOGIN ──
+async function handleLogin() {
+  const correo   = document.getElementById('log_correo').value.trim();
+  const password = document.getElementById('log_password').value;
+
+  if (!correo||!password) {
+    showMsg('Ingresa correo y contraseña, Soldado.','err'); return;
   }
 
-  function typeLine(lineObj) {
-    const p = document.createElement('div');
-    p.className = 'terminal-line';
-    terminal.appendChild(p);
-    cursor.remove();
-    p.after(cursor);
+  const btn = document.getElementById('btnLog');
+  btn.disabled=true; btn.textContent='VERIFICANDO...';
+  showMsg('Verificando credenciales de mando...','info');
 
-    let i = 0;
-    function char() {
-      if (i < lineObj.text.length) {
-        p.textContent += lineObj.text[i++];
-        sfxClick.currentTime = 0;
-        sfxClick.play().catch(() => {});
-        setTimeout(char, 22);
-      } else {
-        setTimeout(() => {
-          seqIdx++;
-          if (seqIdx < lines.length) typeLine(lines[seqIdx]);
-          else unlock();
-        }, lineObj.delay);
-      }
+  try {
+    const res = await fetch('/login', {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({correo, password})
+    });
+    const data = await res.json();
+
+    if (res.ok) {
+      // Store session
+      sessionStorage.setItem('soldado', JSON.stringify(data));
+      showLoginSuccess(data);
+    } else {
+      showMsg(data.message||'Correo o contraseña incorrectos.','err');
     }
-    char();
+  } catch(e) {
+    showMsg('Error de conexión con el servidor.','err');
+  } finally {
+    btn.disabled=false; btn.innerHTML='<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg> ENTRAR AL SISTEMA';
   }
+}
 
-  function unlock() {
-    cursor.style.display = 'none';
-    btn.classList.remove('locked');
-    btn.classList.add('ready');
-    btn.textContent = 'INICIAR DESPLIEGUE';
+function showLoginSuccess(data) {
+  document.getElementById('loginForm').classList.remove('visible');
+  clearMsg();
+  document.getElementById('pc_nombre').textContent = data.nombre_ic || 'SOLDADO';
+  document.getElementById('pc_placa').textContent = 'PLACA: ' + (data.placa||'—');
+  document.getElementById('pc_rango').textContent = data.rango || 'Recluta';
+  document.getElementById('profileCard').classList.add('show');
+  showMsg(`¡Acceso concedido, ${data.nombre_ic||'Soldado'}!`, 'ok');
+}
+
+function goToDashboard() {
+  const s = JSON.parse(sessionStorage.getItem('soldado')||'{}');
+  document.getElementById('auth-page').style.display='none';
+  document.getElementById('dashboard-page').style.display='flex';
+  document.getElementById('dash-meta').textContent =
+    `// ${s.nombre_ic||'Soldado'} · Placa ${s.placa||'—'} · Rango: ${s.rango||'Recluta'} · Bando Colombia`;
+  document.getElementById('dash-rango-badge').textContent = s.rango||'Recluta';
+}
+
+function handleLogout() {
+  sessionStorage.removeItem('soldado');
+  document.getElementById('auth-page').style.display='flex';
+  document.getElementById('dashboard-page').style.display='none';
+  document.getElementById('profileCard').classList.remove('show');
+  document.getElementById('loginForm').classList.add('visible');
+  document.getElementById('log_correo').value='';
+  document.getElementById('log_password').value='';
+  clearMsg();
+  document.querySelectorAll('.auth-tab').forEach((t,i)=>t.classList.toggle('active',i===0));
+}
+
+// Check session on load
+window.addEventListener('DOMContentLoaded',()=>{
+  const s = sessionStorage.getItem('soldado');
+  if (s) {
+    try { showLoginSuccess(JSON.parse(s)); } catch(e){}
   }
-
-  // Loader
-  const loadMsgs = [
-    'REESTABLECIENDO ESCUDOS...',
-    'SINCRONIZANDO ARMADURA...',
-    'CALIBRANDO SISTEMAS...',
-    'SOFTWARE VERIFICADO.',
-    '¡ESCUDOS AL 100%!'
-  ];
-
-  function triggerLoading() {
-    document.getElementById('boot-card').style.animation = 'cardIn 0.4s reverse forwards';
-    setTimeout(() => {
-      document.getElementById('boot-card').style.display = 'none';
-      const loader = document.getElementById('loader-screen');
-      loader.style.display = 'flex';
-
-      let p = 0;
-      const fill = document.getElementById('shield-fill');
-      const pct  = document.getElementById('load-pct');
-      const msg  = document.getElementById('load-msg');
-      const dots = document.querySelectorAll('.seg-dot');
-
-      const iv = setInterval(() => {
-        p += Math.floor(Math.random() * 7) + 2;
-        if (p >= 100) {
-          p = 100;
-          clearInterval(iv);
-          msg.textContent = loadMsgs[4];
-          dots.forEach(d => d.classList.add('lit'));
-          setTimeout(() => { window.location.href = 'index1.html'; }, 900);
-        }
-
-        fill.style.width = p + '%';
-        pct.textContent  = p + '%';
-
-        const dotIdx = Math.floor(p / 20);
-        for (let d = 0; d <= dotIdx && d < dots.length; d++) dots[d].classList.add('lit');
-
-        if (p > 20)  msg.textContent = loadMsgs[0];
-        if (p > 40)  msg.textContent = loadMsgs[1];
-        if (p > 65)  msg.textContent = loadMsgs[2];
-        if (p > 85)  msg.textContent = loadMsgs[3];
-      }, 90);
-    }, 350);
-  }
-
-  window.onload = () => setTimeout(() => typeLine(lines[0]), 900);
+});
 </script>
 </body>
 </html>
-
