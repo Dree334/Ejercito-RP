@@ -1,149 +1,92 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <title>S.U.K.V. - Monitor de Aviación Militar</title>
-    <style>
-        :root {
-            --primary: #1e90ff;
-            --bg: #010409;
-            --card: #0d1117;
-            --border: #30363d;
-            --glow: rgba(30, 144, 255, 0.3);
-        }
-        body { 
-            background: var(--bg); 
-            color: white; 
-            font-family: 'Segoe UI', sans-serif; 
-            padding: 40px;
-            background-image: radial-gradient(circle at top, #111e2d 0%, #010409 100%);
-        }
+<meta charset="UTF-8">
+<title>Fuerza Aérea - Personal Activo</title>
 
-        .display-header {
-            text-align: center;
-            border-bottom: 2px solid var(--primary);
-            padding-bottom: 20px;
-            margin-bottom: 40px;
-            text-shadow: 0 0 10px var(--glow);
-        }
+<style>
+body {
+  background: #0f172a;
+  color: white;
+  font-family: Arial;
+  padding: 40px;
+}
 
-        h1 { margin: 0; letter-spacing: 4px; font-size: 2.5em; color: var(--primary); }
-        .subtitle { color: #8b949e; text-transform: uppercase; letter-spacing: 2px; font-size: 0.9em; }
+h1 {
+  text-align: center;
+}
 
-        /* Contenedor de Pilotos Estilo "Fichas" */
-        .pilotos-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-            gap: 20px;
-        }
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 30px;
+  background: #1e293b;
+}
 
-        .pilot-card {
-            background: var(--card);
-            border: 1px solid var(--border);
-            border-radius: 12px;
-            padding: 20px;
-            position: relative;
-            transition: 0.3s;
-            overflow: hidden;
-        }
+th, td {
+  padding: 12px;
+  border-bottom: 1px solid #334155;
+  text-align: center;
+}
 
-        .pilot-card::before {
-            content: "";
-            position: absolute;
-            top: 0; left: 0; width: 4px; height: 100%;
-            background: var(--primary);
-        }
+th {
+  background: #145A32;
+}
 
-        .pilot-card:hover {
-            border-color: var(--primary);
-            box-shadow: 0 0 15px var(--glow);
-            transform: translateY(-5px);
-        }
-
-        .pilot-name { font-size: 1.4em; font-weight: bold; margin-bottom: 5px; display: block; }
-        .pilot-rank { color: var(--primary); font-weight: bold; text-transform: uppercase; font-size: 0.85em; }
-        .pilot-plate { 
-            display: block; 
-            margin-top: 15px; 
-            font-family: monospace; 
-            color: #8b949e;
-            background: #161b22;
-            padding: 5px;
-            text-align: center;
-            border-radius: 4px;
-        }
-
-        .status-dot {
-            height: 8px; width: 8px;
-            background-color: #4eef3a;
-            border-radius: 50%;
-            display: inline-block;
-            margin-right: 8px;
-            box-shadow: 0 0 8px #4eef3a;
-        }
-
-        /* Decoración de radar */
-        .radar-decor {
-            position: fixed;
-            bottom: 20px; right: 20px;
-            opacity: 0.2;
-            pointer-events: none;
-        }
-    </style>
+tr:hover {
+  background: #273549;
+}
+</style>
 </head>
 <body>
 
-    <div class="display-header">
-        <h1>𝐀𝐕𝐈𝐀𝐂𝐈́𝐎𝐍 𝐌𝐈𝐋𝐈𝐓𝐀𝐑</h1>
-        <div class="subtitle">Escuadrón de Combate S.U.K.V. - Estado de Fuerza</div>
-    </div>
+<h1>🛩 Personal Activo - Fuerza Aérea</h1>
 
-    <div class="pilotos-grid" id="grid-visual">
-        </div>
+<table>
+  <thead>
+    <tr>
+      <th>Placa</th>
+      <th>Nombre IC</th>
+      <th>Rango</th>
+      <th>País</th>
+      <th>Estado</th>
+      <th>Fecha Ingreso</th>
+    </tr>
+  </thead>
+  <tbody id="tablaPilotos">
+  </tbody>
+</table>
 
-    <div class="radar-decor">
-        <svg width="100" height="100" viewBox="0 0 100 100">
-            <circle cx="50" cy="50" r="45" stroke="#1e90ff" stroke-width="1" fill="none" />
-            <circle cx="50" cy="50" r="30" stroke="#1e90ff" stroke-width="1" fill="none" />
-            <line x1="50" y1="5" x2="50" y2="95" stroke="#1e90ff" stroke-width="1" />
-            <line x1="5" y1="50" x2="95" y2="50" stroke="#1e90ff" stroke-width="1" />
-        </svg>
-    </div>
+<script>
+async function cargarPilotos() {
+  try {
+    const response = await fetch("/listar-pilotos");
+    const data = await response.json();
 
-    <script>
-        async function actualizarPantallaVisual() {
-            try {
-                const res = await fetch('/personal');
-                const datos = await res.json();
-                const grid = document.getElementById('grid-visual');
-                grid.innerHTML = "";
+    if (data.success) {
+      const tabla = document.getElementById("tablaPilotos");
+      tabla.innerHTML = "";
 
-                // FILTRO: Solo pilotos
-                const pilotos = datos.filter(s => s.division.toUpperCase().includes("AÉREA"));
+      data.pilotos.forEach(p => {
+        tabla.innerHTML += `
+          <tr>
+            <td>${p.placa}</td>
+            <td>${p.nombre_ic}</td>
+            <td>${p.rango}</td>
+            <td>${p.pais}</td>
+            <td>${p.estado}</td>
+            <td>${p.fecha_ingreso}</td>
+          </tr>
+        `;
+      });
+    }
+  } catch (error) {
+    console.error("Error cargando pilotos");
+  }
+}
 
-                if (pilotos.length === 0) {
-                    grid.innerHTML = "<p style='text-align:center; width:100%; color:#444;'>NO HAY UNIDADES EN DESPLIEGUE</p>";
-                    return;
-                }
+cargarPilotos();
+</script>
 
-                pilotos.forEach(p => {
-                    grid.innerHTML += `
-                        <div class="pilot-card">
-                            <span class="pilot-rank">${p.rango}</span>
-                            <span class="pilot-name">${p.nombre_ic}</span>
-                            <div><span class="status-dot"></span> <small style="color:#4eef3a">EN SERVICIO</small></div>
-                            <span class="pilot-plate">INDICATIVO: ${p.placa || 'PENDIENTE'}</span>
-                        </div>
-                    `;
-                });
-            } catch (err) {
-                console.error("Error cargando el monitor visual");
-            }
-        }
-
-        // Se actualiza solo cada 30 segundos para que siempre esté al día
-        setInterval(actualizarPantallaVisual, 30000);
-        document.addEventListener('DOMContentLoaded', actualizarPantallaVisual);
-    </script>
 </body>
 </html>
