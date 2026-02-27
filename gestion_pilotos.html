@@ -2,186 +2,167 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>S.U.K.V. - Gestión de Pilotos</title>
+    <title>S.U.K.V. - Comando Aéreo Independiente</title>
     <style>
         :root {
-            --primary: #1e90ff;
-            --bg: #020814;
-            --card: #0d1117;
-            --border: #30363d;
-            --success: #238636;
+            --primary: #00d4ff; --bg: #050a14; --card: #0f172a;
+            --border: #1e293b; --success: #10b981;
         }
-        body { background: var(--bg); color: white; font-family: 'Segoe UI', sans-serif; padding: 20px; }
+        body { background: var(--bg); color: white; font-family: 'Inter', sans-serif; padding: 20px; }
         
         .header-box { 
             background: var(--card); border: 1px solid var(--border); 
-            padding: 20px; border-radius: 8px; margin-bottom: 25px;
-            border-left: 5px solid var(--primary);
+            padding: 20px; border-radius: 12px; margin-bottom: 25px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.5); border-left: 5px solid var(--primary);
         }
 
         .register-box {
-            background: #161b22; border: 1px solid var(--border);
-            padding: 20px; border-radius: 8px; margin-bottom: 30px;
+            background: #1e293b; border: 1px solid var(--border);
+            padding: 20px; border-radius: 12px; margin-bottom: 30px;
         }
-        .form-row { display: grid; grid-template-columns: 2fr 1fr 1fr; gap: 10px; }
-        input { padding: 12px; background: #010409; border: 1px solid var(--border); color: white; border-radius: 4px; outline: none; }
+        .form-row { display: flex; gap: 10px; }
+        input { flex: 1; padding: 12px; background: #0f172a; border: 1px solid var(--border); color: white; border-radius: 6px; outline: none; }
+        input:focus { border-color: var(--primary); }
         
         .btn-register { 
-            background: var(--primary); color: white; border: none; padding: 10px;
-            font-weight: bold; cursor: pointer; border-radius: 4px; text-transform: uppercase;
+            background: var(--primary); color: #000; border: none; padding: 0 25px;
+            font-weight: bold; cursor: pointer; border-radius: 6px; text-transform: uppercase;
         }
 
-        table { width: 100%; border-collapse: collapse; background: var(--card); border-radius: 8px; overflow: hidden; margin-top: 10px; }
-        th { background: #161b22; color: var(--primary); padding: 15px; text-align: left; }
+        table { width: 100%; border-collapse: collapse; background: var(--card); border-radius: 12px; overflow: hidden; }
+        th { background: #1e293b; color: var(--primary); padding: 15px; text-align: left; font-size: 0.9em; }
         td { padding: 15px; border-bottom: 1px solid var(--border); }
         
         .btn-assign { 
-            background: var(--success); color: white; border: none; padding: 10px 15px; 
+            background: var(--success); color: white; border: none; padding: 8px 15px; 
             cursor: pointer; border-radius: 4px; font-weight: bold;
         }
-        .btn-assign:hover { background: #2ea043; }
+        .btn-delete { background: #ef4444; color: white; border: none; padding: 8px 10px; cursor: pointer; border-radius: 4px; margin-left: 5px;}
+        
         nav a { color: var(--primary); text-decoration: none; font-weight: bold; margin-bottom: 15px; display: inline-block; }
     </style>
 </head>
 <body>
 
-    <div id="app-gestion">
-        <nav>
-            <a href="index_admin.html">← VOLVER AL PANEL</a>
-        </nav>
+    <nav><a href="index_admin.html">← VOLVER AL PANEL</a></nav>
 
-        <div class="header-box">
-            <h2>✈️ GESTIÓN DE PILOTOS - AVIACIÓN MILITAR</h2>
-            <p style="color: #8b949e; margin: 5px 0 0 0;">Control de personal y asignación de indicativos CDT-010+</p>
-        </div>
-
-        <div class="register-box">
-            <h4 style="margin-top:0; color:var(--primary)">REGISTRAR NUEVO PILOTO</h4>
-            <div class="form-row">
-                <input type="text" id="nombre_ic" placeholder="Nombre IC (Ej: Sam Sukv)">
-                <input type="text" id="pais" placeholder="País" value="Colombia">
-                <button class="btn-register" onclick="crearPiloto()">REGISTRAR</button>
-            </div>
-        </div>
-
-        <h3>📋 PERSONAL EN BASE</h3>
-        <table>
-            <thead>
-                <tr>
-                    <th>PILOTO</th>
-                    <th>RANGO</th>
-                    <th>PLACA</th>
-                    <th style="text-align: right;">ACCIÓN</th>
-                </tr>
-            </thead>
-            <tbody id="tabla-pilotos">
-                </tbody>
-        </table>
+    <div class="header-box">
+        <h2>🦅 COMANDO DE AVIACIÓN MILITAR (S.U.K.V.)</h2>
+        <p style="color: #94a3b8;">Base de Datos Independiente de Pilotos</p>
     </div>
 
-    <script>
-        const DISCORD_WEBHOOK = "https://discord.com/api/webhooks/1476777629355999404/F_xJlgg52JDIGIJlBOATF3KwM8cu4jAOR9TO-ECeaW6bp1132om0N_pVemZ3xD6rIQZl";
+    <div class="register-box">
+        <div class="form-row">
+            <input type="text" id="nombre_ic" placeholder="Nombre del Piloto (IC)">
+            <input type="text" id="rango_inicial" placeholder="Rango" value="Aspirante">
+            <button class="btn-register" onclick="agregarPiloto()">AÑADIR AL ESCUADRÓN</button>
+        </div>
+    </div>
 
-        async function cargarAviacion() {
+    <table>
+        <thead>
+            <tr>
+                <th>PILOTO</th>
+                <th>RANGO</th>
+                <th>INDICATIVO</th>
+                <th style="text-align: right;">GESTIÓN</th>
+            </tr>
+        </thead>
+        <tbody id="lista-pilotos"></tbody>
+    </table>
+
+    <script>
+        const WEBHOOK = "https://discord.com/api/webhooks/1476777629355999404/F_xJlgg52JDIGIJlBOATF3KwM8cu4jAOR9TO-ECeaW6bp1132om0N_pVemZ3xD6rIQZl";
+        const DB_URL = "/gestion_pilotos"; // Nueva ruta solo para aviación
+
+        async function cargarPilotos() {
             try {
-                const res = await fetch('/personal');
-                const datos = await res.json();
-                const tabla = document.getElementById('tabla-pilotos');
+                const res = await fetch(DB_URL);
+                const pilotos = await res.json();
+                const tabla = document.getElementById('lista-pilotos');
                 tabla.innerHTML = "";
 
-                const pilotos = datos.filter(s => s.division && s.division.toUpperCase().includes("AÉREA"));
-
-                // Cálculo automático de placa CDT
-                let maxNum = 9;
-                datos.forEach(p => {
-                    if (p.placa && p.placa.startsWith("CDT-")) {
-                        let num = parseInt(p.placa.split("-")[1]);
-                        if (!isNaN(num) && num > maxNum) maxNum = num;
+                // Calcular siguiente CDT
+                let max = 9;
+                pilotos.forEach(p => {
+                    if(p.placa && p.placa.includes("CDT-")) {
+                        let n = parseInt(p.placa.split("-")[1]);
+                        if(n > max) max = n;
                     }
                 });
-                let proximaPlaca = "CDT-" + String(maxNum + 1).padStart(3, '0');
-
-                if (pilotos.length === 0) {
-                    tabla.innerHTML = "<tr><td colspan='4' style='text-align:center;'>No hay pilotos registrados.</td></tr>";
-                }
+                let proxima = "CDT-" + String(max + 1).padStart(3, '0');
 
                 pilotos.forEach(p => {
                     tabla.innerHTML += `
                         <tr>
-                            <td><b>${p.nombre_ic}</b></td>
-                            <td>${p.rango}</td>
-                            <td style="color:#8b949e; font-family:monospace;">${p.placa}</td>
+                            <td><b>${p.nombre}</b></td>
+                            <td><span style="color:#94a3b8">${p.rango}</span></td>
+                            <td style="font-family:monospace; color:${p.placa === 'S/P' ? '#64748b' : '#00d4ff'}">${p.placa}</td>
                             <td style="text-align:right">
-                                <button class="btn-assign" onclick="oficializarPiloto(${p.id}, '${p.nombre_ic}', '${proximaPlaca}')">
-                                    ASIGNAR ${proximaPlaca}
-                                </button>
+                                <button class="btn-assign" onclick="ascender('${p.id}', '${p.nombre}', '${proxima}')">OFICIALIZAR</button>
+                                <button class="btn-delete" onclick="eliminar('${p.id}')">✖</button>
                             </td>
                         </tr>`;
                 });
-            } catch (err) {
-                console.error("Error al cargar pilotos:", err);
-            }
+            } catch (e) { console.log("DB vacía o error."); }
         }
 
-        async function crearPiloto() {
+        async function agregarPiloto() {
             const nombre = document.getElementById('nombre_ic').value;
-            if (!nombre) return alert("Escriba el nombre IC del piloto.");
+            const rango = document.getElementById('rango_inicial').value;
+            if(!nombre) return alert("Escribe un nombre");
 
             const nuevo = {
-                nombre_ic: nombre,
-                pais: document.getElementById('pais').value,
-                division: "FUERZA AÉREA",
-                rango: "Aspirante",
+                id: "P-" + Date.now(),
+                nombre: nombre,
+                rango: rango,
                 placa: "S/P",
-                correo: "piloto_" + Date.now() + "@sukv.com",
-                password: "123",
-                nombre_discord: "Pendiente",
-                edad: 0
+                fecha: new Date().toLocaleDateString()
             };
 
-            try {
-                const res = await fetch('/personal', {
-                    method: 'POST',
-                    headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify(nuevo)
-                });
-                if (res.ok) {
-                    alert("Piloto registrado correctamente.");
-                    document.getElementById('nombre_ic').value = "";
-                    cargarAviacion();
-                }
-            } catch (e) { alert("Error de conexión con el servidor."); }
+            await fetch(DB_URL, {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify(nuevo)
+            });
+
+            document.getElementById('nombre_ic').value = "";
+            cargarPilotos();
         }
 
-        async function oficializarPiloto(id, nombre, placa) {
-            if (!confirm(`¿Confirmar asignación de placa ${placa} y ascenso a Cadete?`)) return;
+        async function ascender(id, nombre, placa) {
+            if(!confirm(`¿Asignar ${placa} a ${nombre}?`)) return;
 
-            try {
-                const resUpdate = await fetch('/personal', {
-                    method: 'PUT',
-                    headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify({ id: id, placa: placa, rango: "Cadete" })
-                });
+            await fetch(DB_URL, {
+                method: 'PUT',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({ id: id, placa: placa, rango: "Cadete" })
+            });
 
-                if (resUpdate.ok) {
-                    // Reporte a Discord
-                    const msg = {
-                        content: `𝐀𝐕𝐈𝐀𝐂𝐈́𝐎𝐍 𝐌𝐈𝐋𝐈𝐓𝐀𝐑 \n╔═════════════✦═════════════╗\n  𝐎𝐅𝐈𝐂𝐈𝐀𝐋: 「 ${nombre} 」\n  𝐏𝐋𝐀𝐂𝐀: / ${placa}\n  𝐑𝐀𝐍𝐆𝐎: 「 Cadete 」\n  𝐑𝐎𝐋: Piloto F-16\n  𝐔𝐍𝐈𝐃𝐀𝐃: Aviación Militar\n╚═════════════✦═════════════╝\nHonor • Disciplina • Lealtad\nForjando alas para la patria`
-                    };
+            // Envío a Discord
+            fetch(WEBHOOK, {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({
+                    content: `𝐀𝐕𝐈𝐀𝐂𝐈́𝐎𝐍 𝐌𝐈𝐋𝐈𝐓𝐀𝐑 \n╔═════════════✦═════════════╗\n  𝐎𝐅𝐈𝐂𝐈𝐀𝐋: 「 ${nombre} 」\n  𝐏𝐋𝐀𝐂𝐀: / ${placa}\n  𝐑𝐀𝐍𝐆𝐎: 「 Cadete 」\n  𝐑𝐎𝐋: Piloto F-16\n╚═════════════✦═════════════╝`
+                })
+            });
 
-                    await fetch(DISCORD_WEBHOOK, { 
-                        method: 'POST', 
-                        headers: {'Content-Type': 'application/json'}, 
-                        body: JSON.stringify(msg) 
-                    });
-
-                    alert(`✅ ${nombre} ahora es ${placa}.`);
-                    cargarAviacion();
-                }
-            } catch (e) { alert("Error al oficializar el rango."); }
+            alert("Piloto Oficializado.");
+            cargarPilotos();
         }
 
-        document.addEventListener('DOMContentLoaded', cargarAviacion);
+        async function eliminar(id) {
+            if(!confirm("¿Eliminar piloto del sistema?")) return;
+            await fetch(DB_URL, {
+                method: 'DELETE',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({ id: id })
+            });
+            cargarPilotos();
+        }
+
+        document.addEventListener('DOMContentLoaded', cargarPilotos);
     </script>
 </body>
 </html>
