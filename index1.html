@@ -1,795 +1,236 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8"/>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
-  <title>SISTEMA TÁCTICO - SAM SUKV</title>
-  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Share+Tech+Mono&display=swap" rel="stylesheet"/>
-  <style>
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
-
-    :root {
-      --bg:       #06080a;
-      --surface:  #0b0e12;
-      --surface2: #10151c;
-      --border:   #1a2230;
-      --sa-or:    #ff8c00;
-      --sa-amb:   #f5c842;
-      --sa-grn:   #5ecb3e;
-      --sa-red:   #d63c1e;
-      --sa-cyan:  #22bfcc;
-      --sa-grey:  #8a9aaa;
-      --text:     #dce8f0;
-      --muted:    #3a4a5a;
-      --sidebar-w: 270px;
-      --col-y:#fcd116; --col-b:#003893; --col-r:#ce1126;
-    }
-
-    html, body {
-      height: 100%; background: var(--bg);
-      color: var(--text); font-family: 'Share Tech Mono', monospace;
-      overflow-x: hidden;
-    }
-
-    /* ── CITY BG ──────────────────────────────── */
-    .city-bg {
-      position: fixed; inset: 0; z-index: 0; pointer-events: none;
-      background:
-        radial-gradient(ellipse 140px 90px at 80% 10%, rgba(255,200,80,0.07) 0%, transparent 70%),
-        linear-gradient(180deg, #060c14 0%, #081018 28%, #0a1208 58%, #060a05 100%);
-    }
-
-    .city-bg::before {
-      content: ''; position: absolute; inset: 0;
-      background:
-        radial-gradient(1px 1px at  7% 5%,  rgba(255,255,255,.7) 0%,transparent 100%),
-        radial-gradient(1px 1px at 18% 3%,  rgba(255,255,255,.5) 0%,transparent 100%),
-        radial-gradient(1px 1px at 31% 8%,  rgba(255,255,255,.6) 0%,transparent 100%),
-        radial-gradient(1px 1px at 47% 4%,  rgba(255,255,255,.4) 0%,transparent 100%),
-        radial-gradient(1px 1px at 61% 7%,  rgba(255,255,255,.7) 0%,transparent 100%),
-        radial-gradient(1px 1px at 74% 2%,  rgba(255,255,255,.5) 0%,transparent 100%),
-        radial-gradient(1px 1px at 87% 9%,  rgba(255,255,255,.6) 0%,transparent 100%),
-        radial-gradient(1px 1px at 11% 13%, rgba(255,255,255,.3) 0%,transparent 100%),
-        radial-gradient(1px 1px at 54% 11%, rgba(255,255,255,.4) 0%,transparent 100%),
-        radial-gradient(1px 1px at 91% 6%,  rgba(255,255,255,.5) 0%,transparent 100%);
-    }
-
-    /* building silhouettes */
-    .city-bg::after {
-      content: ''; position: absolute; bottom: 0; left: 0; right: 0; height: 38%;
-      background:
-        linear-gradient(180deg, transparent 0%, transparent 18%, #080f0a 18%),
-        repeating-linear-gradient(90deg,
-          transparent 0px, transparent 16px,
-          #0a130c 16px,   #0a130c 42px,
-          transparent 42px,transparent 46px,
-          #081009 46px,   #081009 88px,
-          transparent 88px,transparent 94px,
-          #091109 94px,   #091109 128px,
-          transparent 128px,transparent 136px,
-          #0b140d 136px,  #0b140d 168px,
-          transparent 168px,transparent 176px,
-          #09120b 176px,  #09120b 218px,
-          transparent 218px,transparent 226px,
-          #0a130c 226px,  #0a130c 256px,
-          transparent 256px,transparent 264px,
-          #080f08 264px,  #080f08 298px,
-          transparent 298px,transparent 308px
-        );
-    }
-
-    /* city window lights */
-    .city-lights {
-      position: fixed; bottom: 0; left: 0; right: 0; height: 36%;
-      z-index: 1; pointer-events: none;
-      background:
-        radial-gradient(2px 2px at  7% 28%, rgba(255,200,100,.45) 0%,transparent 100%),
-        radial-gradient(2px 2px at 11% 52%, rgba(255,200,100,.3) 0%,transparent 100%),
-        radial-gradient(2px 2px at 19% 22%, rgba(255,200,100,.5) 0%,transparent 100%),
-        radial-gradient(2px 2px at 25% 44%, rgba(255,200,100,.3) 0%,transparent 100%),
-        radial-gradient(2px 2px at 33% 34%, rgba(100,200,255,.3) 0%,transparent 100%),
-        radial-gradient(2px 2px at 39% 58%, rgba(255,200,100,.4) 0%,transparent 100%),
-        radial-gradient(2px 2px at 46% 26%, rgba(255,200,100,.5) 0%,transparent 100%),
-        radial-gradient(2px 2px at 53% 47%, rgba(100,200,255,.3) 0%,transparent 100%),
-        radial-gradient(2px 2px at 61% 20%, rgba(255,200,100,.4) 0%,transparent 100%),
-        radial-gradient(2px 2px at 69% 50%, rgba(255,200,100,.35) 0%,transparent 100%),
-        radial-gradient(2px 2px at 75% 36%, rgba(255,200,100,.5) 0%,transparent 100%),
-        radial-gradient(2px 2px at 81% 24%, rgba(100,200,255,.4) 0%,transparent 100%),
-        radial-gradient(2px 2px at 87% 56%, rgba(255,200,100,.3) 0%,transparent 100%),
-        radial-gradient(2px 2px at 93% 32%, rgba(255,200,100,.5) 0%,transparent 100%);
-    }
-
-    /* scanlines */
-    .scanlines {
-      position: fixed; inset: 0; z-index: 2; pointer-events: none;
-      background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,0,0,0.11) 2px, rgba(0,0,0,0.11) 4px);
-    }
-
-    /* flying plane */
-    .fly-plane {
-      position: fixed; top: 13%; z-index: 3; font-size: 20px;
-      filter: drop-shadow(0 0 8px rgba(255,140,0,0.6));
-      animation: flyAcross 20s linear infinite; pointer-events: none;
-    }
-    @keyframes flyAcross { from{left:-60px;top:13%} to{left:110%;top:8%} }
-
-    /* ── COLOMBIA BAR ─────────────────────── */
-    .colombia-bar {
-      position: fixed; top: 0; left: 0; width: 100%; height: 3px;
-      display: flex; z-index: 300;
-    }
-    .f-y{flex:2;background:var(--col-y);box-shadow:0 0 6px rgba(252,209,22,.5)}
-    .f-b{flex:1;background:var(--col-b)}
-    .f-r{flex:1;background:var(--col-r)}
-
-    /* ── SIDEBAR ──────────────────────────── */
-    .sidebar {
-      position: fixed; inset: 3px auto 0 0;
-      width: var(--sidebar-w);
-      background: rgba(9,12,16,0.97);
-      border-right: 2px solid rgba(255,140,0,0.2);
-      display: flex; flex-direction: column;
-      z-index: 100; overflow: hidden;
-      backdrop-filter: blur(4px);
-    }
-
-    .sidebar::after {
-      content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px;
-      background: linear-gradient(90deg, var(--sa-or), var(--sa-amb), transparent);
-    }
-
-    .sidebar::before {
-      content: ''; position: absolute; bottom: 3px; right: 3px;
-      width: 12px; height: 12px;
-      border-right: 2px solid rgba(255,140,0,0.25);
-      border-bottom: 2px solid rgba(255,140,0,0.25);
-    }
-
-    /* Logo */
-    .logo {
-      padding: 18px 16px 14px;
-      display: flex; align-items: center; gap: 12px;
-      border-bottom: 1px solid rgba(255,140,0,0.15);
-      background: linear-gradient(180deg, rgba(255,140,0,0.04) 0%, transparent 100%);
-    }
-
-    .logo-icon {
-      width: 40px; height: 40px; flex-shrink: 0;
-      background: linear-gradient(135deg, #0d1a08, rgba(255,140,0,0.15));
-      border: 1px solid rgba(255,140,0,0.4);
-      border-radius: 4px;
-      display: grid; place-items: center; font-size: 20px;
-      box-shadow: 0 0 16px rgba(255,140,0,0.15);
-    }
-
-    .logo-text {
-      font-family: 'Press Start 2P', monospace;
-      font-size: 9px; color: var(--sa-amb);
-      letter-spacing: 0.06em; line-height: 1.6;
-      text-shadow: 0 0 10px rgba(245,200,66,0.3);
-    }
-
-    .logo-sub  { font-size: 7px; color: var(--sa-or);  letter-spacing: 0.1em; margin-top: 5px; }
-    .logo-sub2 { font-size: 7px; color: var(--muted);  letter-spacing: 0.08em; margin-top: 1px; }
-
-    /* flag vertical sidebar */
-    .flag-v {
-      display: flex; flex-direction: column;
-      width: 14px; height: 28px; flex-shrink: 0;
-      border: 1px solid rgba(255,255,255,0.1); overflow: hidden; margin-left: auto;
-    }
-    .fv-y{flex:2;background:var(--col-y)} .fv-b{flex:1;background:var(--col-b)} .fv-r{flex:1;background:var(--col-r)}
-
-    /* Op badge */
-    .op-badge {
-      margin: 10px 12px 6px;
-      padding: 10px 12px;
-      background: rgba(255,140,0,0.05);
-      border: 1px solid rgba(255,140,0,0.18);
-      border-radius: 2px;
-      display: flex; align-items: center; gap: 10px;
-    }
-
-    .avatar {
-      width: 30px; height: 30px; border-radius: 2px; flex-shrink: 0;
-      background: linear-gradient(135deg, #0d1a0a, rgba(255,140,0,0.3));
-      border: 1px solid rgba(255,140,0,0.4);
-      display: grid; place-items: center;
-      font-family: 'Press Start 2P', monospace; font-size: 9px; color: var(--sa-amb);
-    }
-
-    .op-info { flex: 1; min-width: 0; }
-    .op-name { font-size: 10px; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    .op-role { font-size: 8px; color: var(--sa-or); letter-spacing: 0.08em; margin-top: 2px; }
-
-    .status-dot {
-      width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0;
-      background: var(--sa-grn); box-shadow: 0 0 7px var(--sa-grn);
-      animation: blink 1.5s infinite;
-    }
-
-    @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.2} }
-
-    /* Nav */
-    .nav { flex: 1; padding: 6px 8px; overflow-y: auto; }
-    .nav::-webkit-scrollbar { width: 2px; }
-    .nav::-webkit-scrollbar-thumb { background: rgba(255,140,0,0.2); }
-
-    .nav-label {
-      font-family: 'Press Start 2P', monospace;
-      font-size: 6px; letter-spacing: 0.1em; text-transform: uppercase;
-      color: var(--sa-or); padding: 10px 10px 5px;
-      border-left: 2px solid var(--sa-or); margin-left: 2px; margin-bottom: 3px;
-    }
-
-    .nav-item {
-      display: flex; align-items: center; gap: 10px;
-      padding: 9px 10px; cursor: pointer;
-      text-decoration: none; color: var(--sa-grey); font-size: 10px;
-      transition: all 0.15s; margin-bottom: 2px;
-      border: 1px solid transparent; position: relative;
-    }
-
-    .nav-item:hover {
-      background: rgba(255,140,0,0.08); color: var(--text); border-color: rgba(255,140,0,0.25);
-    }
-
-    .nav-item.active {
-      background: rgba(255,140,0,0.1); color: var(--text); border-color: rgba(255,140,0,0.35);
-    }
-
-    .nav-item.active::before {
-      content: '▶'; position: absolute; left: -1px; top: 50%; transform: translateY(-50%);
-      font-size: 7px; color: var(--sa-or);
-    }
-
-    .nav-item.elite {
-      border-left: 2px solid var(--sa-red);
-      color: #ffcccc; background: rgba(214,60,30,0.04);
-    }
-
-    .nav-item.elite:hover {
-      background: rgba(214,60,30,0.1); color: #ff9999; border-color: rgba(214,60,30,0.3);
-    }
-
-    .nav-icon {
-      width: 26px; height: 26px; border-radius: 3px;
-      display: grid; place-items: center; font-size: 12px; flex-shrink: 0;
-      background: rgba(255,255,255,0.03); transition: all 0.2s;
-    }
-
-    .nav-item.active .nav-icon { background: rgba(255,140,0,0.12); }
-    .nav-item:hover .nav-icon  { background: rgba(255,140,0,0.08); transform: scale(1.05); }
-    .nav-item.elite .nav-icon  { background: rgba(214,60,30,0.1); }
-
-    .nav-divider { height: 1px; background: rgba(255,140,0,0.1); margin: 6px 10px; }
-
-    /* Sidebar footer */
-    .sidebar-footer {
-      padding: 10px 14px; border-top: 1px solid rgba(255,140,0,0.15);
-      background: rgba(255,140,0,0.03);
-    }
-
-    .clock-display {
-      font-family: 'Press Start 2P', monospace;
-      font-size: 14px; color: var(--sa-amb); letter-spacing: 0.08em; text-align: center;
-      text-shadow: 0 0 12px rgba(245,200,66,0.5);
-    }
-
-    .coord-line { font-size: 8px; color: var(--muted); text-align: center; letter-spacing: 0.1em; margin-top: 6px; }
-
-    /* ── MAIN ─────────────────────────────── */
-    .main { margin-left: var(--sidebar-w); min-height: 100vh; display: flex; flex-direction: column; padding-top: 3px; position: relative; z-index: 5; }
-
-    /* Topbar */
-    .topbar {
-      height: 58px; border-bottom: 1px solid rgba(255,140,0,0.2);
-      display: flex; align-items: center; padding: 0 24px; gap: 14px;
-      background: rgba(6,8,10,0.93); backdrop-filter: blur(12px);
-      position: sticky; top: 0; z-index: 50;
-    }
-
-    .topbar-left { flex: 1; }
-
-    .sys-title {
-      font-family: 'Press Start 2P', monospace;
-      font-size: 9px; color: var(--sa-amb);
-      letter-spacing: 0.08em; text-shadow: 0 0 12px rgba(245,200,66,0.3);
-    }
-
-    .sys-sub { font-size: 8px; color: var(--sa-or); letter-spacing: 0.1em; margin-top: 5px; }
-
-    .topbar-actions { display: flex; align-items: center; gap: 8px; }
-
-    .icon-btn {
-      width: 32px; height: 32px;
-      border: 1px solid rgba(255,140,0,0.25); background: rgba(255,140,0,0.05);
-      color: var(--sa-or); display: grid; place-items: center;
-      cursor: pointer; font-size: 12px; transition: all 0.2s;
-    }
-
-    .icon-btn:hover { border-color: var(--sa-or); background: rgba(255,140,0,0.12); }
-
-    .signal-tag {
-      display: flex; align-items: center; gap: 6px;
-      font-family: 'Press Start 2P', monospace;
-      font-size: 6px; color: var(--sa-grn); letter-spacing: 0.1em;
-      padding: 5px 10px; border: 1px solid rgba(94,203,62,0.3);
-      background: rgba(94,203,62,0.05);
-    }
-
-    .signal-dot {
-      width: 6px; height: 6px; border-radius: 50%;
-      background: var(--sa-grn); box-shadow: 0 0 6px var(--sa-grn);
-      animation: blink 1.2s infinite;
-    }
-
-    /* ── CONTENT ──────────────────────────── */
-    .content { flex: 1; padding: 22px 26px; }
-
-    .page-title {
-      font-family: 'Press Start 2P', monospace;
-      font-size: 11px; color: #fff; letter-spacing: 0.06em;
-      text-shadow: 0 0 14px rgba(255,140,0,0.2); margin-bottom: 4px;
-    }
-
-    .page-desc { font-size: 9px; color: var(--muted); letter-spacing: 0.06em; margin-bottom: 20px; }
-
-    /* KPIs */
-    .kpi-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(175px,1fr)); gap: 10px; margin-bottom: 18px; }
-
-    .kpi-card {
-      background: rgba(9,12,16,0.95);
-      border: 1px solid rgba(255,140,0,0.18);
-      padding: 14px; position: relative; overflow: hidden;
-      transition: border-color 0.2s, transform 0.2s;
-      animation: fadeUp 0.5s ease both;
-    }
-
-    .kpi-card::before {
-      content: ''; position: absolute; top: 0; left: 0; right: 0; height: 1px;
-      background: linear-gradient(90deg, var(--sa-or), transparent);
-    }
-
-    /* corner brackets */
-    .kpi-card::after {
-      content: ''; position: absolute; bottom: 3px; right: 3px;
-      width: 8px; height: 8px;
-      border-right: 1px solid rgba(255,140,0,0.3);
-      border-bottom: 1px solid rgba(255,140,0,0.3);
-    }
-
-    .kpi-card:hover { transform: translateY(-2px); border-color: rgba(255,140,0,0.42); }
-
-    .kpi-label {
-      font-family: 'Press Start 2P', monospace;
-      font-size: 5.5px; letter-spacing: 0.1em; text-transform: uppercase;
-      color: var(--muted); margin-bottom: 8px;
-    }
-
-    .kpi-value {
-      font-family: 'Press Start 2P', monospace; font-size: 22px;
-      color: var(--sa-amb); line-height: 1; margin-bottom: 7px;
-      text-shadow: 0 0 12px rgba(245,200,66,0.35);
-    }
-
-    .kpi-status { font-size: 8px; display: flex; align-items: center; gap: 4px; }
-    .kpi-status.ok   { color: var(--sa-grn); }
-    .kpi-status.warn { color: var(--sa-or); }
-    .kpi-status.alrt { color: var(--sa-red); }
-    .kpi-emoji { position: absolute; right: 12px; top: 12px; font-size: 16px; opacity: 0.35; }
-
-    /* Panels */
-    .panels { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
-
-    .panel {
-      background: rgba(9,12,16,0.95);
-      border: 1px solid rgba(255,140,0,0.18);
-      overflow: hidden; position: relative;
-      animation: fadeUp 0.5s ease 0.2s both;
-    }
-
-    /* panel corner brackets */
-    .panel::before {
-      content: ''; position: absolute; top: 3px; left: 3px;
-      width: 10px; height: 10px;
-      border-top: 1px solid rgba(255,140,0,0.4);
-      border-left: 1px solid rgba(255,140,0,0.4);
-      z-index: 1;
-    }
-
-    .panel::after {
-      content: ''; position: absolute; bottom: 3px; right: 3px;
-      width: 10px; height: 10px;
-      border-bottom: 1px solid rgba(255,140,0,0.4);
-      border-right: 1px solid rgba(255,140,0,0.4);
-      z-index: 1;
-    }
-
-    .panel-head {
-      padding: 11px 16px; border-bottom: 1px solid rgba(255,140,0,0.15);
-      display: flex; align-items: center; justify-content: space-between;
-      background: rgba(255,140,0,0.03);
-    }
-
-    .panel-title {
-      font-family: 'Press Start 2P', monospace;
-      font-size: 7px; letter-spacing: 0.06em; color: var(--sa-or);
-    }
-
-    .panel-tag {
-      font-family: 'Press Start 2P', monospace;
-      font-size: 6px; padding: 3px 8px; letter-spacing: 0.08em;
-    }
-
-    .tag-green { background: rgba(94,203,62,0.08);  color: var(--sa-grn); border: 1px solid rgba(94,203,62,0.3); }
-    .tag-cyan  { background: rgba(34,191,204,0.08); color: var(--sa-cyan);border: 1px solid rgba(34,191,204,0.3); }
-    .tag-red   { background: rgba(214,60,30,0.1);   color: var(--sa-red); border: 1px solid rgba(214,60,30,0.3); }
-    .tag-gold  { background: rgba(245,200,66,0.1);  color: var(--sa-amb); border: 1px solid rgba(245,200,66,0.3); }
-
-    .panel-body { padding: 12px 16px; }
-
-    /* Log feed */
-    .log-item {
-      display: flex; align-items: flex-start; gap: 10px;
-      padding: 8px 0; border-bottom: 1px solid rgba(255,140,0,0.08);
-    }
-    .log-item:last-child { border-bottom: none; }
-
-    .log-dot { width: 6px; height: 6px; border-radius: 50%; margin-top: 4px; flex-shrink: 0; }
-    .dot-green { background: var(--sa-grn); box-shadow: 0 0 5px rgba(94,203,62,.7); }
-    .dot-cyan  { background: var(--sa-cyan);box-shadow: 0 0 5px rgba(34,191,204,.7); }
-    .dot-amber { background: var(--sa-or);  box-shadow: 0 0 5px rgba(255,140,0,.7); }
-    .dot-red   { background: var(--sa-red); box-shadow: 0 0 5px rgba(214,60,30,.7); }
-
-    .log-text { font-size: 9px; line-height: 1.5; color: var(--text); }
-    .log-time { font-size: 8px; color: var(--muted); margin-top: 1px; }
-
-    /* Right col wrapper */
-    .right-col { display: flex; flex-direction: column; gap: 14px; }
-
-    /* Radar */
-    .radar-wrap { display: flex; flex-direction: column; align-items: center; padding: 10px 0 6px; }
-
-    .radar {
-      width: 140px; height: 140px;
-      border: 1px solid rgba(255,140,0,0.3); border-radius: 50%;
-      position: relative;
-      background: radial-gradient(circle, rgba(255,140,0,0.04) 0%, transparent 70%);
-    }
-
-    .radar::before {
-      content: ''; position: absolute; inset: 0; border-radius: 50%;
-      background: conic-gradient(from 0deg, rgba(255,140,0,0.28) 0deg, transparent 50deg);
-      animation: sweep 4s linear infinite;
-    }
-
-    .radar::after {
-      content: ''; position: absolute; inset: -1px; border-radius: 50%;
-      border: 1px solid rgba(255,140,0,0.4);
-      animation: pulseRing 3.5s infinite;
-    }
-
-    .radar-cross { position: absolute; inset: 0; }
-    .radar-cross::before, .radar-cross::after { content: ''; position: absolute; background: rgba(255,140,0,0.1); }
-    .radar-cross::before { width: 1px; top: 0; bottom: 0; left: 50%; }
-    .radar-cross::after  { height: 1px; left: 0; right: 0; top: 50%; }
-
-    .radar-center {
-      position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%);
-      width: 5px; height: 5px; background: var(--sa-red); border-radius: 50%;
-      box-shadow: 0 0 8px var(--sa-red);
-    }
-
-    .radar-blip {
-      position: absolute; border-radius: 50%;
-    }
-
-    .blip-gold  { width: 6px; height: 6px; background: var(--sa-amb); box-shadow: 0 0 7px var(--sa-amb); }
-    .blip-green { width: 5px; height: 5px; background: var(--sa-grn); box-shadow: 0 0 5px var(--sa-grn); animation: blink 2s infinite .7s; }
-
-    .radar-data {
-      font-family: 'Press Start 2P', monospace; font-size: 5px;
-      color: var(--muted); text-align: center; margin-top: 10px; line-height: 2.2; letter-spacing: 0.1em;
-    }
-    .radar-data span { color: var(--sa-or); }
-
-    /* Freq rows */
-    .freq-row {
-      display: flex; align-items: center; gap: 8px;
-      padding: 8px 0; border-bottom: 1px solid rgba(255,140,0,0.08);
-    }
-    .freq-row:last-child { border-bottom: none; }
-    .freq-code { font-family:'Press Start 2P',monospace; font-size: 8px; color: var(--sa-cyan); width: 60px; flex-shrink: 0; }
-    .freq-desc { flex: 1; font-size: 9px; color: var(--muted); }
-
-    /* Ticker */
-    .ticker {
-      border-top: 1px solid rgba(255,140,0,0.2); height: 30px;
-      display: flex; align-items: center; overflow: hidden;
-      background: rgba(255,140,0,0.04);
-    }
-
-    .ticker-label {
-      padding: 0 12px; font-family:'Press Start 2P',monospace; font-size: 6px;
-      color: var(--sa-or); letter-spacing: 0.15em;
-      border-right: 1px solid rgba(255,140,0,0.2); white-space: nowrap; flex-shrink: 0;
-    }
-
-    .ticker-track { flex: 1; overflow: hidden; }
-
-    .ticker-inner {
-      display: flex; align-items: center; animation: ticker 30s linear infinite;
-      white-space: nowrap; font-family:'Press Start 2P',monospace; font-size: 6px;
-      color: var(--muted); letter-spacing: 0.08em;
-    }
-
-    .ticker-inner span { color: var(--sa-or); margin: 0 8px; }
-
-    @keyframes sweep    { from{transform:rotate(0deg)} to{transform:rotate(360deg)} }
-    @keyframes pulseRing{ 0%{transform:scale(.55);opacity:.8} 100%{transform:scale(1.2);opacity:0} }
-    @keyframes fadeUp   { from{opacity:0;transform:translateY(12px)} to{opacity:1;transform:translateY(0)} }
-    @keyframes ticker   { from{transform:translateX(100%)} to{transform:translateX(-100%)} }
-
-    .kpi-card:nth-child(1){animation-delay:.05s}
-    .kpi-card:nth-child(2){animation-delay:.10s}
-    .kpi-card:nth-child(3){animation-delay:.15s}
-    .kpi-card:nth-child(4){animation-delay:.20s}
-
-    /* Mobile */
-    @media(max-width:768px){
-      .sidebar{position:relative;width:100%;border-right:none;border-bottom:1px solid rgba(255,140,0,.2)}
-      .main{margin-left:0}
-      .panels{grid-template-columns:1fr}
-      .kpi-grid{grid-template-columns:1fr 1fr}
-      .content{padding:14px}
-      .topbar{padding:0 12px}
-      html,body{overflow-y:auto;height:auto}
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Colombia Wars RP - Dashboard</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        :root {
+            --sidebar-bg: #0b1120;
+            --item-active-bg: #111e3d;
+            --item-hover-bg: #16223f;
+            --text-main: #d1d5db;
+            --text-dim: #4b5563;
+            --accent-blue: #2563eb;
+            --accent-yellow: #eab308;
+            --accent-red: #dc2626;
+            --accent-green: #22c55e;
+            --icon-bg: #1e293b;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', sans-serif; }
+
+        body {
+            display: flex;
+            height: 100vh;
+            background-color: #0f172a;
+            color: white;
+            overflow: hidden;
+        }
+
+        /* SIDEBAR */
+        .sidebar {
+            width: 320px;
+            background-color: var(--sidebar-bg);
+            display: flex;
+            flex-direction: column;
+            border-right: 1px solid #1e293b;
+            overflow-y: auto;
+        }
+
+        .sidebar::-webkit-scrollbar { width: 5px; }
+        .sidebar::-webkit-scrollbar-thumb { background: #1e293b; border-radius: 10px; }
+
+        .sidebar-header { padding: 25px 20px; }
+        .brand { display: flex; align-items: center; gap: 12px; margin-bottom: 30px; }
+        .brand img { width: 45px; height: auto; border-radius: 4px; }
+        .brand h1 { font-size: 18px; font-weight: 800; letter-spacing: 0.5px; }
+        .brand p { font-size: 11px; color: var(--text-dim); text-transform: uppercase; }
+
+        .user-status-card {
+            background: linear-gradient(135deg, #1e3a8a 0%, #0b1120 100%);
+            padding: 15px; border-radius: 12px; display: flex; align-items: center; gap: 12px;
+            border: 1px solid #1e40af; margin-bottom: 20px;
+        }
+
+        .user-avatar { width: 45px; height: 45px; background: var(--accent-blue); border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 20px; }
+        
+        /* NAVEGACIÓN */
+        .nav-label { padding: 15px 25px 8px; font-size: 11px; font-weight: 700; color: #334155; text-transform: uppercase; letter-spacing: 1px; }
+
+        .nav-item {
+            display: flex; align-items: center; padding: 10px 20px; text-decoration: none;
+            color: #94a3b8; font-size: 14px; font-weight: 600; transition: 0.2s ease;
+            position: relative; margin: 2px 10px; border-radius: 8px;
+        }
+
+        .nav-item:hover, .nav-item.active { background-color: var(--item-hover-bg); color: white; }
+        .nav-item.active { background-color: var(--item-active-bg); border: 1px solid #1e3a8a; }
+
+        .icon-box { width: 38px; height: 38px; background-color: var(--icon-bg); border-radius: 8px; display: flex; align-items: center; justify-content: center; margin-right: 15px; font-size: 16px; }
+
+        .count-badge { margin-left: auto; font-size: 11px; font-weight: 800; padding: 2px 8px; border-radius: 20px; }
+        .badge-blue { background: #1e40af; color: white; }
+        .badge-red { background: var(--accent-red); color: white; }
+        .badge-green { background: var(--accent-green); color: #064e3b; font-size: 9px; }
+
+        /* CONTENIDO */
+        .content { flex: 1; padding: 40px; background: radial-gradient(circle at top right, #111827, #020617); overflow-y: auto; }
+
+        .tactical-box {
+            background: rgba(11, 17, 32, 0.5);
+            border: 1px solid #1e293b;
+            border-radius: 8px;
+            padding: 25px;
+            margin-top: 20px;
+        }
+
+        .log-entry {
+            display: flex; gap: 15px; padding: 12px;
+            border-left: 3px solid var(--accent-blue);
+            background: rgba(255,255,255,0.02);
+            margin-bottom: 10px;
+            border-radius: 0 4px 4px 0;
+        }
+    </style>
 </head>
 <body>
 
-<div class="city-bg"></div>
-<div class="city-lights"></div>
-<div class="scanlines"></div>
-<div class="fly-plane">✈️</div>
-<div class="colombia-bar"><div class="f-y"></div><div class="f-b"></div><div class="f-r"></div></div>
-
-<!-- ══ SIDEBAR ════════════════════════════════════════ -->
-<aside class="sidebar">
-  <div class="logo">
-    <div class="logo-icon">🛡️</div>
-    <div>
-      <div class="logo-text">SAM SUKV</div>
-      <div class="logo-sub">COMANDO CENTRAL · CO</div>
-      <div class="logo-sub2">GUERRAS MUNDIALES RP · MTA:SA</div>
-    </div>
-    <div class="flag-v"><div class="fv-y"></div><div class="fv-b"></div><div class="fv-r"></div></div>
-  </div>
-
-  <div class="op-badge">
-    <div class="avatar">OP</div>
-    <div class="op-info">
-      <div class="op-name">Operador Activo</div>
-      <div class="op-role">COMANDO ÉLITE</div>
-    </div>
-    <div class="status-dot"></div>
-  </div>
-
-  <nav class="nav">
-    <div class="nav-label">Personal y Comando</div>
-
-    <a href="index3.html" class="nav-item active">
-      <div class="nav-icon">📋</div>
-      <span>Personal RP</span>
-    </a>
-
-    <a href="FuerzaAE.html" class="nav-item">
-      <div class="nav-icon">✈️</div>
-      <span>Pilotos de Facción</span>
-    </a>
-
-    <a href="FE.html" class="nav-item elite">
-      <div class="nav-icon">💀</div>
-      <span>CNOE — OP. ESPECIALES</span>
-    </a>
-
-    <div class="nav-divider"></div>
-    <div class="nav-label">Operaciones Tácticas</div>
-
-    <a href="Codigos.html" class="nav-item">
-      <div class="nav-icon">📻</div>
-      <span>Frecuencias y Códigos</span>
-    </a>
-
-    <a href="mapa_tactico.html" class="nav-item">
-      <div class="nav-icon">📡</div>
-      <span>Radar de Misión</span>
-    </a>
-
-     <a href="PanelAdm.html" class="nav-item">
-      <div class="nav-icon">🌐</div>
-      <span>Menu Admin</span>
-    </a>
-
-    <div class="nav-divider"></div>
-    <div class="nav-label">Reglamento</div>
-
-    <a href="ReglaInterna.html" class="nav-item">
-      <div class="nav-icon">📜</div>
-      <span>Régimen Interno</span>
-    </a>
-
-    <a href="Rangos.html" class="nav-item">
-      <div class="nav-icon">🏅</div>
-      <span>Jerarquía Militar</span>
-    </a>
-  </nav>
-
-  <div class="sidebar-footer">
-    <div class="clock-display" id="clock">00:00:00</div>
-    <div class="coord-line">COORD: 4.711 // -74.072</div>
-  </div>
-</aside>
-
-<!-- ══ MAIN ══════════════════════════════════════════ -->
-<div class="main">
-
-  <header class="topbar">
-    <div class="topbar-left">
-      <div class="sys-title">SISTEMA RP // SAM SUKV</div>
-      <div class="sys-sub">COMANDO CENTRAL — COLOMBIA · GUERRAS MUNDIALES RP · MTA:SA</div>
-    </div>
-    <div class="topbar-actions">
-      <div class="signal-tag"><div class="signal-dot"></div>SEÑAL ACTIVA</div>
-      <button class="icon-btn">🔔</button>
-      <button class="icon-btn">⚙</button>
-    </div>
-  </header>
-
-  <main class="content">
-    <div class="page-title">PANEL DE OPERACIONES</div>
-    <div class="page-desc">Estado del sistema · COLOMBIA · Actualizado en tiempo real · MTA:SA</div>
-
-    <!-- KPIs -->
-    <div class="kpi-grid">
-      <div class="kpi-card">
-        <div class="kpi-emoji">🪖</div>
-        <div class="kpi-label">Personal Activo</div>
-        <div class="kpi-value" id="c1">0</div>
-        <div class="kpi-status ok">● OPERATIVO</div>
-      </div>
-      <div class="kpi-card">
-        <div class="kpi-emoji">📡</div>
-        <div class="kpi-label">Señal Satelital</div>
-        <div class="kpi-value" id="c2">0</div>
-        <div class="kpi-status ok">● SINCRO ESTABLE</div>
-      </div>
-      <div class="kpi-card">
-        <div class="kpi-emoji">⚠️</div>
-        <div class="kpi-label">Alertas Activas</div>
-        <div class="kpi-value" id="c3">0</div>
-        <div class="kpi-status warn">● NIVEL AMARILLO</div>
-      </div>
-      <div class="kpi-card">
-        <div class="kpi-emoji">💀</div>
-        <div class="kpi-label">Ops. Especiales</div>
-        <div class="kpi-value" id="c4">0</div>
-        <div class="kpi-status alrt">● EN CURSO</div>
-      </div>
-    </div>
-
-    <!-- Panels -->
-    <div class="panels">
-
-      <!-- Log -->
-      <div class="panel">
-        <div class="panel-head">
-          <span class="panel-title">REGISTRO TACTICO</span>
-          <span class="panel-tag tag-green">OPERACIONES</span>
-        </div>
-        <div class="panel-body">
-          <div class="log-item">
-            <div class="log-dot dot-green"></div>
-            <div>
-              <div class="log-text">Operador <strong>ECO-024</strong> — Bombardeo Zona ECHO 01 Grove Street</div>
-              <div class="log-time">hace 140 horas</div>
+    <aside class="sidebar">
+        <div class="sidebar-header">
+            <div class="brand">
+                <img src="https://upload.wikimedia.org/wikipedia/commons/2/21/Flag_of_Colombia.svg" alt="Col">
+                <div>
+                    <h1>COLOMBIA WARS RP</h1>
+                    <p>GTA SA • MTA • Guerras Mundiales</p>
+                </div>
             </div>
-          </div>
-         
-          <div class="log-item">
-            <div class="log-dot dot-cyan"></div>
-            <div>
-              <div class="log-text">Enfrentamiento <strong></strong>San Fierro</div>
-              <div class="log-time">hace 60 horas</div>
-            </div>
-          </div>
-          <div class="log-item">
-            
-          
-          </div>
-          <div class="log-item">
-          </div>
-        </div>
-      </div>
 
-      <!-- Right col -->
-      <div class="right-col">
-
-        <!-- Radar -->
-        <div class="panel">
-          <div class="panel-head">
-            <span class="panel-title">RADAR DE MISION</span>
-            <span class="panel-tag tag-cyan">ACTIVO</span>
-          </div>
-          <div class="panel-body">
-            <div class="radar-wrap">
-              <div class="radar">
-                <div class="radar-cross"></div>
-                <div class="radar-center"></div>
-                <div class="radar-blip blip-gold" style="top:30%;left:60%"></div>
-                <div class="radar-blip blip-green" style="top:65%;left:35%"></div>
-                <div class="radar-blip blip-gold" style="top:44%;left:72%;animation-delay:1s;width:5px;height:5px"></div>
-              </div>
-              <div class="radar-data">
-                COORD: <span>4.711 // -74.072</span><br>
-                SINCRO: <span>ESTABLE</span> · PING: <span>42ms</span>
-              </div>
+            <div class="user-status-card">
+                <div class="user-avatar"><i class="fas fa-helmet-battle"></i></div>
+                <div class="user-info">
+                    <h4>Operador Activo</h4>
+                    <p>// BANDO COLOMBIA</p>
+                </div>
+                <div style="width: 10px; height: 10px; background: var(--accent-green); border-radius: 50%; margin-left: auto; box-shadow: 0 0 10px var(--accent-green);"></div>
             </div>
-          </div>
         </div>
 
-       
-      </div>
-    </div>
-  </main>
+        <div class="nav-label">// Menú Principal</div>
+        <a href="index1.html" class="nav-item active">
+            <div class="icon-box"><i class="fas fa-home" style="color: #f59e0b;"></i></div>
+            PANEL DE MANDO
+        </a>
+        <a href="index3.html" class="nav-item">
+            <div class="icon-box"><i class="fas fa-id-badge"></i></div>
+            PERSONAL RP
+            <span class="count-badge badge-blue">DB</span>
+        </a>
+        <a href="gestion_pilotos.html" class="nav-item">
+            <div class="icon-box"><i class="fas fa-plane"></i></div>
+            PILOTOS DE FACCIÓN
+        </a>
+        <a href="FE.html" class="nav-item">
+            <div class="icon-box"><i class="fas fa-bolt" style="color: #f87171;"></i></div>
+            CNOE — OPS. ESPECIALES
+            <span class="count-badge badge-red">3</span>
+        </a>
 
-  <!-- Ticker -->
-  <footer class="ticker">
-    <div class="ticker-label">★ Desarollador Sam Sukv </div>
-    <div class="ticker-track">
-      <div class="ticker-inner">
-        
-        <span>★</span> CONEXION ESTABLE
-        <span>★</span> BIENVENIDO SOLDADO
-        <span>★</span> CNOE EN ALERTA NIVEL 2
-        <span>★</span> PROGRAMADOR: SAM SUKV
-       
-        <span>★</span> PROGRAMADOR: SAM SUKV
-        <span>★</span> GUERRAS MUNDIALES RP · MTA:SA
-        <span>★</span> PROGRAMADOR: SAM SUKV
-        &nbsp;&nbsp;&nbsp;&nbsp;
-        <span>★</span> CONEXION ESTABLE
-        <span>★</span> BIENVENIDO SOLDADO
-        <span>★</span> GUERRAS MUNDIALES RP · MTA:SA
-      </div>
-    </div>
-  </footer>
-</div>
+        <a href="Codigos.html" class="nav-item">
+            <div class="icon-box"><i class="fas fa-satellite-dish"></i></div>
+            FRECUENCIAS Y CÓDIGOS
+        </a>
+        <a href="mapa_tactico.html" class="nav-item">
+            <div class="icon-box"><i class="fas fa-bullseye" style="color: #ec4899;"></i></div>
+            RADAR DE MISIÓN
+        </a>
 
-<script>
-  function tick() {
-    document.getElementById('clock').textContent = new Date().toLocaleTimeString('es-CO');
-  }
-  setInterval(tick, 1000); tick();
+        <div class="nav-label">// Administración</div>
+        <a href="Incorporacion.html" class="nav-item">
+            <div class="icon-box"><i class="fas fa-inbox"></i></div>
+            CONVOCATORIAS
+            <span class="count-badge badge-green">NEW</span>
+        </a>
+        <a href="PanelAdm.html" class="nav-item">
+            <div class="icon-box"><i class="fas fa-cog"></i></div>
+            ADMINISTRATIVO
+        </a>
+        <a href="Rangos.html" class="nav-item">
+            <div class="icon-box"><i class="fas fa-trophy" style="color: #fbbf24;"></i></div>
+            JERARQUÍA MILITAR
+        </a>
 
-  function counter(el, target, dur=1400) {
-    let v=0; const step=target/(dur/16);
-    const t=setInterval(()=>{ v+=step; if(v>=target){v=target;clearInterval(t);} el.textContent=Math.floor(v); },16);
-  }
-  counter(document.getElementById('c1'), 17);
-  counter(document.getElementById('c2'), 0);
-  counter(document.getElementById('c3'), 0);
-  counter(document.getElementById('c4'), 0);
+        <div style="margin-top: auto; padding: 20px 0; border-top: 1px solid #1e293b;">
+            <a href="ReglaInterna.html" class="nav-item">
+                <div class="icon-box"><i class="fas fa-file-alt"></i></div>
+                REGLAMENTO
+            </a>
+            <a href="https://discord.gg/NbzkaAjm" target="_blank" class="nav-item">
+                <div class="icon-box"><i class="fab fa-discord"></i></div>
+                DISCORD
+            </a>
+        </div>
+    </aside>
 
-  document.querySelectorAll('.nav-item:not(.elite)').forEach(el => {
-    el.addEventListener('click', () => {
-      document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
-      el.classList.add('active');
-    });
-  });
-</script>
+    <main class="content">
+        <h2 style="font-size: 28px; font-weight: 800; margin-bottom: 5px;">PANEL DE <span style="color: var(--accent-yellow);">CONTROL</span></h2>
+        <p style="color: #64748b; font-size: 11px; text-transform: uppercase; margin-bottom: 30px;">Sincronización directa con base de datos militar</p>
+
+        <div class="tactical-box">
+            <div style="display: flex; justify-content: space-between; border-bottom: 1px solid #1e293b; padding-bottom: 15px; margin-bottom: 20px;">
+                <h3 style="font-size: 11px; color: var(--accent-yellow); letter-spacing: 2px;">REGISTRO TÁCTICO EN VIVO</h3>
+                <span id="status-link" style="color: var(--accent-green); font-family: monospace; font-size: 12px;"><i class="fas fa-link"></i> EN LINEA</span>
+            </div>
+
+            <div id="feed-principal">
+                <p style="color: #4b5563; font-family: monospace; font-size: 12px;">ESPERANDO DATOS DE FUNCTION/DASHBOARD_GLOBAL...</p>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        async function actualizarFeed() {
+            const feed = document.getElementById('feed-principal');
+            try {
+                // RUTA CORREGIDA: Apunta a /dashboard_global que es el archivo en functions/
+                const res = await fetch('/dashboard_global');
+                const data = await res.json();
+                
+                if(data && data.length > 0) {
+                    feed.innerHTML = "";
+                    data.forEach(log => {
+                        let config = { color: "var(--accent-blue)", icon: "fa-user-shield" };
+                        
+                        // Si es piloto (placa CDT), color verde. Si es sanción, rojo.
+                        if(log.placa?.includes('CDT')) { config = { color: "var(--accent-green)", icon: "fa-plane" }; }
+                        if(log.tipo === 'sancion') { config = { color: "var(--accent-red)", icon: "fa-gavel" }; }
+
+                        feed.innerHTML += `
+                            <div class="log-entry" style="border-left-color: ${config.color}">
+                                <div style="color: ${config.color}; font-size: 18px; padding-left: 5px;"><i class="fas ${config.icon}"></i></div>
+                                <div style="flex: 1;">
+                                    <div style="display: flex; justify-content: space-between;">
+                                        <span style="font-weight: 800; font-size: 13px;">${log.nombre_ic} <span style="color: #4b5563; font-weight: 400;">[${log.rango}]</span></span>
+                                        <span style="font-size: 10px; color: #4b5563;">SISTEMA D1</span>
+                                    </div>
+                                    <p style="font-size: 11px; color: #94a3b8; margin-top: 4px;">Placa: ${log.placa} • Estado: Activo en sistema.</p>
+                                </div>
+                            </div>
+                        `;
+                    });
+                }
+            } catch (e) {
+                console.error("Error cargando de functions:", e);
+                feed.innerHTML = "<p style='color: var(--accent-red); font-size: 11px;'>ERROR: No se pudo contactar con function/dashboard_global</p>";
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', actualizarFeed);
+        // Actualiza cada 30 segundos
+        setInterval(actualizarFeed, 30000);
+    </script>
 </body>
 </html>
-
