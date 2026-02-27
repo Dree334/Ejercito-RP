@@ -294,7 +294,7 @@
             </div>
         </div>
         <div class="lp-header">
-            <h1><span>S.U.K.V.</span> V4.0</h1>
+            <h1><span>PANEL ADMIN</span> V4.0</h1>
             <div class="sub">ESTADO MAYOR · ACCESO RESTRINGIDO</div>
         </div>
         <div class="lp-divider"></div>
@@ -455,7 +455,7 @@
         if(u===CREDS.user && p===CREDS.pass){
             e.style.color='#42a5f5';
             e.textContent='[ ACCESO CONCEDIDO — BIENVENIDO, COMANDANTE ]';
-            sessionStorage.setItem('sukv_auth','1');
+
             setTimeout(()=>{
                 const ol=document.getElementById('login-overlay');
                 ol.classList.add('fade-out');
@@ -481,13 +481,7 @@
     }
 
     /* ── INIT ── */
-    document.addEventListener('DOMContentLoaded',()=>{
-        if(sessionStorage.getItem('sukv_auth')==='1'){
-            document.getElementById('login-overlay').style.display='none';
-            document.getElementById('app').classList.add('visible');
-            cargarStats();
-        }
-    });
+    // Login siempre requerido al entrar
 </script>
 </body>
 </html>
