@@ -2,35 +2,36 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>S.U.K.V. V4.0 - Sanciones</title>
+    <title>S.U.K.V. V4.0 - Panel de Sanciones</title>
     <style>
-        body { background-color: #020814; color: white; font-family: sans-serif; padding: 20px; }
-        .registro-box { border: 1px solid #1a2a44; padding: 15px; width: 350px; margin-bottom: 20px; background: #050d1d; }
-        input, textarea { width: 90%; margin-bottom: 10px; padding: 8px; background: #0a1629; border: 1px solid #1e3a5f; color: white; }
-        button { background: #1e3a5f; color: white; border: none; padding: 10px; cursor: pointer; width: 95%; }
+        body { background: #020814; color: white; font-family: 'Segoe UI', sans-serif; padding: 20px; }
+        .form-container { background: #050d1d; border: 1px solid #1a2a44; padding: 20px; width: 350px; margin-bottom: 20px; }
+        input, textarea { width: 90%; background: #0a1629; border: 1px solid #1e3a5f; color: white; padding: 10px; margin-bottom: 10px; }
+        button { background: #1e3a5f; color: white; border: none; padding: 12px; width: 97%; cursor: pointer; font-weight: bold; }
+        button:hover { background: #2a5284; }
         table { width: 100%; border-collapse: collapse; margin-top: 20px; }
-        th { background: #0a1629; color: #4eef3a; padding: 10px; text-align: left; }
-        td { padding: 10px; border-bottom: 1px solid #112244; }
+        th { background: #0a1629; color: #4eef3a; padding: 12px; text-align: left; border-bottom: 2px solid #1a2a44; }
+        td { padding: 12px; border-bottom: 1px solid #112244; }
     </style>
 </head>
 <body>
 
-    <h2>ADMINISTRACIÓN DE SANCIONES</h2>
+    <h2>ADMINISTRACIÓN DE JUSTICIA MILITAR</h2>
 
-    <div class="registro-box">
-        <input type="text" id="nombre_ic" placeholder="Nombre IC">
-        <input type="text" id="placa" placeholder="Placa">
-        <input type="text" id="discord" placeholder="Nombre Discord">
-        <textarea id="motivo" placeholder="Motivo de la sanción"></textarea>
-        <button onclick="ejecutarSancion()">REGISTRAR SANCIÓN</button>
+    <div class="form-container">
+        <input type="text" id="nombre_ic" placeholder="NOMBRE IC">
+        <input type="text" id="placa" placeholder="NÚMERO DE PLACA">
+        <input type="text" id="discord" placeholder="DISCORD">
+        <textarea id="motivo" placeholder="MOTIVO DEL STRIKE" rows="3"></textarea>
+        <button onclick="ejecutarSancion()">REGISTRAR EN BASE DE DATOS</button>
     </div>
 
-    <table border="1">
+    <table>
         <thead>
             <tr>
                 <th>SOLDADO</th>
                 <th>PLACA</th>
-                <th>NIVEL</th>
+                <th>ESTADO</th>
                 <th>FECHA</th>
             </tr>
         </thead>
@@ -39,6 +40,7 @@
     </table>
 
     <script>
+        // CARGAR SANCIONES AL INICIAR
         async function cargarRegistros() {
             try {
                 const res = await fetch('/api/sancionar');
@@ -46,18 +48,21 @@
                 const tabla = document.getElementById('tabla-registros');
                 tabla.innerHTML = "";
 
+                if (datos.error) { console.error(datos.error); return; }
+
                 datos.forEach(s => {
                     tabla.innerHTML += `
                         <tr>
                             <td>${s.nombre_ic}</td>
                             <td>${s.placa}</td>
-                            <td style="color:red;">STRIKE ${s.nivel}</td>
+                            <td style="color:#ff4d4d">STRIKE ${s.nivel}</td>
                             <td>${s.fecha}</td>
                         </tr>`;
                 });
-            } catch (e) { console.error("Error al cargar tabla."); }
+            } catch (e) { console.error("Error de conexión"); }
         }
 
+        // ENVIAR NUEVA SANCIÓN
         async function ejecutarSancion() {
             const payload = {
                 nombre_ic: document.getElementById('nombre_ic').value,
@@ -75,10 +80,10 @@
             });
 
             if (res.ok) {
-                alert("✅ Sanción Enviada");
+                alert("✅ Sanción Procesada");
                 cargarRegistros();
             } else {
-                alert("❌ Fallo en Servidor");
+                alert("❌ Error en el Servidor Central");
             }
         }
 
