@@ -2,91 +2,807 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
-<title>Fuerza Aérea - Personal Activo</title>
-
+<title>Fuerza Aérea Colombiana - Personal Activo</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Rajdhani:wght@400;500;600;700&family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
 <style>
-body {
-  background: #0f172a;
-  color: white;
-  font-family: Arial;
-  padding: 40px;
-}
+  :root {
+    --gold: #c9a84c;
+    --gold-light: #f0d080;
+    --red-rank: #e63946;
+    --gray-recruit: #7a8a9a;
+    --dark: #060c14;
+    --panel: #0d1b2a;
+    --panel2: #112236;
+    --border: rgba(201,168,76,0.3);
+    --green-col: #003893;
+    --yellow-col: #FCD116;
+    --red-col: #CE1126;
+  }
 
-h1 {
-  text-align: center;
-}
+  * { margin: 0; padding: 0; box-sizing: border-box; }
 
-table {
-  width: 100%;
-  border-collapse: collapse;
-  margin-top: 30px;
-  background: #1e293b;
-}
+  body {
+    background: var(--dark);
+    font-family: 'Rajdhani', sans-serif;
+    min-height: 100vh;
+    overflow-x: hidden;
+    color: #cdd6e8;
+  }
 
-th, td {
-  padding: 12px;
-  border-bottom: 1px solid #334155;
-  text-align: center;
-}
+  /* ── BACKGROUND GRID ── */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(201,168,76,0.04) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(201,168,76,0.04) 1px, transparent 1px);
+    background-size: 40px 40px;
+    pointer-events: none;
+    z-index: 0;
+  }
 
-th {
-  background: #145A32;
-}
+  /* ── HERO HEADER ── */
+  header {
+    position: relative;
+    width: 100%;
+    height: 340px;
+    overflow: hidden;
+    z-index: 1;
+  }
 
-tr:hover {
-  background: #273549;
-}
+  .hero-bg {
+    position: absolute;
+    inset: 0;
+    background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg"/>') center/cover;
+    background-image: linear-gradient(160deg, #0a1628 0%, #1a2f50 40%, #0a1628 100%);
+  }
+
+  /* Soldier silhouette overlay */
+  .hero-bg::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(to right, rgba(6,12,20,0.95) 30%, rgba(6,12,20,0.4) 70%, rgba(6,12,20,0.85) 100%);
+  }
+
+  .hero-img {
+    position: absolute;
+    right: 0;
+    top: 0;
+    height: 100%;
+    width: 55%;
+    object-fit: cover;
+    object-position: center top;
+    mask-image: linear-gradient(to left, rgba(0,0,0,0.8) 40%, transparent 100%);
+    -webkit-mask-image: linear-gradient(to left, rgba(0,0,0,0.8) 40%, transparent 100%);
+    opacity: 0.55;
+  }
+
+  .hero-content {
+    position: relative;
+    z-index: 2;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 0 60px;
+  }
+
+  .escudo-line {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 12px;
+  }
+
+  .shield-icon {
+    width: 48px;
+    height: 48px;
+    border: 2px solid var(--gold);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
+    background: rgba(201,168,76,0.15);
+    font-size: 22px;
+    flex-shrink: 0;
+  }
+
+  .org-label {
+    font-family: 'Orbitron', monospace;
+    font-size: 11px;
+    letter-spacing: 4px;
+    color: var(--gold);
+    text-transform: uppercase;
+  }
+
+  .hero-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(42px, 6vw, 72px);
+    letter-spacing: 6px;
+    line-height: 1;
+    color: #ffffff;
+    text-shadow: 0 0 40px rgba(201,168,76,0.4);
+  }
+
+  .hero-title span {
+    color: var(--gold);
+  }
+
+  .hero-sub {
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 15px;
+    letter-spacing: 3px;
+    color: #6a8aaa;
+    margin-top: 8px;
+    text-transform: uppercase;
+  }
+
+  .hero-divider {
+    width: 180px;
+    height: 2px;
+    background: linear-gradient(to right, var(--gold), transparent);
+    margin-top: 18px;
+  }
+
+  /* ── COLOMBIA FLAG ANIMATION ── */
+  .flag-container {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    z-index: 10;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .flag-pole {
+    width: 3px;
+    height: 80px;
+    background: linear-gradient(to bottom, #d4af37, #a0824a);
+    border-radius: 2px;
+    position: relative;
+  }
+
+  .flag-pole::before {
+    content: '✦';
+    position: absolute;
+    top: -10px;
+    left: 50%;
+    transform: translateX(-50%);
+    color: var(--gold);
+    font-size: 12px;
+  }
+
+  .flag-wave {
+    width: 90px;
+    height: 55px;
+    position: absolute;
+    top: 8px;
+    left: 3px;
+    border-radius: 0 4px 4px 0;
+    overflow: hidden;
+    transform-origin: left center;
+    animation: wave 2.5s ease-in-out infinite;
+    box-shadow: 4px 4px 12px rgba(0,0,0,0.5);
+  }
+
+  .flag-wave .stripe { height: 33.33%; width: 100%; }
+  .stripe-yellow { background: #FCD116; }
+  .stripe-blue   { background: #003893; }
+  .stripe-red    { background: #CE1126; }
+
+  @keyframes wave {
+    0%   { transform: skewY(0deg) scaleX(1); }
+    25%  { transform: skewY(-3deg) scaleX(0.95); }
+    50%  { transform: skewY(0deg) scaleX(1.05); }
+    75%  { transform: skewY(3deg) scaleX(0.95); }
+    100% { transform: skewY(0deg) scaleX(1); }
+  }
+
+  .flag-label {
+    font-family: 'Orbitron', monospace;
+    font-size: 8px;
+    letter-spacing: 2px;
+    color: var(--gold);
+    text-align: center;
+  }
+
+  /* ── STATS BAR ── */
+  .stats-bar {
+    position: relative;
+    z-index: 1;
+    background: rgba(13,27,42,0.95);
+    border-top: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
+    padding: 16px 60px;
+    display: flex;
+    gap: 40px;
+    align-items: center;
+    backdrop-filter: blur(10px);
+  }
+
+  .stat-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .stat-num {
+    font-family: 'Orbitron', monospace;
+    font-size: 26px;
+    font-weight: 700;
+    color: var(--gold);
+  }
+
+  .stat-desc {
+    font-size: 11px;
+    letter-spacing: 2px;
+    color: #4a6a8a;
+    text-transform: uppercase;
+    line-height: 1.4;
+  }
+
+  .stat-sep {
+    width: 1px;
+    height: 36px;
+    background: var(--border);
+  }
+
+  /* ── RANK LEGEND ── */
+  .legend-bar {
+    position: relative;
+    z-index: 1;
+    padding: 12px 60px;
+    display: flex;
+    gap: 24px;
+    align-items: center;
+    background: rgba(6,12,20,0.6);
+    border-bottom: 1px solid rgba(201,168,76,0.1);
+  }
+
+  .legend-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 12px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    font-weight: 600;
+  }
+
+  .legend-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+  }
+
+  /* ── GRID ── */
+  .main {
+    position: relative;
+    z-index: 1;
+    padding: 50px 60px;
+  }
+
+  .section-title {
+    font-family: 'Orbitron', monospace;
+    font-size: 11px;
+    letter-spacing: 5px;
+    color: var(--gold);
+    text-transform: uppercase;
+    margin-bottom: 30px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+
+  .section-title::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: linear-gradient(to right, var(--border), transparent);
+  }
+
+  .cards-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 24px;
+  }
+
+  /* ── CARD ── */
+  .card {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    position: relative;
+    overflow: hidden;
+    transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
+    cursor: default;
+    animation: fadeUp 0.5s ease both;
+  }
+
+  .card:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 20px 50px rgba(0,0,0,0.6), 0 0 30px rgba(201,168,76,0.08);
+    border-color: rgba(201,168,76,0.6);
+  }
+
+  .card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 3px;
+    background: var(--card-accent, var(--gold));
+    opacity: 0.8;
+  }
+
+  /* Corner decoration */
+  .card::after {
+    content: '';
+    position: absolute;
+    bottom: 0; right: 0;
+    width: 60px; height: 60px;
+    background: linear-gradient(135deg, transparent 50%, rgba(201,168,76,0.05) 50%);
+  }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(24px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  /* Rank-based tints */
+  .card.rank-alto {
+    --card-accent: var(--red-rank);
+    background: linear-gradient(160deg, #1a0a0a 0%, #0d1b2a 100%);
+    border-color: rgba(230,57,70,0.4);
+  }
+
+  .card.rank-alto:hover {
+    box-shadow: 0 20px 50px rgba(0,0,0,0.6), 0 0 30px rgba(230,57,70,0.15);
+    border-color: rgba(230,57,70,0.7);
+  }
+
+  .card.rank-recruit {
+    --card-accent: #3a4a5a;
+    opacity: 0.8;
+    filter: saturate(0.6);
+  }
+
+  /* ── CARD HEADER ── */
+  .card-header {
+    padding: 20px 20px 14px;
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+    border-bottom: 1px solid rgba(255,255,255,0.05);
+  }
+
+  .avatar {
+    width: 58px;
+    height: 58px;
+    border-radius: 4px;
+    background: var(--panel2);
+    border: 2px solid var(--card-accent, var(--border));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 26px;
+    flex-shrink: 0;
+    position: relative;
+  }
+
+  .card.rank-alto .avatar {
+    box-shadow: 0 0 15px rgba(230,57,70,0.3);
+  }
+
+  .avatar-status {
+    position: absolute;
+    bottom: -3px;
+    right: -3px;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    border: 2px solid var(--panel);
+  }
+
+  .status-activo { background: #22c55e; }
+  .status-baja   { background: #ef4444; }
+  .status-permiso{ background: #f59e0b; }
+
+  .card-title-block {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .card-name {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 22px;
+    letter-spacing: 2px;
+    color: #ffffff;
+    line-height: 1.1;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .card.rank-alto .card-name {
+    color: #ff8a8a;
+    text-shadow: 0 0 20px rgba(230,57,70,0.4);
+  }
+
+  .card.rank-recruit .card-name {
+    color: var(--gray-recruit);
+  }
+
+  .card-rango {
+    font-family: 'Orbitron', monospace;
+    font-size: 9px;
+    letter-spacing: 2px;
+    color: var(--card-accent, var(--gold));
+    text-transform: uppercase;
+    margin-top: 3px;
+  }
+
+  .card-placa {
+    font-size: 11px;
+    color: #3a5a7a;
+    letter-spacing: 1px;
+    margin-top: 4px;
+  }
+
+  /* ── CARD BODY ── */
+  .card-body {
+    padding: 14px 20px 18px;
+  }
+
+  .info-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 7px 0;
+    border-bottom: 1px solid rgba(255,255,255,0.04);
+    font-size: 13px;
+  }
+
+  .info-row:last-child { border-bottom: none; }
+
+  .info-label {
+    font-family: 'Orbitron', monospace;
+    font-size: 8px;
+    letter-spacing: 2px;
+    color: #2a4a6a;
+    text-transform: uppercase;
+  }
+
+  .info-value {
+    font-weight: 600;
+    color: #9ab0c8;
+    letter-spacing: 0.5px;
+  }
+
+  .card.rank-alto .info-value { color: #c88; }
+  .card.rank-recruit .info-value { color: #5a6a7a; }
+
+  /* Country flags inline */
+  .pais-flag { margin-right: 5px; }
+
+  /* Status badge */
+  .status-badge {
+    font-size: 10px;
+    font-family: 'Orbitron', monospace;
+    letter-spacing: 1px;
+    padding: 3px 8px;
+    border-radius: 2px;
+    text-transform: uppercase;
+    font-weight: 700;
+  }
+
+  .badge-activo  { background: rgba(34,197,94,0.15); color: #22c55e; border: 1px solid rgba(34,197,94,0.3); }
+  .badge-baja    { background: rgba(239,68,68,0.15); color: #ef4444; border: 1px solid rgba(239,68,68,0.3); }
+  .badge-permiso { background: rgba(245,158,11,0.15); color: #f59e0b; border: 1px solid rgba(245,158,11,0.3); }
+
+  /* Rank stars */
+  .rank-stars {
+    display: flex;
+    gap: 3px;
+    margin-top: 6px;
+  }
+
+  .star {
+    font-size: 9px;
+    color: var(--gold);
+    opacity: 0.5;
+  }
+
+  .star.lit { opacity: 1; }
+
+  /* ── FOOTER ── */
+  footer {
+    position: relative;
+    z-index: 1;
+    border-top: 1px solid var(--border);
+    padding: 24px 60px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: rgba(6,12,20,0.8);
+  }
+
+  .credits {
+    font-family: 'Orbitron', monospace;
+    font-size: 10px;
+    letter-spacing: 3px;
+    color: #2a4a6a;
+    text-transform: uppercase;
+  }
+
+  .credits span {
+    color: var(--gold);
+    font-weight: 700;
+  }
+
+  .classification {
+    font-family: 'Orbitron', monospace;
+    font-size: 9px;
+    letter-spacing: 4px;
+    color: var(--red-rank);
+    border: 1px solid var(--red-rank);
+    padding: 4px 12px;
+    opacity: 0.6;
+  }
+
+  /* ── SCANLINE OVERLAY ── */
+  .scanlines {
+    position: fixed;
+    inset: 0;
+    background: repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent 2px,
+      rgba(0,0,0,0.03) 2px,
+      rgba(0,0,0,0.03) 4px
+    );
+    pointer-events: none;
+    z-index: 999;
+  }
 </style>
 </head>
 <body>
 
-<h1>🛩 Personal Activo - Fuerza Aérea</h1>
+<div class="scanlines"></div>
 
-<table>
-  <thead>
-    <tr>
-      <th>Placa</th>
-      <th>Nombre IC</th>
-      <th>Rango</th>
-      <th>País</th>
-      <th>Estado</th>
-      <th>Fecha Ingreso</th>
-    </tr>
-  </thead>
-  <tbody id="tablaPilotos">
-  </tbody>
-</table>
+<!-- HEADER -->
+<header>
+  <div class="hero-bg"></div>
+  <!-- Soldier image placeholder - in production use actual image -->
+  <div style="position:absolute;right:0;top:0;height:100%;width:50%;background:linear-gradient(to right,transparent,rgba(20,40,70,0.3));z-index:1;overflow:hidden;">
+    <svg viewBox="0 0 400 340" style="width:100%;height:100%;opacity:0.15" xmlns="http://www.w3.org/2000/svg">
+      <rect width="400" height="340" fill="none"/>
+      <!-- abstract soldier silhouette -->
+      <ellipse cx="220" cy="80" rx="35" ry="42" fill="#c9a84c"/>
+      <rect x="185" y="118" width="70" height="130" rx="6" fill="#c9a84c"/>
+      <rect x="155" y="122" width="30" height="100" rx="5" fill="#c9a84c"/>
+      <rect x="255" y="122" width="30" height="100" rx="5" fill="#c9a84c"/>
+      <rect x="195" y="248" width="28" height="90" rx="4" fill="#c9a84c"/>
+      <rect x="217" y="248" width="28" height="90" rx="4" fill="#c9a84c"/>
+      <!-- rifle shape -->
+      <rect x="130" y="165" width="160" height="10" rx="4" fill="#a08030"/>
+      <rect x="265" y="155" width="10" height="30" rx="2" fill="#a08030"/>
+    </svg>
+  </div>
+
+  <div class="hero-content">
+    <div class="escudo-line">
+      <div class="shield-icon">✦</div>
+      <span class="org-label">República de Colombia · FAC</span>
+    </div>
+    <div class="hero-title">FUERZA <span>AÉREA</span><br>COLOMBIANA</div>
+    <div class="hero-sub">Registro de Personal Activo — Clasificado</div>
+    <div class="hero-divider"></div>
+  </div>
+
+  <!-- BANDERA ONDEANDO -->
+  <div class="flag-container">
+    <div style="position:relative;height:90px;">
+      <div class="flag-pole"></div>
+      <div class="flag-wave">
+        <div class="stripe stripe-yellow"></div>
+        <div class="stripe stripe-blue"></div>
+        <div class="stripe stripe-red"></div>
+      </div>
+    </div>
+    <div class="flag-label">COLOMBIA</div>
+  </div>
+</header>
+
+<!-- STATS BAR -->
+<div class="stats-bar">
+  <div class="stat-item">
+    <div class="stat-num" id="total-count">0</div>
+    <div class="stat-desc">Personal<br>Total</div>
+  </div>
+  <div class="stat-sep"></div>
+  <div class="stat-item">
+    <div class="stat-num" id="active-count">0</div>
+    <div class="stat-desc">En<br>Servicio</div>
+  </div>
+  <div class="stat-sep"></div>
+  <div class="stat-item">
+    <div class="stat-num" id="alto-count">0</div>
+    <div class="stat-desc">Alto<br>Mando</div>
+  </div>
+  <div class="stat-sep"></div>
+  <div class="stat-item">
+    <div class="stat-num">COL</div>
+    <div class="stat-desc">Unidad<br>Principal</div>
+  </div>
+</div>
+
+<!-- LEGEND -->
+<div class="legend-bar">
+  <span style="font-family:'Orbitron',monospace;font-size:9px;letter-spacing:3px;color:#2a4a6a;text-transform:uppercase;">Clasificación de Rango:</span>
+  <div class="legend-item" style="color:#e63946;"><div class="legend-dot" style="background:#e63946;box-shadow:0 0 6px #e63946;"></div> Alto Mando</div>
+  <div class="legend-item" style="color:var(--gold);"><div class="legend-dot" style="background:var(--gold);"></div> Oficial</div>
+  <div class="legend-item" style="color:#9ab0c8;"><div class="legend-dot" style="background:#9ab0c8;"></div> Suboficial</div>
+  <div class="legend-item" style="color:#5a6a7a;"><div class="legend-dot" style="background:#5a6a7a;"></div> Recluta</div>
+</div>
+
+<!-- MAIN GRID -->
+<main class="main">
+  <div class="section-title">⬡ &nbsp; Fichas de Personal</div>
+  <div class="cards-grid" id="tablaPilotos"></div>
+</main>
+
+<!-- FOOTER -->
+<footer>
+  <div class="credits">Sistema Diseñado por <span>Sam Sukv</span> · Fuerza Aérea Colombiana © 2024</div>
+  <div class="classification">CONFIDENCIAL</div>
+</footer>
 
 <script>
-async function cargarPilotos() {
-  try {
-    const response = await fetch("/listar-pilotos");
-    const data = await response.json();
+  // Rank hierarchy for styling
+  const ALTO_MANDO = ['General', 'Mayor General', 'Brigadier General', 'Teniente General', 'Almirante', 'Coronel'];
+  const RECLUTAS   = ['Recluta', 'Soldado Raso', 'Cabo', 'Cabo Primero'];
 
-    if (data.success) {
-      const tabla = document.getElementById("tablaPilotos");
-      tabla.innerHTML = "";
+  const RANK_STARS = {
+    'General': 5, 'Mayor General': 5, 'Teniente General': 5,
+    'Brigadier General': 4, 'Coronel': 4,
+    'Teniente Coronel': 3, 'Mayor': 3,
+    'Capitán': 2, 'Teniente': 2,
+    'Subteniente': 1, 'Suboficial': 1,
+    'Recluta': 0, 'Soldado Raso': 0, 'Cabo': 0
+  };
 
-      data.pilotos.forEach(p => {
-        tabla.innerHTML += `
-          <tr>
-            <td>${p.placa}</td>
-            <td>${p.nombre_ic}</td>
-            <td>${p.rango}</td>
-            <td>${p.pais}</td>
-            <td>${p.estado}</td>
-            <td>${p.fecha_ingreso}</td>
-          </tr>
-        `;
-      });
-    }
-  } catch (error) {
-    console.error("Error cargando pilotos");
+  const RANK_EMOJI = {
+    'General': '⭐', 'Mayor General': '🎖️', 'Brigadier General': '🎖️',
+    'Coronel': '🦅', 'Teniente Coronel': '🦅', 'Mayor': '✦',
+    'Capitán': '✦', 'Teniente': '◈', 'Subteniente': '◈',
+    'Suboficial': '◇', 'Recluta': '○', 'Soldado Raso': '○', 'Cabo': '◇', 'Cabo Primero': '◇'
+  };
+
+  const PAIS_FLAGS = {
+    'Colombia': '🇨🇴', 'Venezuela': '🇻🇪', 'Ecuador': '🇪🇨',
+    'Perú': '🇵🇪', 'Brasil': '🇧🇷', 'Chile': '🇨🇱',
+    'México': '🇲🇽', 'Argentina': '🇦🇷', 'USA': '🇺🇸',
+    'Panama': '🇵🇦', 'Costa Rica': '🇨🇷'
+  };
+
+
+
+  function getRankClass(rango) {
+    if (ALTO_MANDO.includes(rango)) return 'rank-alto';
+    if (RECLUTAS.includes(rango))   return 'rank-recruit';
+    return '';
   }
-}
 
-cargarPilotos();
+  function getStatusBadge(estado) {
+    const map = {
+      'Activo':  `<span class="status-badge badge-activo">● Activo</span>`,
+      'Baja':    `<span class="status-badge badge-baja">● Baja</span>`,
+      'Permiso': `<span class="status-badge badge-permiso">● Permiso</span>`,
+    };
+    return map[estado] || `<span class="status-badge" style="color:#9ab0c8">${estado}</span>`;
+  }
+
+  function getStatusDot(estado) {
+    if (estado === 'Activo')  return 'status-activo';
+    if (estado === 'Baja')    return 'status-baja';
+    return 'status-permiso';
+  }
+
+  function getStars(rango) {
+    const n = RANK_STARS[rango] ?? 0;
+    return Array.from({length: 5}, (_, i) =>
+      `<span class="star ${i < n ? 'lit' : ''}">★</span>`
+    ).join('');
+  }
+
+  function renderCard(p, index) {
+    const rankClass = getRankClass(p.rango);
+    const emoji     = RANK_EMOJI[p.rango] || '◆';
+    const flag      = PAIS_FLAGS[p.pais] || '🌐';
+    const dotClass  = getStatusDot(p.estado);
+    const delay     = (index * 60) + 'ms';
+    const fecha     = new Date(p.fecha_ingreso).toLocaleDateString('es-CO', {year:'numeric', month:'short', day:'2-digit'});
+
+    return `
+      <div class="card ${rankClass}" style="animation-delay:${delay}">
+        <div class="card-header">
+          <div class="avatar">
+            ${emoji}
+            <div class="avatar-status ${dotClass}"></div>
+          </div>
+          <div class="card-title-block">
+            <div class="card-name">${p.nombre_ic}</div>
+            <div class="card-rango">${p.rango}</div>
+            <div class="rank-stars">${getStars(p.rango)}</div>
+            <div class="card-placa">ID: ${p.placa}</div>
+          </div>
+        </div>
+        <div class="card-body">
+          <div class="info-row">
+            <span class="info-label">País</span>
+            <span class="info-value"><span class="pais-flag">${flag}</span>${p.pais}</span>
+          </div>
+          <div class="info-row">
+            <span class="info-label">Estado</span>
+            ${getStatusBadge(p.estado)}
+          </div>
+          <div class="info-row">
+            <span class="info-label">Ingreso</span>
+            <span class="info-value">${fecha}</span>
+          </div>
+        </div>
+      </div>
+    `;
+  }
+
+  // Sort: alto mando first, then rest, recruits last
+  function sortPilotos(pilotos) {
+    const order = p => {
+      if (ALTO_MANDO.includes(p.rango)) return 0;
+      if (RECLUTAS.includes(p.rango))   return 2;
+      return 1;
+    };
+    return [...pilotos].sort((a, b) => order(a) - order(b));
+  }
+
+  function renderAll(pilotos) {
+    const sorted = sortPilotos(pilotos);
+    const tabla  = document.getElementById('tablaPilotos');
+    tabla.innerHTML = sorted.map((p, i) => renderCard(p, i)).join('');
+
+    // Stats
+    document.getElementById('total-count').textContent  = pilotos.length;
+    document.getElementById('active-count').textContent = pilotos.filter(p => p.estado === 'Activo').length;
+    document.getElementById('alto-count').textContent   = pilotos.filter(p => ALTO_MANDO.includes(p.rango)).length;
+  }
+
+  async function cargarPilotos() {
+    const tabla = document.getElementById('tablaPilotos');
+    tabla.innerHTML = `<div style="grid-column:1/-1;text-align:center;padding:60px 20px;font-family:'Orbitron',monospace;font-size:11px;letter-spacing:3px;color:#2a4a6a;">
+      <div style="font-size:32px;margin-bottom:16px;opacity:0.3;">⟳</div>
+      CARGANDO PERSONAL...
+    </div>`;
+    try {
+      const response = await fetch("/listar-pilotos");
+      const data = await response.json();
+      if (data.success && Array.isArray(data.pilotos)) {
+        renderAll(data.pilotos);
+      } else {
+        tabla.innerHTML = `<div style="grid-column:1/-1;text-align:center;padding:60px 20px;font-family:'Orbitron',monospace;font-size:11px;letter-spacing:3px;color:#e63946;">
+          ⚠ &nbsp; SIN DATOS DISPONIBLES
+        </div>`;
+      }
+    } catch (e) {
+      tabla.innerHTML = `<div style="grid-column:1/-1;text-align:center;padding:60px 20px;font-family:'Orbitron',monospace;font-size:11px;letter-spacing:3px;color:#e63946;">
+        ⚠ &nbsp; ERROR DE CONEXIÓN CON EL SERVIDOR
+      </div>`;
+    }
+  }
+
+  cargarPilotos();
 </script>
-
 </body>
 </html>
