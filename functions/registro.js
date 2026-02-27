@@ -13,7 +13,7 @@ export async function onRequestPost(context) {
     const total = countResult?.total ?? 0;
     // Empieza en REC-023, sube de uno en uno
     const numero = 23 + total;
-    const placa = "IF-" + String(numero).padStart(3, "0");
+    const placa = "INF-" + String(numero).padStart(3, "0");
 
     // ── 2. INSERTAR EN BD ──
     await env.DB.prepare(`
@@ -153,4 +153,5 @@ export async function onRequestPost(context) {
     });
   }
 }
+
 
