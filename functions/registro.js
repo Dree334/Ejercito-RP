@@ -1,57 +1,155 @@
 export async function onRequestPost(context) {
   const { request, env } = context;
-
   try {
     const data = await request.json();
-    const { correo, password, discord, nombre_ic, edad, pais, placa } = data;
+    const { correo, password, discord, nombre_ic, edad, pais } = data;
 
-    // 1. Guardamos al soldado en la DB (Asegúrate que la columna sea 'nombre_discord' o 'discord')
+    // ── 1. GENERAR PLACA SECUENCIAL ──
+    // Contamos cuántos soldados hay actualmente en la BD
+    const countResult = await env.DB.prepare(
+      `SELECT COUNT(*) as total FROM soldados`
+    ).first();
+
+    const total = countResult?.total ?? 0;
+    // Empieza en REC-023, sube de uno en uno
+    const numero = 23 + total;
+    const placa = "REC-" + String(numero).padStart(3, "0");
+
+    // ── 2. INSERTAR EN BD ──
     await env.DB.prepare(`
       INSERT INTO soldados (correo, password, nombre_discord, nombre_ic, edad, pais, rango, placa)
       VALUES (?, ?, ?, ?, ?, ?, ?, ?)
     `).bind(
-      correo, 
-      password, 
-      discord, 
-      nombre_ic, 
-      edad, 
-      pais, 
-      "Recluta", 
+      correo,
+      password,
+      discord,
+      nombre_ic,
+      edad,
+      pais,
+      "Recluta",
       placa
     ).run();
 
-    // 2. Enviamos la notificación al Webhook de Discord
+    // ── 3. NOTIFICACIÓN DISCORD WEBHOOK ──
     const webhookUrl = "https://discord.com/api/webhooks/1476777653418590289/LXUCVO-L6eRDMxvnB5UIHpqg4FfrYm7DI_01222jszT5TWNOhfhkf9TxaV8dhOQcjFiy";
+
+    const fecha = new Date().toLocaleString("es-CO", {
+      timeZone: "America/Bogota",
+      day: "2-digit", month: "2-digit", year: "numeric",
+      hour: "2-digit", minute: "2-digit"
+    });
 
     await fetch(webhookUrl, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        username: "Reclutamiento Militar",
+        username: "🇨🇴 Sistema de Reclutamiento",
+        avatar_url: "https://upload.wikimedia.org/wikipedia/commons/thumb/2/21/Flag_of_Colombia.svg/320px-Flag_of_Colombia.svg.png",
+        content: "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n🚨 **NUEVO ALISTAMIENTO — BANDO COLOMBIA**\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━",
         embeds: [{
-          title: "🎖️ NUEVO ALTA EN EL EJÉRCITO",
-          description: `Se ha registrado un nuevo soldado para el frente de batalla de **Guerras Mundiales RP**.`,
-          color: 39168, // Verde militar oscuro
+          title: "🎖️  ALTA MILITAR REGISTRADA",
+          description: [
+            "```",
+            "╔══════════════════════════════════╗",
+            "║   REPÚBLICA DE COLOMBIA — RP     ║",
+            "║   FUERZAS MILITARES UNIFICADAS   ║",
+            "╚══════════════════════════════════╝",
+            "```",
+            `> Un nuevo soldado ha jurado lealtad a la bandera y se ha incorporado a las filas del **Bando Colombia** en **Guerras Mundiales RP**.`
+          ].join("\n"),
+          color: 0x003893,
+          thumbnail: {
+            url: "https://upload.wikimedia.org/wikipedia/commons/thumb/2/21/Flag_of_Colombia.svg/320px-Flag_of_Colombia.svg.png"
+          },
           fields: [
-            { name: "👤 Nombre IC", value: `**${nombre_ic}**`, inline: true },
-            { name: "🆔 Placa", value: `\`${placa}\``, inline: true },
-            { name: "🎮 Discord", value: discord, inline: true },
-            { name: "🌍 País", value: pais, inline: true },
-            { name: "🎂 Edad", value: edad.toString(), inline: true },
-            { name: "🎖️ Rango", value: "Recluta", inline: true }
+            {
+              name: "​",
+              value: "**━━━━━━━  DATOS DEL SOLDADO  ━━━━━━━**",
+              inline: false
+            },
+            {
+              name: "🪖  Nombre IC",
+              value: `\`\`${nombre_ic}\`\``,
+              inline: true
+            },
+            {
+              name: "🆔  Placa Militar",
+              value: `\`\`${placa}\`\``,
+              inline: true
+            },
+            {
+              name: "🎖️  Rango Inicial",
+              value: "``Recluta``",
+              inline: true
+            },
+            {
+              name: "🎮  Discord",
+              value: `${discord}`,
+              inline: true
+            },
+            {
+              name: "🌍  País de Origen",
+              value: `${pais}`,
+              inline: true
+            },
+            {
+              name: "🎂  Edad",
+              value: `${edad} años`,
+              inline: true
+            },
+            {
+              name: "​",
+              value: "**━━━━━━━  ESTADO DEL SISTEMA  ━━━━━━━**",
+              inline: false
+            },
+            {
+              name: "📅  Fecha de Alistamiento",
+              value: `${fecha} (COL)`,
+              inline: true
+            },
+            {
+              name: "✅  Estado",
+              value: "``ACTIVO EN SISTEMA``",
+              inline: true
+            },
+            {
+              name: "🔢  Número de Registro",
+              value: `\`\`#${numero}\`\``,
+              inline: true
+            },
+            {
+              name: "​",
+              value: [
+                "```yaml",
+                `Bienvenido a las Fuerzas Militares, ${nombre_ic}.`,
+                `Tu placa de identificación es: ${placa}`,
+                "Defiende la patria con honor.",
+                "```"
+              ].join("\n"),
+              inline: false
+            }
           ],
-          footer: { text: "Sistema de Registro Automático v1.0" },
+          image: {
+            url: "https://upload.wikimedia.org/wikipedia/commons/thumb/2/21/Flag_of_Colombia.svg/800px-Flag_of_Colombia.svg.png"
+          },
+          footer: {
+            text: "🇨🇴 Colombia Wars RP  •  Sistema de Registro Automático v2.0  •  Ficción / Roleplay",
+            icon_url: "https://upload.wikimedia.org/wikipedia/commons/thumb/2/21/Flag_of_Colombia.svg/320px-Flag_of_Colombia.svg.png"
+          },
           timestamp: new Date().toISOString()
         }]
       })
     });
 
-    return new Response(JSON.stringify({ success: true }), {
+    // ── 4. RESPUESTA AL FRONTEND (incluye placa generada) ──
+    return new Response(JSON.stringify({ success: true, placa, nombre_ic }), {
       headers: { "Content-Type": "application/json" },
     });
 
   } catch (error) {
-    // Si hay un error (ej. correo duplicado), lo enviamos de vuelta
-    return new Response(JSON.stringify({ error: error.message }), { status: 400 });
+    return new Response(JSON.stringify({ error: error.message }), {
+      status: 400,
+      headers: { "Content-Type": "application/json" },
+    });
   }
 }
