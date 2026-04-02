@@ -656,7 +656,7 @@ async function handleLogin(){
     if(res.ok){
       sessionStorage.setItem('usuario',JSON.stringify(data));
       showMsg(`¡Bienvenido, ${data.nombre||'Usuario'}! Redirigiendo...`,'ok');
-      setTimeout(()=>{window.location.href='dashboard.html';},900);
+      setTimeout(()=>{window.location.href='index1.html';},900);
     } else {
       showMsg(data.message||'Credenciales incorrectas.','err');
     }
