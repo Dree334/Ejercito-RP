@@ -1,67 +1,917 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
-  <title>Gestión de Pilotos</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MTA Lua Scripts · ByteForge</title>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@300;400;500;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #05070a;
+  --bg1: #080c12;
+  --bg2: #0c1119;
+  --surface: #101620;
+  --surface2: #151d2a;
+  --border: rgba(96,165,250,.06);
+  --border2: rgba(96,165,250,.11);
+  --border3: rgba(96,165,250,.22);
+  --text: rgba(255,255,255,.93);
+  --text2: rgba(255,255,255,.52);
+  --text3: rgba(255,255,255,.24);
+
+  /* BLUE — acento principal (tier básico) */
+  --blue: #60a5fa;
+  --blue-dim: rgba(96,165,250,.1);
+  --blue-border: rgba(96,165,250,.24);
+
+  /* CYAN — tier intermedio */
+  --cyan: #22d3ee;
+  --cyan-dim: rgba(34,211,238,.1);
+  --cyan-border: rgba(34,211,238,.22);
+
+  /* INDIGO — tier premium */
+  --indigo: #818cf8;
+  --indigo-dim: rgba(129,140,248,.1);
+  --indigo-border: rgba(129,140,248,.22);
+
+  --radius: 16px;
+}
+
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Outfit', sans-serif;
+  min-height: 100vh;
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+  cursor: none;
+}
+
+/* ─── CURSOR ─── */
+#cur { position: fixed; width: 6px; height: 6px; background: #fff; border-radius: 50%; pointer-events: none; z-index: 9999; transform: translate(-50%,-50%); mix-blend-mode: difference; transition: transform .15s; }
+#cur-ring { position: fixed; width: 30px; height: 30px; border: 1px solid rgba(96,165,250,.3); border-radius: 50%; pointer-events: none; z-index: 9998; transform: translate(-50%,-50%); }
+body:has(a:hover) #cur, body:has(button:hover) #cur { transform: translate(-50%,-50%) scale(2.5); }
+
+/* ─── BACKGROUND ─── */
+.bg-layer { position: fixed; inset: 0; z-index: 0; pointer-events: none; }
+.bg-noise {
+  position: fixed; inset: 0; z-index: 1; pointer-events: none; opacity: .028;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+.bg-grid {
+  position: absolute; inset: 0;
+  background-image:
+    linear-gradient(rgba(96,165,250,.028) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(96,165,250,.028) 1px, transparent 1px);
+  background-size: 56px 56px;
+  mask-image: radial-gradient(ellipse 80% 60% at 50% 0%, #000 0%, transparent 100%);
+}
+.bg-glow {
+  position: absolute; top: -120px; left: 50%; transform: translateX(-50%);
+  width: 900px; height: 550px;
+  background: radial-gradient(ellipse, rgba(96,165,250,.05) 0%, rgba(34,211,238,.02) 40%, transparent 70%);
+}
+.bg-glow2 {
+  position: absolute; bottom: -200px; right: -100px;
+  width: 500px; height: 500px;
+  background: radial-gradient(circle, rgba(129,140,248,.04) 0%, transparent 70%);
+}
+
+/* ─── TOPBAR ─── */
+.topbar {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 400;
+  height: 60px;
+  background: rgba(5,7,10,.88);
+  backdrop-filter: blur(20px);
+  border-bottom: 1px solid rgba(96,165,250,.08);
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0 40px;
+}
+.tb-left { display: flex; align-items: center; gap: 28px; }
+.tb-back {
+  display: flex; align-items: center; gap: 8px;
+  text-decoration: none; color: var(--text3);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: .6rem; letter-spacing: .1em; text-transform: uppercase;
+  cursor: none; transition: color .2s;
+}
+.tb-back:hover { color: var(--text2); }
+.tb-back svg { width: 13px; height: 13px; stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+.tb-sep { width: 1px; height: 20px; background: rgba(96,165,250,.1); }
+
+/* LOGO */
+.tb-logo { display: flex; align-items: center; gap: 9px; text-decoration: none; cursor: none; }
+.tb-logo-mark { width: 30px; height: 30px; flex-shrink: 0; }
+.tb-logo-wordmark { display: flex; flex-direction: column; line-height: 1; }
+.tb-logo-name { font-family: 'Outfit', sans-serif; font-weight: 900; font-size: .9rem; letter-spacing: .1em; color: #fff; }
+.tb-logo-sub { font-family: 'JetBrains Mono', monospace; font-size: .38rem; letter-spacing: .16em; text-transform: uppercase; color: var(--text3); margin-top: 1px; }
+
+.tb-right { display: flex; align-items: center; gap: 12px; }
+.tb-pill {
+  display: flex; align-items: center; gap: 6px;
+  padding: 5px 12px; border-radius: 20px;
+  background: var(--blue-dim); border: 1px solid var(--blue-border);
+  font-family: 'JetBrains Mono', monospace; font-size: .5rem; letter-spacing: .1em; text-transform: uppercase;
+  color: var(--blue);
+}
+.tb-dot { width: 5px; height: 5px; border-radius: 50%; background: var(--blue); animation: pulse 2s infinite; }
+@keyframes pulse { 0%,100% { box-shadow: 0 0 0 0 rgba(96,165,250,.5); } 50% { box-shadow: 0 0 0 5px rgba(96,165,250,0); } }
+
+/* ─── HERO ─── */
+.hero {
+  position: relative; z-index: 2;
+  padding: 130px 40px 60px;
+  max-width: 1240px; margin: 0 auto;
+  display: grid; grid-template-columns: 1fr 1fr; gap: 60px; align-items: center;
+}
+.hero-left { animation: fadeUp .7s ease both; }
+.hero-tag {
+  display: inline-flex; align-items: center; gap: 8px;
+  font-family: 'JetBrains Mono', monospace; font-size: .55rem; letter-spacing: .15em; text-transform: uppercase;
+  color: var(--blue); margin-bottom: 20px;
+}
+.hero-tag::before { content: '//'; opacity: .5; }
+.hero-title {
+  font-size: clamp(2.8rem, 5vw, 4.6rem);
+  font-weight: 900; line-height: .95; letter-spacing: -.03em;
+  color: #fff; margin-bottom: 18px;
+}
+.hero-title .accent { color: var(--blue); }
+.hero-sub {
+  font-size: 1rem; font-weight: 400; color: var(--text2);
+  line-height: 1.75; max-width: 440px; margin-bottom: 36px;
+}
+.hero-actions { display: flex; gap: 12px; flex-wrap: wrap; }
+.btn-cta {
+  padding: 13px 28px; border-radius: 10px;
+  background: linear-gradient(135deg, var(--blue) 0%, #3b82f6 100%);
+  border: none; color: #020b18;
+  font-family: 'Outfit', sans-serif; font-size: .8rem; font-weight: 700; letter-spacing: .06em;
+  cursor: none; transition: all .2s;
+  box-shadow: 0 4px 24px rgba(96,165,250,.28);
+}
+.btn-cta:hover { transform: translateY(-2px); box-shadow: 0 8px 32px rgba(96,165,250,.4); }
+.btn-ghost {
+  padding: 13px 28px; border-radius: 10px;
+  background: transparent; border: 1px solid var(--border3); color: var(--text2);
+  font-family: 'Outfit', sans-serif; font-size: .8rem; font-weight: 600; letter-spacing: .06em;
+  cursor: none; transition: all .2s;
+}
+.btn-ghost:hover { color: #fff; border-color: rgba(96,165,250,.4); }
+
+.hero-stats { display: flex; gap: 28px; margin-top: 40px; }
+.hstat-val { font-size: 1.7rem; font-weight: 800; color: #fff; line-height: 1; }
+.hstat-lbl { font-family: 'JetBrains Mono', monospace; font-size: .48rem; letter-spacing: .1em; text-transform: uppercase; color: var(--text3); margin-top: 3px; }
+.hstat-sep { width: 1px; background: rgba(96,165,250,.12); }
+
+/* hero right */
+.hero-right { position: relative; animation: fadeUp .7s ease .15s both; }
+.hero-img-stack { position: relative; height: 420px; }
+.hi-main {
+  position: absolute; top: 0; left: 40px; right: 0;
+  border-radius: 20px; overflow: hidden;
+  border: 1px solid rgba(96,165,250,.14);
+  box-shadow: 0 32px 80px rgba(0,0,0,.65), 0 0 0 1px rgba(96,165,250,.06);
+  height: 300px;
+}
+.hi-main img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.hi-badge-card {
+  position: absolute; bottom: 0; left: 0; right: 60px;
+  background: var(--surface2); border: 1px solid rgba(96,165,250,.14);
+  border-radius: 14px; padding: 16px 18px;
+  display: flex; align-items: center; gap: 14px;
+  box-shadow: 0 20px 50px rgba(0,0,0,.5);
+  backdrop-filter: blur(12px);
+}
+.hbc-icon { font-size: 28px; flex-shrink: 0; }
+.hbc-name { font-weight: 700; font-size: .88rem; color: #fff; margin-bottom: 2px; }
+.hbc-sub { font-family: 'JetBrains Mono', monospace; font-size: .5rem; letter-spacing: .08em; color: var(--text3); }
+.hbc-price { margin-left: auto; font-weight: 900; font-size: 1.2rem; color: var(--blue); }
+
+/* ─── FILTERS ─── */
+.filters-section {
+  position: relative; z-index: 2;
+  max-width: 1240px; margin: 0 auto;
+  padding: 0 40px 32px;
+  display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
+  animation: fadeUp .6s ease .3s both;
+}
+.flt {
+  display: flex; align-items: center; gap: 7px;
+  padding: 8px 16px; border-radius: 10px;
+  background: var(--surface); border: 1px solid var(--border); color: var(--text2);
+  font-family: 'JetBrains Mono', monospace; font-size: .52rem; letter-spacing: .1em; text-transform: uppercase;
+  cursor: none; transition: all .2s;
+}
+.flt:hover { border-color: var(--border2); color: var(--text); }
+.flt.active { background: rgba(255,255,255,.06); border-color: var(--border3); color: #fff; }
+.flt.b.active { background: var(--blue-dim); border-color: var(--blue-border); color: var(--blue); }
+.flt.c.active { background: var(--cyan-dim); border-color: var(--cyan-border); color: var(--cyan); }
+.flt.i.active { background: var(--indigo-dim); border-color: var(--indigo-border); color: var(--indigo); }
+.flt-dot { width: 5px; height: 5px; border-radius: 50%; }
+.flt-count { margin-left: auto; font-family: 'JetBrains Mono', monospace; font-size: .5rem; letter-spacing: .08em; color: var(--text3); }
+
+/* ─── CATALOG ─── */
+.catalog {
+  position: relative; z-index: 2;
+  max-width: 1240px; margin: 0 auto;
+  padding: 0 40px 80px;
+}
+.tier-block { margin-bottom: 56px; }
+.tier-head {
+  display: flex; align-items: center; gap: 14px;
+  margin-bottom: 22px; padding-bottom: 18px;
+  border-bottom: 1px solid rgba(96,165,250,.08);
+}
+.tier-name { font-size: 1.1rem; font-weight: 800; color: #fff; letter-spacing: -.01em; }
+.tier-badge {
+  font-family: 'JetBrains Mono', monospace; font-size: .48rem; letter-spacing: .1em; text-transform: uppercase;
+  padding: 4px 10px; border-radius: 6px;
+}
+.tbg-b { background: var(--blue-dim); border: 1px solid var(--blue-border); color: var(--blue); }
+.tbg-c { background: var(--cyan-dim); border: 1px solid var(--cyan-border); color: var(--cyan); }
+.tbg-i { background: var(--indigo-dim); border: 1px solid var(--indigo-border); color: var(--indigo); }
+.tier-n { font-family: 'JetBrains Mono', monospace; font-size: .46rem; color: var(--text3); letter-spacing: .08em; margin-left: auto; }
+
+.grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(290px, 1fr)); gap: 14px; }
+
+/* ─── CARD ─── */
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
+  position: relative;
+  cursor: none;
+  transition: transform .3s cubic-bezier(.22,1,.36,1), border-color .25s, box-shadow .3s;
+  animation: fadeUp .5s ease both;
+}
+.card:hover { transform: translateY(-6px); border-color: var(--border2); box-shadow: 0 24px 64px rgba(0,5,20,.7), 0 0 30px rgba(96,165,250,.04); }
+
+.card-img {
+  position: relative; height: 160px; overflow: hidden;
+  background: var(--bg2);
+}
+.card-img img {
+  width: 100%; height: 100%; object-fit: cover; display: block;
+  transition: transform .5s cubic-bezier(.22,1,.36,1), filter .4s;
+  filter: brightness(.8) saturate(.8) hue-rotate(180deg);
+}
+.card:hover .card-img img { transform: scale(1.05); filter: brightness(.9) saturate(.9) hue-rotate(180deg); }
+.card-img-overlay {
+  position: absolute; inset: 0;
+  background: linear-gradient(to bottom, rgba(5,7,10,.1) 30%, rgba(16,22,32,.97) 100%);
+}
+.card-img-badge {
+  position: absolute; top: 12px; right: 12px;
+  font-family: 'JetBrains Mono', monospace; font-size: .44rem; letter-spacing: .08em; text-transform: uppercase;
+  padding: 4px 9px; border-radius: 5px;
+  backdrop-filter: blur(8px);
+}
+.card-img-icon {
+  position: absolute; bottom: 14px; left: 14px;
+  width: 40px; height: 40px; border-radius: 10px;
+  background: rgba(5,7,10,.85); border: 1px solid rgba(96,165,250,.15);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 20px; backdrop-filter: blur(8px);
+}
+.card-img-price {
+  position: absolute; bottom: 14px; right: 14px;
+  font-weight: 800; font-size: 1.1rem; color: #fff; line-height: 1;
+}
+.card-img-price small {
+  font-family: 'JetBrains Mono', monospace; font-size: .42rem;
+  font-weight: 400; color: var(--text3); display: block; text-align: right; letter-spacing: .06em;
+}
+
+.card-line { position: absolute; top: 0; left: 0; right: 0; height: 1px; opacity: 0; transition: opacity .3s; z-index: 2; }
+.card:hover .card-line { opacity: 1; }
+.cl-b { background: linear-gradient(90deg, transparent, rgba(96,165,250,.55), transparent); }
+.cl-c { background: linear-gradient(90deg, transparent, rgba(34,211,238,.55), transparent); }
+.cl-i { background: linear-gradient(90deg, transparent, rgba(129,140,248,.55), transparent); }
+
+.card-body { padding: 18px 18px 20px; }
+.card-title { font-size: .95rem; font-weight: 700; color: #fff; margin-bottom: 6px; letter-spacing: -.01em; }
+.card-desc { font-size: .78rem; color: var(--text2); line-height: 1.65; margin-bottom: 13px; }
+
+.card-tags { display: flex; flex-wrap: wrap; gap: 4px; margin-bottom: 14px; }
+.tag {
+  font-family: 'JetBrains Mono', monospace; font-size: .42rem; letter-spacing: .06em; text-transform: uppercase;
+  padding: 3px 7px; border-radius: 4px;
+  background: rgba(96,165,250,.05); border: 1px solid rgba(96,165,250,.1); color: var(--text3);
+}
+
+.card-features { display: flex; flex-direction: column; gap: 6px; margin-bottom: 16px; }
+.feat { display: flex; align-items: center; gap: 8px; font-size: .76rem; color: var(--text2); }
+.feat-check {
+  width: 14px; height: 14px; border-radius: 4px;
+  display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+}
+.feat-check svg { width: 10px; height: 10px; stroke: currentColor; fill: none; stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round; }
+
+.card-btn {
+  width: 100%; padding: 10px;
+  border-radius: 8px; border: 1px solid var(--border2);
+  background: rgba(96,165,250,.04); color: var(--text);
+  font-family: 'Outfit', sans-serif; font-size: .72rem; font-weight: 700; letter-spacing: .08em; text-transform: uppercase;
+  cursor: none; transition: all .2s;
+  display: flex; align-items: center; justify-content: center; gap: 8px;
+}
+.card-btn:hover { border-color: var(--border3); background: rgba(96,165,250,.07); color: #fff; }
+.card-btn.cb-b:hover { background: var(--blue-dim); border-color: var(--blue-border); color: var(--blue); }
+.card-btn.cb-c:hover { background: var(--cyan-dim); border-color: var(--cyan-border); color: var(--cyan); }
+.card-btn.cb-i:hover { background: var(--indigo-dim); border-color: var(--indigo-border); color: var(--indigo); }
+.card-btn svg { width: 12px; height: 12px; stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+
+.card.hidden { display: none; }
+
+/* ─── CTA ─── */
+.cta-section {
+  position: relative; z-index: 2;
+  max-width: 1240px; margin: 0 auto;
+  padding: 0 40px 80px;
+}
+.cta-box {
+  background: var(--surface);
+  border: 1px solid rgba(96,165,250,.12);
+  border-radius: 20px; padding: 44px 48px;
+  display: flex; align-items: center; justify-content: space-between; gap: 32px;
+  position: relative; overflow: hidden;
+}
+.cta-box::before {
+  content: ''; position: absolute; top: 0; left: 20%; right: 20%; height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(96,165,250,.15), transparent);
+}
+.cta-box::after {
+  content: ''; position: absolute; bottom: -80px; right: -80px;
+  width: 220px; height: 220px; border-radius: 50%;
+  background: radial-gradient(circle, rgba(96,165,250,.07) 0%, transparent 70%);
+  pointer-events: none;
+}
+.cta-label { font-family: 'JetBrains Mono', monospace; font-size: .5rem; letter-spacing: .15em; text-transform: uppercase; color: var(--text3); margin-bottom: 8px; }
+.cta-title { font-size: 1.5rem; font-weight: 800; color: #fff; margin-bottom: 6px; letter-spacing: -.02em; }
+.cta-sub { font-size: .85rem; color: var(--text2); }
+.cta-right { display: flex; gap: 10px; flex-shrink: 0; }
+
+/* ─── TOAST ─── */
+.toast {
+  position: fixed; bottom: 28px; right: 28px; z-index: 1000;
+  background: var(--surface2); border: 1px solid var(--blue-border); border-radius: 10px;
+  padding: 12px 18px; display: flex; align-items: center; gap: 10px;
+  font-family: 'JetBrains Mono', monospace; font-size: .52rem; letter-spacing: .08em; color: var(--blue);
+  transform: translateY(80px); opacity: 0;
+  transition: all .3s cubic-bezier(.22,1,.36,1); pointer-events: none;
+}
+.toast.show { transform: translateY(0); opacity: 1; }
+
+@keyframes fadeUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+
+/* ─── RESPONSIVE ─── */
+@media (max-width: 900px) {
+  .hero { grid-template-columns: 1fr; gap: 40px; }
+  .hero-right { display: none; }
+  .topbar { padding: 0 20px; }
+  .hero, .filters-section, .catalog, .cta-section { padding-left: 20px; padding-right: 20px; }
+  .grid { grid-template-columns: 1fr; }
+  .cta-box { flex-direction: column; align-items: flex-start; padding: 28px 24px; }
+  .cta-right { flex-direction: column; width: 100%; }
+}
+</style>
 </head>
 <body>
 
-  <h2>Registrar Nuevo Piloto</h2>
+<div id="cur"></div>
+<div id="cur-ring"></div>
 
-  <form id="formPiloto">
-    <label>Nombre IC:</label><br>
-    <input type="text" id="nombre_ic" required><br><br>
+<div class="bg-layer">
+  <div class="bg-grid"></div>
+  <div class="bg-glow"></div>
+  <div class="bg-glow2"></div>
+</div>
+<div class="bg-noise"></div>
 
-    <label>Rango:</label><br>
-    <input type="text" id="rango"><br><br>
+<!-- TOPBAR -->
+<header class="topbar">
+  <div class="tb-left">
+    <a href="index2.html" class="tb-back">
+      <svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
+      Volver
+    </a>
+    <div class="tb-sep"></div>
+    <div class="tb-logo">
+      <svg class="tb-logo-mark" viewBox="0 0 30 30" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M15 1.5L27 8.25V21.75L15 28.5L3 21.75V8.25L15 1.5Z" fill="url(#bf-bg)" stroke="url(#bf-stroke)" stroke-width=".8"/>
+        <rect x="9" y="16" width="12" height="5" rx="1.2" fill="url(#bf-blue)"/>
+        <path d="M9 16H7.5C7.5 16 7 15 7.5 14.2C8 13.4 9 13.5 9 13.5V16Z" fill="url(#bf-blue)"/>
+        <rect x="8" y="12.5" width="14" height="4" rx="1" fill="url(#bf-blue2)"/>
+        <line x1="20" y1="10" x2="22" y2="8" stroke="#60a5fa" stroke-width="1" stroke-linecap="round" opacity=".7"/>
+        <line x1="21.5" y1="11.5" x2="23.5" y2="11" stroke="#60a5fa" stroke-width=".8" stroke-linecap="round" opacity=".5"/>
+        <line x1="20.5" y1="8.5" x2="22" y2="7" stroke="#60a5fa" stroke-width=".6" stroke-linecap="round" opacity=".4"/>
+        <path d="M11.5 19.5L10 20.5L11.5 21.5" stroke="rgba(0,0,0,.35)" stroke-width=".9" stroke-linecap="round" stroke-linejoin="round"/>
+        <path d="M13.5 19L14.5 22" stroke="rgba(0,0,0,.25)" stroke-width=".9" stroke-linecap="round"/>
+        <path d="M15.5 19.5L17 20.5L15.5 21.5" stroke="rgba(0,0,0,.35)" stroke-width=".9" stroke-linecap="round" stroke-linejoin="round"/>
+        <defs>
+          <linearGradient id="bf-bg" x1="3" y1="1.5" x2="27" y2="28.5" gradientUnits="userSpaceOnUse">
+            <stop stop-color="#0d1a2e"/>
+            <stop offset="1" stop-color="#070f1e"/>
+          </linearGradient>
+          <linearGradient id="bf-stroke" x1="3" y1="1.5" x2="27" y2="28.5" gradientUnits="userSpaceOnUse">
+            <stop stop-color="rgba(96,165,250,.45)"/>
+            <stop offset="1" stop-color="rgba(96,165,250,.1)"/>
+          </linearGradient>
+          <linearGradient id="bf-blue" x1="7" y1="13" x2="21" y2="21" gradientUnits="userSpaceOnUse">
+            <stop stop-color="#60a5fa"/>
+            <stop offset="1" stop-color="#3b82f6"/>
+          </linearGradient>
+          <linearGradient id="bf-blue2" x1="8" y1="12" x2="22" y2="17" gradientUnits="userSpaceOnUse">
+            <stop stop-color="#93c5fd"/>
+            <stop offset="1" stop-color="#60a5fa"/>
+          </linearGradient>
+        </defs>
+      </svg>
+      <div class="tb-logo-wordmark">
+        <span class="tb-logo-name">BYTEFORGE</span>
+        <span class="tb-logo-sub">Dev Studio</span>
+      </div>
+    </div>
+  </div>
+  <div class="tb-right">
+    <div class="tb-pill">
+      <div class="tb-dot"></div>
+      🌐 MTA · Lua Scripts
+    </div>
+  </div>
+</header>
 
-    <label>País:</label><br>
-    <input type="text" id="pais"><br><br>
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-left">
+    <div class="hero-tag">Catálogo de Scripts</div>
+    <h1 class="hero-title">
+      MTA:SA<br><span class="accent">Lua Scripts</span>
+    </h1>
+    <p class="hero-sub">Scripts y recursos Lua listos para tu servidor MTA:SA. Optimizados, bien documentados y con soporte activo. Entrega inmediata.</p>
+    <div class="hero-actions">
+      <button class="btn-cta" onclick="document.querySelector('.catalog').scrollIntoView({behavior:'smooth'})">Ver Catálogo</button>
+      <button class="btn-ghost" onclick="openContact('Script personalizado')">Cotización Custom</button>
+    </div>
+    <div class="hero-stats">
+      <div>
+        <div class="hstat-val">12</div>
+        <div class="hstat-lbl">Scripts</div>
+      </div>
+      <div class="hstat-sep"></div>
+      <div>
+        <div class="hstat-val">$5</div>
+        <div class="hstat-lbl">Desde</div>
+      </div>
+      <div class="hstat-sep"></div>
+      <div>
+        <div class="hstat-val">24h</div>
+        <div class="hstat-lbl">Soporte</div>
+      </div>
+      <div class="hstat-sep"></div>
+      <div>
+        <div class="hstat-val">100%</div>
+        <div class="hstat-lbl">Lua nativo</div>
+      </div>
+    </div>
+  </div>
+  <div class="hero-right">
+    <div class="hero-img-stack">
+      <div class="hi-main">
+        <img src="https://images.unsplash.com/photo-1542751110-97427bbecf20?w=700&q=80" alt="MTA Server">
+      </div>
+      <div class="hi-badge-card">
+        <div class="hbc-icon">🚗</div>
+        <div>
+          <div class="hbc-name">RPG Full System</div>
+          <div class="hbc-sub">MTA:SA · Lua · MySQL</div>
+        </div>
+        <div class="hbc-price">$25</div>
+      </div>
+    </div>
+  </div>
+</section>
 
-    <label>Nombre Discord:</label><br>
-    <input type="text" id="nombre_discord"><br><br>
+<!-- FILTERS -->
+<div class="filters-section">
+  <button class="flt active" onclick="filterCards('all',this)">Todos</button>
+  <button class="flt b" onclick="filterCards('t5',this)"><div class="flt-dot" style="background:var(--blue)"></div>$5 — Básicos</button>
+  <button class="flt c" onclick="filterCards('t10',this)"><div class="flt-dot" style="background:var(--cyan)"></div>$10 — Intermedios</button>
+  <button class="flt i" onclick="filterCards('t25',this)"><div class="flt-dot" style="background:var(--indigo)"></div>$25 — Premium</button>
+  <span class="flt-count" id="fltCount">12 scripts</span>
+</div>
 
-    <button type="submit">Registrar Piloto</button>
-  </form>
+<!-- CATALOG -->
+<div class="catalog">
 
-  <p id="resultado"></p>
+  <!-- TIER $5 -->
+  <div class="tier-block" id="sec-t5">
+    <div class="tier-head">
+      <div class="tier-name">Básicos</div>
+      <div class="tier-badge tbg-b">$5 USD</div>
+      <div class="tier-n">5 scripts</div>
+    </div>
+    <div class="grid">
 
-  <script>
-    document.getElementById("formPiloto").addEventListener("submit", async function(e) {
-      e.preventDefault();
+      <!-- HUD System -->
+      <div class="card" data-tier="t5" style="animation-delay:.05s">
+        <div class="card-line cl-b"></div>
+        <div class="card-img">
+          <img src="https://images.unsplash.com/photo-1607799279861-4dd421887fb3?w=500&q=75" alt="HUD">
+          <div class="card-img-overlay"></div>
+          <div class="card-img-badge tbg-b">Client · dxDraw</div>
+          <div class="card-img-icon">🖥️</div>
+          <div class="card-img-price">$5<small>USD</small></div>
+        </div>
+        <div class="card-body">
+          <div class="card-title">HUD Personalizado</div>
+          <div class="card-desc">HUD completo dibujado con dxDraw. Salud, armadura, dinero, munición y mini-mapa custom.</div>
+          <div class="card-tags"><span class="tag">Client-side</span><span class="tag">dxDraw</span></div>
+          <div class="card-features">
+            <div class="feat"><div class="feat-check" style="background:var(--blue-dim);color:var(--blue)"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div>Barras de HP y armadura</div>
+            <div class="feat"><div class="feat-check" style="background:var(--blue-dim);color:var(--blue)"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div>Contador de dinero animado</div>
+            <div class="feat"><div class="feat-check" style="background:var(--blue-dim);color:var(--blue)"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div>100% configurable YAML</div>
+          </div>
+          <button class="card-btn cb-b" onclick="openContact('HUD Personalizado - $5')">
+            Adquirir <svg viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+          </button>
+        </div>
+      </div>
 
-      const datos = {
-        nombre_ic: document.getElementById("nombre_ic").value,
-        rango: document.getElementById("rango").value,
-        pais: document.getElementById("pais").value,
-        nombre_discord: document.getElementById("nombre_discord").value
-      };
+      <!-- Chat System -->
+      <div class="card" data-tier="t5" style="animation-delay:.1s">
+        <div class="card-line cl-b"></div>
+        <div class="card-img">
+          <img src="https://images.unsplash.com/photo-1611532736597-de2d4265fba3?w=500&q=75" alt="Chat">
+          <div class="card-img-overlay"></div>
+          <div class="card-img-badge tbg-b">Server · Client</div>
+          <div class="card-img-icon">💬</div>
+          <div class="card-img-price">$5<small>USD</small></div>
+        </div>
+        <div class="card-body">
+          <div class="card-title">Chat Avanzado</div>
+          <div class="card-desc">Sistema de chat con canales, prefijos de rango, colores y comandos /me, /ooc, /pm.</div>
+          <div class="card-tags"><span class="tag">Server</span><span class="tag">Client</span></div>
+          <div class="card-features">
+            <div class="feat"><div class="feat-check" style="background:var(--blue-dim);color:var(--blue)"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div>Canales por grupo/rango</div>
+            <div class="feat"><div class="feat-check" style="background:var(--blue-dim);color:var(--blue)"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div>Comandos /me /ooc /pm</div>
+            <div class="feat"><div class="feat-check" style="background:var(--blue-dim);color:var(--blue)"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div>Filtro de palabras</div>
+          </div>
+          <button class="card-btn cb-b" onclick="openContact('Chat Avanzado - $5')">
+            Adquirir <svg viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+          </button>
+        </div>
+      </div>
 
-      try {
-        const response = await fetch("/pilotos", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json"
-          },
-          body: JSON.stringify(datos)
-        });
+      <!-- Spawn System -->
+      <div class="card" data-tier="t5" style="animation-delay:.15s">
+        <div class="card-line cl-b"></div>
+        <div class="card-img">
+          <img src="https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=500&q=75" alt="Spawn">
+          <div class="card-img-overlay"></div>
+          <div class="card-img-badge tbg-b">Server</div>
+          <div class="card-img-icon">📍</div>
+          <div class="card-img-price">$5<small>USD</small></div>
+        </div>
+        <div class="card-body">
+          <div class="card-title">Spawn Manager</div>
+          <div class="card-desc">Gestión de spawns con puntos configurables, protección anti-spawn kill y cooldowns.</div>
+          <div class="card-tags"><span class="tag">Server-side</span><span class="tag">ACL</span></div>
+          <div class="card-features">
+            <div class="feat"><div class="feat-check" style="background:var(--blue-dim);color:var(--blue)"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div>Spawns por equipo/facción</div>
+            <div class="feat"><div class="feat-check" style="background:var(--blue-dim);color:var(--blue)"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div>Protección anti-kill</div>
+            <div class="feat"><div class="feat-check" style="background:var(--blue-dim);color:var(--blue)"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div>Selección de skin</div>
+          </div>
+          <button class="card-btn cb-b" onclick="openContact('Spawn Manager - $5')">
+            Adquirir <svg viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+          </button>
+        </div>
+      </div>
 
-        const resultado = await response.json();
+      <!-- Admin Panel -->
+      <div class="card" data-tier="t5" style="animation-delay:.2s">
+        <div class="card-line cl-b"></div>
+        <div class="card-img">
+          <img src="https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=500&q=75" alt="Admin">
+          <div class="card-img-overlay"></div>
+          <div class="card-img-badge tbg-b">Server · ACL</div>
+          <div class="card-img-icon">🛡️</div>
+          <div class="card-img-price">$5<small>USD</small></div>
+        </div>
+        <div class="card-body">
+          <div class="card-title">Panel de Admin</div>
+          <div class="card-desc">Comandos de administración: kick, ban, mute, teleport, setHP y más con logs.</div>
+          <div class="card-tags"><span class="tag">Server</span><span class="tag">ACL</span></div>
+          <div class="card-features">
+            <div class="feat"><div class="feat-check" style="background:var(--blue-dim);color:var(--blue)"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div>Kick / Ban / Mute</div>
+            <div class="feat"><div class="feat-check" style="background:var(--blue-dim);color:var(--blue)"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div>Teleport / spectate</div>
+            <div class="feat"><div class="feat-check" style="background:var(--blue-dim);color:var(--blue)"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div>Log de acciones</div>
+          </div>
+          <button class="card-btn cb-b" onclick="openContact('Panel de Admin - $5')">
+            Adquirir <svg viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+          </button>
+        </div>
+      </div>
 
-        if (resultado.success) {
-          document.getElementById("resultado").innerText =
-            "✅ Piloto registrado con placa: " + resultado.placa;
-        } else {
-          document.getElementById("resultado").innerText =
-            "❌ Error: " + resultado.error;
-        }
+      <!-- Vehículo Básico -->
+      <div class="card" data-tier="t5" style="animation-delay:.25s">
+        <div class="card-line cl-b"></div>
+        <div class="card-img">
+          <img src="https://images.unsplash.com/photo-1538481199705-c710c4e965fc?w=500&q=75" alt="Vehicle">
+          <div class="card-img-overlay"></div>
+          <div class="card-img-badge tbg-b">Server · Client</div>
+          <div class="card-img-icon">🚗</div>
+          <div class="card-img-price">$5<small>USD</small></div>
+        </div>
+        <div class="card-body">
+          <div class="card-title">Sistema de Vehículos</div>
+          <div class="card-desc">Spawn de vehículos personales, garaje básico y sistema de llaves por jugador.</div>
+          <div class="card-tags"><span class="tag">Server</span><span class="tag">Client</span><span class="tag">MySQL</span></div>
+          <div class="card-features">
+            <div class="feat"><div class="feat-check" style="background:var(--blue-dim);color:var(--blue)"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div>Vehículo personal por jugador</div>
+            <div class="feat"><div class="feat-check" style="background:var(--blue-dim);color:var(--blue)"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div>Garaje con persistencia</div>
+            <div class="feat"><div class="feat-check" style="background:var(--blue-dim);color:var(--blue)"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div>Sistema de llaves</div>
+          </div>
+          <button class="card-btn cb-b" onclick="openContact('Sistema de Vehículos - $5')">
+            Adquirir <svg viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+          </button>
+        </div>
+      </div>
 
-      } catch (error) {
-        document.getElementById("resultado").innerText =
-          "❌ Error de conexión con el servidor";
-      }
-    });
-  </script>
+    </div>
+  </div>
 
+  <!-- TIER $10 -->
+  <div class="tier-block" id="sec-t10">
+    <div class="tier-head">
+      <div class="tier-name">Intermedios</div>
+      <div class="tier-badge tbg-c">$10 USD</div>
+      <div class="tier-n">5 scripts</div>
+    </div>
+    <div class="grid">
+
+      <!-- Economy -->
+      <div class="card" data-tier="t10" style="animation-delay:.05s">
+        <div class="card-line cl-c"></div>
+        <div class="card-img">
+          <img src="https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?w=500&q=75" alt="Economy">
+          <div class="card-img-overlay"></div>
+          <div class="card-img-badge tbg-c">Server · MySQL</div>
+          <div class="card-img-icon">💰</div>
+          <div class="card-img-price">$10<small>USD</small></div>
+        </div>
+        <div class="card-body">
+          <div class="card-title">Economy System</div>
+          <div class="card-desc">Sistema de economía completo con banco, transferencias, robos y tienda NPC.</div>
+          <div class="card-tags"><span class="tag">Server</span><span class="tag">MySQL</span><span class="tag">dxDraw</span></div>
+          <div class="card-features">
+            <div class="feat"><div class="feat-check" style="background:var(--cyan-dim);color:var(--cyan)"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div>Banco con intereses</div>
+            <div class="feat"><div class="feat-check" style="background:var(--cyan-dim);color:var(--cyan)"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div>Transferencias P2P</div>
+            <div class="feat"><div class="feat-check" style="background:var(--cyan-dim);color:var(--cyan)"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div>Tienda NPC con GUI</div>
+          </div>
+          <button class="card-btn cb-c" onclick="openContact('Economy System - $10')">
+            Adquirir <svg viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+          </button>
+        </div>
+      </div>
+
+      <!-- Facciones -->
+      <div class="card" data-tier="t10" style="animation-delay:.1s">
+        <div class="card-line cl-c"></div>
+        <div class="card-img">
+          <img src="https://images.unsplash.com/photo-1596495578065-6e0763fa1178?w=500&q=75" alt="Factions">
+          <div class="card-img-overlay"></div>
+          <div class="card-img-badge tbg-c">Server · MySQL</div>
+          <div class="card-img-icon">🏴</div>
+          <div class="card-img-price">$10<small>USD</small></div>
+        </div>
+        <div class="card-body">
+          <div class="card-title">Sistema de Facciones</div>
+          <div class="card-desc">Crea y gestiona facciones con rangos, territorios, chat privado y almacén compartido.</div>
+          <div class="card-tags"><span class="tag">Server</span><span class="tag">MySQL</span></div>
+          <div class="card-features">
+            <div class="feat"><div class="feat-check" style="background:var(--cyan-dim);color:var(--cyan)"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div>Rangos personalizables</div>
+            <div class="feat"><div class="feat-check" style="background:var(--cyan-dim);color:var(--cyan)"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div>Territorios y zonas</div>
+            <div class="feat"><div class="feat-check" style="background:var(--cyan-dim);color:var(--cyan)"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div>Almacén compartido</div>
+          </div>
+          <button class="card-btn cb-c" onclick="openContact('Sistema de Facciones - $10')">
+            Adquirir <svg viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+          </button>
+        </div>
+      </div>
+
+      <!-- Empleos -->
+      <div class="card" data-tier="t10" style="animation-delay:.15s">
+        <div class="card-line cl-c"></div>
+        <div class="card-img">
+          <img src="https://images.unsplash.com/photo-1589309736404-2d9e0bf8c01d?w=500&q=75" alt="Jobs">
+          <div class="card-img-overlay"></div>
+          <div class="card-img-badge tbg-c">Server · Client</div>
+          <div class="card-img-icon">💼</div>
+          <div class="card-img-price">$10<small>USD</small></div>
+        </div>
+        <div class="card-body">
+          <div class="card-title">Sistema de Empleos</div>
+          <div class="card-desc">Empleos con misiones dinámicas: taxista, repartidor, mecánico y minero. Salario por misión.</div>
+          <div class="card-tags"><span class="tag">Server</span><span class="tag">Client</span><span class="tag">MySQL</span></div>
+          <div class="card-features">
+            <div class="feat"><div class="feat-check" style="background:var(--cyan-dim);color:var(--cyan)"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div>4 empleos base incluidos</div>
+            <div class="feat"><div class="feat-check" style="background:var(--cyan-dim);color:var(--cyan)"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div>Misiones aleatorias</div>
+            <div class="feat"><div class="feat-check" style="background:var(--cyan-dim);color:var(--cyan)"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div>Niveles de experiencia</div>
+          </div>
+          <button class="card-btn cb-c" onclick="openContact('Sistema de Empleos - $10')">
+            Adquirir <svg viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+          </button>
+        </div>
+      </div>
+
+      <!-- Inventario -->
+      <div class="card" data-tier="t10" style="animation-delay:.2s">
+        <div class="card-line cl-c"></div>
+        <div class="card-img">
+          <img src="https://images.unsplash.com/photo-1612287230202-1ff1d85d1bdf?w=500&q=75" alt="Inventory">
+          <div class="card-img-overlay"></div>
+          <div class="card-img-badge tbg-c">Client · dxDraw</div>
+          <div class="card-img-icon">🎒</div>
+          <div class="card-img-price">$10<small>USD</small></div>
+        </div>
+        <div class="card-body">
+          <div class="card-title">Inventario GUI</div>
+          <div class="card-desc">Sistema de inventario visual tipo GTA-RP. Drag & drop, peso máximo y slots por rango.</div>
+          <div class="card-tags"><span class="tag">Client</span><span class="tag">dxDraw</span><span class="tag">MySQL</span></div>
+          <div class="card-features">
+            <div class="feat"><div class="feat-check" style="background:var(--cyan-dim);color:var(--cyan)"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div>Interfaz drag & drop</div>
+            <div class="feat"><div class="feat-check" style="background:var(--cyan-dim);color:var(--cyan)"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div>Sistema de peso</div>
+            <div class="feat"><div class="feat-check" style="background:var(--cyan-dim);color:var(--cyan)"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div>Persistencia MySQL</div>
+          </div>
+          <button class="card-btn cb-c" onclick="openContact('Inventario GUI - $10')">
+            Adquirir <svg viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+          </button>
+        </div>
+      </div>
+
+      <!-- Zonas de guerra -->
+      <div class="card" data-tier="t10" style="animation-delay:.25s">
+        <div class="card-line cl-c"></div>
+        <div class="card-img">
+          <img src="https://images.unsplash.com/photo-1544197150-b99a580bb7a8?w=500&q=75" alt="Warzone">
+          <div class="card-img-overlay"></div>
+          <div class="card-img-badge tbg-c">Server · Client</div>
+          <div class="card-img-icon">⚔️</div>
+          <div class="card-img-price">$10<small>USD</small></div>
+        </div>
+        <div class="card-body">
+          <div class="card-title">Warzone System</div>
+          <div class="card-desc">Zonas de combate con captura de puntos, recompensas por kill y ranking en tiempo real.</div>
+          <div class="card-tags"><span class="tag">Server</span><span class="tag">Client</span></div>
+          <div class="card-features">
+            <div class="feat"><div class="feat-check" style="background:var(--cyan-dim);color:var(--cyan)"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div>Captura de puntos</div>
+            <div class="feat"><div class="feat-check" style="background:var(--cyan-dim);color:var(--cyan)"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div>Recompensas por kill</div>
+            <div class="feat"><div class="feat-check" style="background:var(--cyan-dim);color:var(--cyan)"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div>Ranking en tiempo real</div>
+          </div>
+          <button class="card-btn cb-c" onclick="openContact('Warzone System - $10')">
+            Adquirir <svg viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+          </button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- TIER $25 -->
+  <div class="tier-block" id="sec-t25">
+    <div class="tier-head">
+      <div class="tier-name">Premium</div>
+      <div class="tier-badge tbg-i">$25 USD</div>
+      <div class="tier-n">2 scripts</div>
+    </div>
+    <div class="grid">
+
+      <!-- RPG Full -->
+      <div class="card" data-tier="t25" style="animation-delay:.05s">
+        <div class="card-line cl-i"></div>
+        <div class="card-img">
+          <img src="https://images.unsplash.com/photo-1585620385456-4759f9b5c7d9?w=500&q=75" alt="RPG">
+          <div class="card-img-overlay"></div>
+          <div class="card-img-badge tbg-i">Server · Client · MySQL</div>
+          <div class="card-img-icon">⚗️</div>
+          <div class="card-img-price">$25<small>USD</small></div>
+        </div>
+        <div class="card-body">
+          <div class="card-title">RPG Full System</div>
+          <div class="card-desc">Sistema RPG completo: habilidades, niveles, clases, misiones, mapa dinámico y economía integrada.</div>
+          <div class="card-tags"><span class="tag">Server</span><span class="tag">Client</span><span class="tag">MySQL</span><span class="tag">dxDraw</span></div>
+          <div class="card-features">
+            <div class="feat"><div class="feat-check" style="background:var(--indigo-dim);color:var(--indigo)"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div>Sistema de niveles y XP</div>
+            <div class="feat"><div class="feat-check" style="background:var(--indigo-dim);color:var(--indigo)"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div>4 clases con habilidades únicas</div>
+            <div class="feat"><div class="feat-check" style="background:var(--indigo-dim);color:var(--indigo)"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div>Misiones dinámicas integradas</div>
+            <div class="feat"><div class="feat-check" style="background:var(--indigo-dim);color:var(--indigo)"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div>Economía y banco incluidos</div>
+          </div>
+          <button class="card-btn cb-i" onclick="openContact('RPG Full System - $25')">
+            Adquirir <svg viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+          </button>
+        </div>
+      </div>
+
+      <!-- RP Policial -->
+      <div class="card" data-tier="t25" style="animation-delay:.1s">
+        <div class="card-line cl-i"></div>
+        <div class="card-img">
+          <img src="https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?w=500&q=75" alt="RP Police">
+          <div class="card-img-overlay"></div>
+          <div class="card-img-badge tbg-i">RP · Server · Client</div>
+          <div class="card-img-icon">🚔</div>
+          <div class="card-img-price">$25<small>USD</small></div>
+        </div>
+        <div class="card-body">
+          <div class="card-title">Roleplay Policial</div>
+          <div class="card-desc">Suite completa para RP: sistema policial, multas, arrestos, cárcel, fianza y expedientes.</div>
+          <div class="card-tags"><span class="tag">Server</span><span class="tag">Client</span><span class="tag">MySQL</span><span class="tag">RP</span></div>
+          <div class="card-features">
+            <div class="feat"><div class="feat-check" style="background:var(--indigo-dim);color:var(--indigo)"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div>Sistema de multas y arrestos</div>
+            <div class="feat"><div class="feat-check" style="background:var(--indigo-dim);color:var(--indigo)"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div>Cárcel con temporizador</div>
+            <div class="feat"><div class="feat-check" style="background:var(--indigo-dim);color:var(--indigo)"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div>Expedientes por jugador</div>
+            <div class="feat"><div class="feat-check" style="background:var(--indigo-dim);color:var(--indigo)"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div>MDT (terminal policial) GUI</div>
+          </div>
+          <button class="card-btn cb-i" onclick="openContact('Roleplay Policial - $25')">
+            Adquirir <svg viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+          </button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- CTA -->
+<div class="cta-section">
+  <div class="cta-box">
+    <div>
+      <div class="cta-label">¿Algo más específico?</div>
+      <div class="cta-title">Desarrollo Lua a medida</div>
+      <div class="cta-sub">Cotizamos cualquier recurso o sistema personalizado para MTA. Consultas sin costo adicional.</div>
+    </div>
+    <div class="cta-right">
+      <button class="btn-cta" onclick="openContact('Script Lua personalizado')">Solicitar Cotización</button>
+      <button class="btn-ghost" onclick="window.location.href='index2.html'">Todos los servicios</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast">
+  <div class="tb-dot"></div>
+  <span id="toastMsg">Redirigiendo...</span>
+</div>
+
+<script>
+// CURSOR
+const cur = document.getElementById('cur'), ring = document.getElementById('cur-ring');
+let mx = 0, my = 0, rx = 0, ry = 0;
+document.addEventListener('mousemove', e => {
+  mx = e.clientX; my = e.clientY;
+  cur.style.left = mx + 'px'; cur.style.top = my + 'px';
+});
+(function animRing() {
+  rx += (mx - rx) * .12; ry += (my - ry) * .12;
+  ring.style.left = rx + 'px'; ring.style.top = ry + 'px';
+  requestAnimationFrame(animRing);
+})();
+document.querySelectorAll('button, a, .card').forEach(el => {
+  el.addEventListener('mouseenter', () => { ring.style.width = '46px'; ring.style.height = '46px'; ring.style.borderColor = 'rgba(96,165,250,.35)'; });
+  el.addEventListener('mouseleave', () => { ring.style.width = '30px'; ring.style.height = '30px'; ring.style.borderColor = 'rgba(96,165,250,.3)'; });
+});
+
+// FILTER
+function filterCards(tier, btn) {
+  document.querySelectorAll('.flt').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  const cards = document.querySelectorAll('.card');
+  let visible = 0;
+  cards.forEach(c => {
+    const show = tier === 'all' || c.dataset.tier === tier;
+    c.classList.toggle('hidden', !show);
+    if (show) visible++;
+  });
+  ['t5','t10','t25'].forEach(t => {
+    const sec = document.getElementById('sec-' + t);
+    if (sec) sec.style.display = (tier === 'all' || tier === t) ? '' : 'none';
+  });
+  document.getElementById('fltCount').textContent = visible + ' script' + (visible !== 1 ? 's' : '');
+}
+
+// CONTACT
+function openContact(name) {
+  const toast = document.getElementById('toast');
+  document.getElementById('toastMsg').textContent = name;
+  toast.classList.add('show');
+  setTimeout(() => toast.classList.remove('show'), 3000);
+  setTimeout(() => { window.location.href = 'index2.html#contacto'; }, 800);
+}
+</script>
 </body>
 </html>
