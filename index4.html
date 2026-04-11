@@ -3,878 +3,792 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Minecraft Scripts · ByteForge</title>
-<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@300;400;500;700&display=swap" rel="stylesheet">
+<title>ByteForge — MTA Resources Store</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700&family=Exo+2:wght@300;400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
 <style>
 :root {
-  --bg: #060708;
-  --bg1: #0c0e10;
-  --bg2: #111417;
-  --surface: #161a1e;
-  --surface2: #1c2026;
-  --border: rgba(255,255,255,.05);
-  --border2: rgba(255,255,255,.09);
-  --border3: rgba(255,255,255,.16);
-  --text: rgba(255,255,255,.93);
-  --text2: rgba(255,255,255,.52);
-  --text3: rgba(255,255,255,.24);
-  --green: #4ade80;
-  --green-dim: rgba(74,222,128,.1);
-  --green-border: rgba(74,222,128,.22);
-  --amber: #f59e0b;
-  --amber-dim: rgba(245,158,11,.1);
-  --amber-border: rgba(245,158,11,.22);
-  --violet: #8b5cf6;
-  --violet-dim: rgba(139,92,246,.1);
-  --violet-border: rgba(139,92,246,.22);
-  --radius: 16px;
+  --navy: #070f17;
+  --navy-mid: #0d1e2c;
+  --navy-card: #0e1f2f;
+  --navy-lt: #132535;
+  --teal: #00c9a7;
+  --teal-dim: #009e85;
+  --teal-dark: #005c4d;
+  --blue: #007fa8;
+  --blue-lt: #00aad4;
+  --white: #eef4f7;
+  --muted: #7a9aaa;
+  --muted2: #3a5a6a;
+  --border: rgba(0,201,167,.13);
+  --border2: rgba(0,201,167,.28);
+  --font-hd: 'Rajdhani', sans-serif;
+  --font-bd: 'Exo 2', sans-serif;
+  --font-mono: 'Space Mono', monospace;
 }
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{background:var(--navy);font-family:var(--font-bd);color:var(--white);overflow-x:hidden;}
 
-*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
-html { scroll-behavior: smooth; }
+.bg-grid{position:fixed;inset:0;z-index:0;pointer-events:none;background-image:linear-gradient(rgba(0,201,167,.03) 1px,transparent 1px),linear-gradient(90deg,rgba(0,201,167,.03) 1px,transparent 1px);background-size:60px 60px;}
+.bg-glow{position:fixed;border-radius:50%;filter:blur(140px);pointer-events:none;z-index:0;}
+.g1{width:700px;height:700px;background:var(--teal-dark);top:-200px;left:-200px;opacity:.2;}
+.g2{width:600px;height:600px;background:var(--blue);bottom:-200px;right:-100px;opacity:.13;}
+#pts{position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden;}
+.pt{position:absolute;animation:ptfly linear infinite;}
+@keyframes ptfly{from{transform:translateY(110vh);opacity:0}8%{opacity:1}91%{opacity:1}to{transform:translateY(-120px) rotate(540deg);opacity:0}}
 
-body {
-  background: var(--bg);
-  color: var(--text);
-  font-family: 'Outfit', sans-serif;
-  min-height: 100vh;
-  overflow-x: hidden;
-  -webkit-font-smoothing: antialiased;
-  cursor: none;
-}
+/* NAV */
+nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:center;justify-content:space-between;padding:0 48px;height:68px;background:rgba(7,15,23,.82);backdrop-filter:blur(20px);border-bottom:1px solid var(--border);transition:background .3s;}
+nav.scrolled{background:rgba(7,15,23,.97);}
+.nav-logo{display:flex;align-items:center;gap:10px;text-decoration:none;}
+.nav-logo-icon{width:36px;height:36px;flex-shrink:0;}
+.nav-brand{font-family:var(--font-hd);font-size:1.4rem;font-weight:700;letter-spacing:3px;}
+.nav-brand span{color:var(--teal);}
+.nav-links{display:flex;align-items:center;gap:32px;list-style:none;}
+.nav-links a{color:var(--muted);text-decoration:none;font-size:.8rem;font-weight:600;letter-spacing:2px;text-transform:uppercase;transition:color .2s;position:relative;}
+.nav-links a::after{content:'';position:absolute;bottom:-4px;left:0;right:0;height:1.5px;background:var(--teal);transform:scaleX(0);transition:transform .25s;transform-origin:left;}
+.nav-links a:hover{color:var(--white);}
+.nav-links a:hover::after{transform:scaleX(1);}
+.nav-actions{display:flex;align-items:center;gap:10px;}
+.btn-ghost{padding:8px 20px;border-radius:8px;border:1px solid var(--border2);background:transparent;cursor:pointer;color:var(--teal);font-family:var(--font-hd);font-size:.8rem;font-weight:700;letter-spacing:2px;text-transform:uppercase;text-decoration:none;transition:all .22s;}
+.btn-ghost:hover{background:rgba(0,201,167,.1);}
+.btn-solid{padding:9px 22px;border-radius:8px;border:none;cursor:pointer;background:linear-gradient(135deg,var(--teal-dim),var(--blue));color:var(--white);font-family:var(--font-hd);font-size:.8rem;font-weight:700;letter-spacing:2px;text-transform:uppercase;text-decoration:none;transition:all .22s;box-shadow:0 4px 18px rgba(0,159,133,.3);}
+.btn-solid:hover{transform:translateY(-2px);box-shadow:0 7px 26px rgba(0,201,167,.4);}
 
-/* ─── CUSTOM CURSOR ─── */
-#cur { position: fixed; width: 6px; height: 6px; background: #fff; border-radius: 50%; pointer-events: none; z-index: 9999; transform: translate(-50%,-50%); mix-blend-mode: difference; transition: transform .15s; }
-#cur-ring { position: fixed; width: 30px; height: 30px; border: 1px solid rgba(255,255,255,.18); border-radius: 50%; pointer-events: none; z-index: 9998; transform: translate(-50%,-50%); mix-blend-mode: difference; }
-body:has(a:hover) #cur, body:has(button:hover) #cur { transform: translate(-50%,-50%) scale(2.5); }
 
-/* ─── BACKGROUND ─── */
-.bg-layer { position: fixed; inset: 0; z-index: 0; pointer-events: none; }
-.bg-noise {
-  position: fixed; inset: 0; z-index: 1; pointer-events: none; opacity: .032;
-  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
-}
-.bg-grid {
-  position: absolute; inset: 0;
-  background-image:
-    linear-gradient(rgba(255,255,255,.022) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(255,255,255,.022) 1px, transparent 1px);
-  background-size: 56px 56px;
-  mask-image: radial-gradient(ellipse 80% 60% at 50% 0%, #000 0%, transparent 100%);
-}
-.bg-glow {
-  position: absolute; top: -100px; left: 50%; transform: translateX(-50%);
-  width: 800px; height: 500px;
-  background: radial-gradient(ellipse, rgba(74,222,128,.035) 0%, transparent 70%);
-}
 
-/* ─── TOPBAR ─── */
-.topbar {
-  position: fixed; top: 0; left: 0; right: 0; z-index: 400;
-  height: 60px;
-  background: rgba(6,7,8,.85);
-  backdrop-filter: blur(20px);
-  border-bottom: 1px solid var(--border);
-  display: flex; align-items: center; justify-content: space-between;
-  padding: 0 40px;
-}
-.tb-left { display: flex; align-items: center; gap: 28px; }
-.tb-back {
-  display: flex; align-items: center; gap: 8px;
-  text-decoration: none; color: var(--text3);
-  font-family: 'JetBrains Mono', monospace;
-  font-size: .6rem; letter-spacing: .1em; text-transform: uppercase;
-  cursor: none; transition: color .2s;
-}
-.tb-back:hover { color: var(--text2); }
-.tb-back svg { width: 13px; height: 13px; stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
-.tb-sep { width: 1px; height: 20px; background: var(--border2); }
-.tb-logo {
-  font-family: 'Outfit', sans-serif; font-weight: 800; font-size: .95rem;
-  letter-spacing: .08em; color: #fff;
-}
-.tb-logo em { color: var(--text3); font-style: normal; }
-.tb-right { display: flex; align-items: center; gap: 12px; }
-.tb-pill {
-  display: flex; align-items: center; gap: 6px;
-  padding: 5px 12px; border-radius: 20px;
-  background: var(--green-dim); border: 1px solid var(--green-border);
-  font-family: 'JetBrains Mono', monospace; font-size: .5rem; letter-spacing: .1em; text-transform: uppercase;
-  color: var(--green);
-}
-.tb-dot { width: 5px; height: 5px; border-radius: 50%; background: var(--green); animation: pulse 2s infinite; }
-@keyframes pulse { 0%,100% { box-shadow: 0 0 0 0 rgba(74,222,128,.4); } 50% { box-shadow: 0 0 0 5px rgba(74,222,128,0); } }
+section{position:relative;z-index:1;}
+.section-inner{max-width:1260px;margin:0 auto;padding:100px 32px 100px;}
+#resources .section-inner{padding-top:100px;}
+.section-tag{font-family:var(--font-mono);font-size:.68rem;color:var(--teal);letter-spacing:4px;text-transform:uppercase;margin-bottom:16px;display:flex;align-items:center;gap:10px;}
+.section-tag::before{content:'//';opacity:.5;}
+.section-title{font-family:var(--font-hd);font-size:clamp(2.2rem,5vw,3.8rem);font-weight:700;line-height:1;letter-spacing:-.5px;margin-bottom:12px;}
+.section-title span{color:var(--teal);}
+.section-sub{color:var(--muted);font-size:.95rem;max-width:540px;line-height:1.7;}
 
-/* ─── HERO ─── */
-.hero {
-  position: relative; z-index: 2;
-  padding: 130px 40px 60px;
-  max-width: 1240px; margin: 0 auto;
-  display: grid; grid-template-columns: 1fr 1fr; gap: 60px; align-items: center;
-}
-.hero-left { animation: fadeUp .7s ease both; }
-.hero-tag {
-  display: inline-flex; align-items: center; gap: 8px;
-  font-family: 'JetBrains Mono', monospace; font-size: .55rem; letter-spacing: .15em; text-transform: uppercase;
-  color: var(--green); margin-bottom: 20px;
-}
-.hero-tag::before { content: '//'; opacity: .5; }
-.hero-title {
-  font-size: clamp(2.8rem, 5vw, 4.6rem);
-  font-weight: 900; line-height: .95; letter-spacing: -.03em;
-  color: #fff; margin-bottom: 18px;
-}
-.hero-title .accent { color: var(--green); }
-.hero-sub {
-  font-size: 1rem; font-weight: 400; color: var(--text2);
-  line-height: 1.75; max-width: 440px; margin-bottom: 36px;
-}
-.hero-actions { display: flex; gap: 12px; flex-wrap: wrap; }
-.btn-cta {
-  padding: 13px 28px; border-radius: 10px;
-  background: linear-gradient(135deg, var(--green) 0%, #22c55e 100%);
-  border: none; color: #030804;
-  font-family: 'Outfit', sans-serif; font-size: .8rem; font-weight: 700; letter-spacing: .06em;
-  cursor: none; transition: all .2s;
-  box-shadow: 0 4px 24px rgba(74,222,128,.25);
-}
-.btn-cta:hover { transform: translateY(-2px); box-shadow: 0 8px 32px rgba(74,222,128,.35); }
-.btn-ghost {
-  padding: 13px 28px; border-radius: 10px;
-  background: transparent; border: 1px solid var(--border3); color: var(--text2);
-  font-family: 'Outfit', sans-serif; font-size: .8rem; font-weight: 600; letter-spacing: .06em;
-  cursor: none; transition: all .2s;
-}
-.btn-ghost:hover { color: #fff; border-color: rgba(255,255,255,.25); }
+/* FILTERS */
+.filters-row{display:flex;gap:8px;flex-wrap:wrap;margin-top:40px;margin-bottom:0;}
+.filter-btn{font-family:var(--font-mono);font-size:.62rem;letter-spacing:2px;text-transform:uppercase;padding:8px 18px;border-radius:8px;border:1px solid var(--border);background:transparent;color:var(--muted);cursor:pointer;transition:all .22s;}
+.filter-btn:hover{border-color:var(--border2);color:var(--teal);}
+.filter-btn.active{border-color:rgba(0,201,167,.45);background:rgba(0,201,167,.08);color:var(--teal);}
 
-/* stats */
-.hero-stats { display: flex; gap: 28px; margin-top: 40px; }
-.hstat-val { font-size: 1.7rem; font-weight: 800; color: #fff; line-height: 1; }
-.hstat-lbl { font-family: 'JetBrains Mono', monospace; font-size: .48rem; letter-spacing: .1em; text-transform: uppercase; color: var(--text3); margin-top: 3px; }
-.hstat-sep { width: 1px; background: var(--border2); }
+/* RESOURCE GRID */
+.resources-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(360px,1fr));gap:22px;margin-top:36px;}
 
-/* HERO RIGHT — image stack */
-.hero-right { position: relative; animation: fadeUp .7s ease .15s both; }
-.hero-img-stack { position: relative; height: 420px; }
-.hi-main {
-  position: absolute; top: 0; left: 40px; right: 0;
-  border-radius: 20px; overflow: hidden;
-  border: 1px solid var(--border2);
-  box-shadow: 0 32px 80px rgba(0,0,0,.6), 0 0 0 1px rgba(255,255,255,.04);
-  height: 300px;
-}
-.hi-main img { width: 100%; height: 100%; object-fit: cover; display: block; }
-.hi-badge-card {
-  position: absolute; bottom: 0; left: 0; right: 60px;
-  background: var(--surface2); border: 1px solid var(--border2);
-  border-radius: 14px; padding: 16px 18px;
-  display: flex; align-items: center; gap: 14px;
-  box-shadow: 0 20px 50px rgba(0,0,0,.5);
-  backdrop-filter: blur(12px);
-}
-.hbc-icon { font-size: 28px; flex-shrink: 0; }
-.hbc-name { font-weight: 700; font-size: .88rem; color: #fff; margin-bottom: 2px; }
-.hbc-sub { font-family: 'JetBrains Mono', monospace; font-size: .5rem; letter-spacing: .08em; color: var(--text3); }
-.hbc-price { margin-left: auto; font-weight: 900; font-size: 1.2rem; color: var(--green); }
+/* RESOURCE CARD */
+.res-card{background:var(--navy-card);border:1px solid var(--border);border-radius:18px;overflow:hidden;transition:transform .3s,border-color .3s,box-shadow .3s;position:relative;display:flex;flex-direction:column;}
+.res-card:hover{transform:translateY(-7px);border-color:var(--border2);box-shadow:0 28px 64px rgba(0,0,0,.55),0 0 0 1px rgba(0,201,167,.07) inset;}
 
-/* ─── FILTERS ─── */
-.filters-section {
-  position: relative; z-index: 2;
-  max-width: 1240px; margin: 0 auto;
-  padding: 0 40px 32px;
-  display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
-  animation: fadeUp .6s ease .3s both;
-}
-.flt {
-  display: flex; align-items: center; gap: 7px;
-  padding: 8px 16px; border-radius: 10px;
-  background: var(--surface); border: 1px solid var(--border); color: var(--text2);
-  font-family: 'JetBrains Mono', monospace; font-size: .52rem; letter-spacing: .1em; text-transform: uppercase;
-  cursor: none; transition: all .2s;
-}
-.flt:hover { border-color: var(--border2); color: var(--text); }
-.flt.active { background: rgba(255,255,255,.06); border-color: var(--border3); color: #fff; }
-.flt.g.active { background: var(--green-dim); border-color: var(--green-border); color: var(--green); }
-.flt.a.active { background: var(--amber-dim); border-color: var(--amber-border); color: var(--amber); }
-.flt.v.active { background: var(--violet-dim); border-color: var(--violet-border); color: var(--violet); }
-.flt-dot { width: 5px; height: 5px; border-radius: 50%; }
-.flt-count { margin-left: auto; font-family: 'JetBrains Mono', monospace; font-size: .5rem; letter-spacing: .08em; color: var(--text3); }
+/* IMAGE GALLERY */
+.res-img-wrap{height:200px;position:relative;overflow:hidden;background:var(--navy-lt);flex-shrink:0;}
+.res-img-slides{display:flex;height:100%;transition:transform .5s cubic-bezier(.4,0,.2,1);}
+.res-img-slide{min-width:100%;height:100%;position:relative;overflow:hidden;}
+.res-img-slide img{width:100%;height:100%;object-fit:cover;object-position:center;transition:transform .6s ease;filter:brightness(.75) saturate(1.2);}
+.res-card:hover .res-img-slide img{transform:scale(1.06);}
+.res-img-overlay{position:absolute;inset:0;background:linear-gradient(to bottom,transparent 40%,rgba(7,15,23,.85) 100%);}
+.res-img-dots{position:absolute;bottom:10px;left:50%;transform:translateX(-50%);display:flex;gap:6px;z-index:2;}
+.dot{width:6px;height:6px;border-radius:50%;background:rgba(255,255,255,.3);cursor:pointer;transition:background .2s,transform .2s;}
+.dot.active{background:var(--teal);transform:scale(1.3);}
+.res-img-arrows{position:absolute;inset:0;display:flex;align-items:center;justify-content:space-between;padding:0 10px;z-index:2;opacity:0;transition:opacity .2s;}
+.res-card:hover .res-img-arrows{opacity:1;}
+.arrow-btn{width:30px;height:30px;border-radius:50%;background:rgba(7,15,23,.7);border:1px solid var(--border2);color:var(--teal);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:.8rem;transition:background .2s;}
+.arrow-btn:hover{background:rgba(0,201,167,.2);}
+.res-badge{position:absolute;top:12px;right:12px;font-family:var(--font-mono);font-size:.58rem;font-weight:700;letter-spacing:2px;padding:4px 10px;border-radius:20px;background:rgba(0,0,0,.6);backdrop-filter:blur(8px);border:1px solid rgba(255,255,255,.1);color:var(--white);text-transform:uppercase;z-index:2;}
+.res-badge.hot{border-color:rgba(0,201,167,.4);color:var(--teal);background:rgba(0,30,22,.8);}
 
-/* ─── CATALOG ─── */
-.catalog {
-  position: relative; z-index: 2;
-  max-width: 1240px; margin: 0 auto;
-  padding: 0 40px 80px;
-}
-.tier-block { margin-bottom: 56px; }
-.tier-head {
-  display: flex; align-items: center; gap: 14px;
-  margin-bottom: 22px; padding-bottom: 18px;
-  border-bottom: 1px solid var(--border);
-}
-.tier-name { font-size: 1.1rem; font-weight: 800; color: #fff; letter-spacing: -.01em; }
-.tier-badge {
-  font-family: 'JetBrains Mono', monospace; font-size: .48rem; letter-spacing: .1em; text-transform: uppercase;
-  padding: 4px 10px; border-radius: 6px;
-}
-.tb-g { background: var(--green-dim); border: 1px solid var(--green-border); color: var(--green); }
-.tb-a { background: var(--amber-dim); border: 1px solid var(--amber-border); color: var(--amber); }
-.tb-v { background: var(--violet-dim); border: 1px solid var(--violet-border); color: var(--violet); }
-.tier-n { font-family: 'JetBrains Mono', monospace; font-size: .46rem; color: var(--text3); letter-spacing: .08em; margin-left: auto; }
+/* CARD BODY */
+.res-card-body{padding:22px 24px 16px;flex:1;display:flex;flex-direction:column;}
+.res-card-cat{font-family:var(--font-mono);font-size:.6rem;color:var(--teal);letter-spacing:2px;text-transform:uppercase;margin-bottom:6px;}
+.res-card-title{font-family:var(--font-hd);font-size:1.3rem;font-weight:700;letter-spacing:.5px;margin-bottom:8px;line-height:1.2;}
+.res-card-desc{color:var(--muted);font-size:.83rem;line-height:1.65;flex:1;margin-bottom:14px;}
+.res-tags{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:6px;}
+.res-tag{font-family:var(--font-mono);font-size:.58rem;padding:3px 9px;border-radius:4px;letter-spacing:1px;background:rgba(0,201,167,.06);color:var(--teal);border:1px solid rgba(0,201,167,.16);text-transform:uppercase;}
 
-.grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(290px, 1fr)); gap: 14px; }
+/* PRICE ROW */
+.res-price-row{padding:16px 24px 22px;border-top:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;gap:12px;}
+.res-price{display:flex;align-items:baseline;gap:4px;}
+.res-price-currency{font-family:var(--font-hd);font-size:1.1rem;font-weight:700;color:var(--teal);}
+.res-price-num{font-family:var(--font-hd);font-size:2.4rem;font-weight:700;line-height:1;color:var(--white);}
+.res-price-usd{font-size:.65rem;color:var(--muted);letter-spacing:1px;}
+.res-btn{padding:11px 22px;border-radius:10px;border:1px solid var(--border2);background:rgba(0,201,167,.06);cursor:pointer;color:var(--teal);font-family:var(--font-hd);font-size:.82rem;font-weight:700;letter-spacing:2px;text-transform:uppercase;transition:all .25s;position:relative;overflow:hidden;white-space:nowrap;}
+.res-btn::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,var(--teal-dim),var(--blue));opacity:0;transition:opacity .25s;}
+.res-btn:hover{color:var(--white);border-color:transparent;box-shadow:0 8px 24px rgba(0,201,167,.25);transform:translateY(-2px);}
+.res-btn:hover::before{opacity:1;}
+.res-btn span{position:relative;z-index:1;}
 
-/* ─── CARD ─── */
-.card {
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  overflow: hidden;
-  position: relative;
-  cursor: none;
-  transition: transform .3s cubic-bezier(.22,1,.36,1), border-color .25s, box-shadow .3s;
-  animation: fadeUp .5s ease both;
-}
-.card:hover { transform: translateY(-6px); border-color: var(--border2); box-shadow: 0 24px 64px rgba(0,0,0,.55); }
+/* TOPBAR ANIM */
+.topbar-anim{height:3px;background:linear-gradient(90deg,var(--teal-dim),var(--blue-lt),var(--teal));background-size:200% 100%;animation:barSlide 3s linear infinite;}
+@keyframes barSlide{from{background-position:0%}to{background-position:200%}}
 
-/* card image */
-.card-img {
-  position: relative; height: 160px; overflow: hidden;
-  background: var(--bg2);
-}
-.card-img img {
-  width: 100%; height: 100%; object-fit: cover; display: block;
-  transition: transform .5s cubic-bezier(.22,1,.36,1), filter .4s;
-  filter: brightness(.85) saturate(.9);
-}
-.card:hover .card-img img { transform: scale(1.05); filter: brightness(.95) saturate(1); }
-.card-img-overlay {
-  position: absolute; inset: 0;
-  background: linear-gradient(to bottom, transparent 50%, rgba(22,26,30,.95) 100%);
-}
-.card-img-badge {
-  position: absolute; top: 12px; right: 12px;
-  font-family: 'JetBrains Mono', monospace; font-size: .48rem; letter-spacing: .08em; text-transform: uppercase;
-  padding: 4px 10px; border-radius: 6px;
-  backdrop-filter: blur(8px);
-}
-.card-img-icon {
-  position: absolute; bottom: 14px; left: 14px;
-  width: 40px; height: 40px; border-radius: 10px;
-  background: rgba(22,26,30,.9); border: 1px solid var(--border2);
-  display: flex; align-items: center; justify-content: center;
-  font-size: 20px;
-  backdrop-filter: blur(8px);
-}
-.card-img-price {
-  position: absolute; bottom: 14px; right: 14px;
-  font-weight: 800; font-size: 1.1rem; color: #fff;
-  line-height: 1;
-}
-.card-img-price small {
-  font-family: 'JetBrains Mono', monospace; font-size: .42rem;
-  font-weight: 400; color: var(--text3); display: block; text-align: right; letter-spacing: .06em;
-}
+/* CART */
+.cart-bar{position:fixed;bottom:0;left:0;right:0;z-index:200;background:rgba(7,15,23,.97);border-top:1px solid var(--border2);padding:12px 48px;display:flex;align-items:center;justify-content:space-between;transform:translateY(100%);transition:transform .4s cubic-bezier(.175,.885,.32,1);backdrop-filter:blur(20px);}
+.cart-bar.show{transform:translateY(0);}
+.cart-info{display:flex;align-items:center;gap:20px;}
+.cart-count{font-family:var(--font-mono);font-size:.68rem;color:var(--muted);letter-spacing:2px;}
+.cart-total-label{font-family:var(--font-hd);font-size:1.5rem;font-weight:700;color:var(--white);}
+.cart-total-label span{color:var(--teal);}
+.cart-actions{display:flex;gap:12px;align-items:center;}
+.cart-clear{background:transparent;border:1px solid var(--border);border-radius:8px;color:var(--muted);font-family:var(--font-mono);font-size:.65rem;letter-spacing:2px;padding:8px 16px;cursor:pointer;transition:all .2s;text-transform:uppercase;}
+.cart-clear:hover{border-color:rgba(255,100,100,.4);color:#ff7070;}
+.cart-checkout{padding:11px 28px;border-radius:10px;border:none;background:linear-gradient(135deg,var(--teal-dim),var(--blue));color:var(--white);font-family:var(--font-hd);font-size:.9rem;font-weight:700;letter-spacing:3px;text-transform:uppercase;cursor:pointer;box-shadow:0 4px 20px rgba(0,159,133,.35);transition:all .25s;}
+.cart-checkout:hover{transform:translateY(-2px);box-shadow:0 8px 28px rgba(0,201,167,.45);}
 
-/* card glow line */
-.card-line { position: absolute; top: 0; left: 0; right: 0; height: 1px; opacity: 0; transition: opacity .3s; z-index: 2; }
-.card:hover .card-line { opacity: 1; }
-.cl-g { background: linear-gradient(90deg, transparent, rgba(74,222,128,.5), transparent); }
-.cl-a { background: linear-gradient(90deg, transparent, rgba(245,158,11,.5), transparent); }
-.cl-v { background: linear-gradient(90deg, transparent, rgba(139,92,246,.5), transparent); }
+/* TOAST */
+#toast{position:fixed;top:88px;right:24px;z-index:9999;padding:12px 20px;border-radius:12px;background:var(--navy-lt);border:1px solid var(--border);font-size:.83rem;color:var(--white);box-shadow:0 8px 32px rgba(0,0,0,.5);transform:translateY(-80px);opacity:0;transition:all .33s cubic-bezier(.175,.885,.32,1);pointer-events:none;max-width:300px;font-family:var(--font-bd);}
 
-.card-body { padding: 18px 18px 20px; }
-.card-title { font-size: .95rem; font-weight: 700; color: #fff; margin-bottom: 6px; letter-spacing: -.01em; }
-.card-desc { font-size: .78rem; color: var(--text2); line-height: 1.65; margin-bottom: 13px; }
+/* MODAL */
+.modal-overlay{position:fixed;inset:0;z-index:500;background:rgba(3,8,13,.9);backdrop-filter:blur(12px);display:flex;align-items:center;justify-content:center;padding:24px;opacity:0;pointer-events:none;transition:opacity .3s;}
+.modal-overlay.open{opacity:1;pointer-events:all;}
+.modal{background:var(--navy-card);border:1px solid var(--border2);border-radius:20px;max-width:620px;width:100%;overflow:hidden;transform:scale(.94);transition:transform .3s;}
+.modal-overlay.open .modal{transform:scale(1);}
+.modal-gallery{height:260px;position:relative;overflow:hidden;background:var(--navy-lt);}
+.modal-gallery-slides{display:flex;height:100%;transition:transform .5s cubic-bezier(.4,0,.2,1);}
+.modal-gallery-slide{min-width:100%;height:100%;overflow:hidden;}
+.modal-gallery-slide img{width:100%;height:100%;object-fit:cover;filter:brightness(.8);}
+.modal-gallery-dots{position:absolute;bottom:12px;left:50%;transform:translateX(-50%);display:flex;gap:7px;z-index:2;}
+.modal-gallery-arrows{position:absolute;inset:0;display:flex;align-items:center;justify-content:space-between;padding:0 14px;z-index:2;}
+.modal-overlay-grad{position:absolute;inset:0;background:linear-gradient(to bottom,transparent 50%,rgba(14,31,47,.95) 100%);}
+.modal-body{padding:28px 32px 32px;}
+.modal-cat{font-family:var(--font-mono);font-size:.62rem;color:var(--teal);letter-spacing:3px;text-transform:uppercase;margin-bottom:8px;}
+.modal-title{font-family:var(--font-hd);font-size:2rem;font-weight:700;letter-spacing:.5px;margin-bottom:12px;}
+.modal-desc{color:var(--muted);font-size:.88rem;line-height:1.7;margin-bottom:20px;}
+.modal-features{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:24px;}
+.modal-feat{font-size:.8rem;color:var(--muted);display:flex;align-items:center;gap:8px;}
+.modal-feat::before{content:'✓';color:var(--teal);font-family:var(--font-mono);font-size:.75rem;flex-shrink:0;}
+.modal-footer{display:flex;align-items:center;justify-content:space-between;gap:16px;padding-top:20px;border-top:1px solid var(--border);}
+.modal-price{display:flex;align-items:baseline;gap:5px;}
+.modal-price-sym{font-family:var(--font-hd);font-size:1.3rem;color:var(--teal);font-weight:700;}
+.modal-price-num{font-family:var(--font-hd);font-size:3rem;font-weight:700;line-height:1;}
+.modal-price-usd{font-size:.7rem;color:var(--muted);}
+.modal-buy-btn{flex:1;max-width:220px;padding:14px;border-radius:12px;border:none;background:linear-gradient(135deg,var(--teal-dim),var(--blue));color:var(--white);font-family:var(--font-hd);font-size:1rem;font-weight:700;letter-spacing:3px;text-transform:uppercase;cursor:pointer;box-shadow:0 6px 24px rgba(0,159,133,.35);transition:all .25s;}
+.modal-buy-btn:hover{transform:translateY(-2px);box-shadow:0 10px 32px rgba(0,201,167,.45);}
+.modal-close-btn{position:absolute;top:16px;right:16px;z-index:10;width:36px;height:36px;border-radius:50%;background:rgba(7,15,23,.8);border:1px solid var(--border);color:var(--muted);font-size:1rem;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .2s;}
+.modal-close-btn:hover{border-color:var(--border2);color:var(--white);}
 
-.card-tags { display: flex; flex-wrap: wrap; gap: 4px; margin-bottom: 14px; }
-.tag {
-  font-family: 'JetBrains Mono', monospace; font-size: .42rem; letter-spacing: .06em; text-transform: uppercase;
-  padding: 3px 7px; border-radius: 4px;
-  background: rgba(255,255,255,.04); border: 1px solid var(--border); color: var(--text3);
-}
+@keyframes fadeUp{from{opacity:0;transform:translateY(24px)}to{opacity:1;transform:translateY(0)}}
+.reveal{opacity:0;transform:translateY(32px);transition:opacity .7s ease,transform .7s ease;}
+.reveal.visible{opacity:1;transform:translateY(0);}
 
-.card-features { display: flex; flex-direction: column; gap: 6px; margin-bottom: 16px; }
-.feat { display: flex; align-items: center; gap: 8px; font-size: .76rem; color: var(--text2); }
-.feat-check { width: 14px; height: 14px; border-radius: 4px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
-.feat-check svg { width: 10px; height: 10px; stroke: currentColor; fill: none; stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round; }
+footer{position:relative;z-index:1;border-top:1px solid var(--border);padding:28px 48px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:16px;margin-bottom:0;}
+.footer-brand{font-family:var(--font-hd);font-size:1.1rem;font-weight:700;letter-spacing:2px;}
+.footer-brand span{color:var(--teal);}
+.footer-copy{font-size:.75rem;color:var(--muted2);}
+.footer-status{display:flex;align-items:center;gap:8px;font-size:.72rem;color:var(--muted2);}
+.dot-live{width:7px;height:7px;border-radius:50%;background:var(--teal);animation:pulse 2s infinite;flex-shrink:0;}
+@keyframes pulse{0%,100%{opacity:1;box-shadow:0 0 0 0 rgba(0,201,167,.5)}50%{opacity:.6;box-shadow:0 0 0 6px rgba(0,201,167,0)}}
 
-.card-btn {
-  width: 100%; padding: 10px;
-  border-radius: 8px; border: 1px solid var(--border2);
-  background: rgba(255,255,255,.04); color: var(--text);
-  font-family: 'Outfit', sans-serif; font-size: .72rem; font-weight: 700; letter-spacing: .08em; text-transform: uppercase;
-  cursor: none; transition: all .2s;
-  display: flex; align-items: center; justify-content: center; gap: 8px;
-}
-.card-btn:hover { border-color: var(--border3); background: rgba(255,255,255,.07); color: #fff; }
-.card-btn.cb-g:hover { background: var(--green-dim); border-color: var(--green-border); color: var(--green); }
-.card-btn.cb-a:hover { background: var(--amber-dim); border-color: var(--amber-border); color: var(--amber); }
-.card-btn.cb-v:hover { background: var(--violet-dim); border-color: var(--violet-border); color: var(--violet); }
-.card-btn svg { width: 12px; height: 12px; stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
-
-.card.hidden { display: none; }
-
-/* ─── CTA BOTTOM ─── */
-.cta-section {
-  position: relative; z-index: 2;
-  max-width: 1240px; margin: 0 auto;
-  padding: 0 40px 80px;
-}
-.cta-box {
-  background: var(--surface);
-  border: 1px solid var(--border2);
-  border-radius: 20px; padding: 44px 48px;
-  display: flex; align-items: center; justify-content: space-between; gap: 32px;
-  position: relative; overflow: hidden;
-}
-.cta-box::before {
-  content: ''; position: absolute; top: 0; left: 20%; right: 20%; height: 1px;
-  background: linear-gradient(90deg, transparent, rgba(255,255,255,.08), transparent);
-}
-.cta-box::after {
-  content: ''; position: absolute; bottom: -80px; right: -80px;
-  width: 220px; height: 220px; border-radius: 50%;
-  background: radial-gradient(circle, rgba(139,92,246,.08) 0%, transparent 70%);
-  pointer-events: none;
-}
-.cta-label { font-family: 'JetBrains Mono', monospace; font-size: .5rem; letter-spacing: .15em; text-transform: uppercase; color: var(--text3); margin-bottom: 8px; }
-.cta-title { font-size: 1.5rem; font-weight: 800; color: #fff; margin-bottom: 6px; letter-spacing: -.02em; }
-.cta-sub { font-size: .85rem; color: var(--text2); }
-.cta-right { display: flex; gap: 10px; flex-shrink: 0; }
-
-/* ─── TOAST ─── */
-.toast {
-  position: fixed; bottom: 28px; right: 28px; z-index: 1000;
-  background: var(--surface2); border: 1px solid var(--green-border); border-radius: 10px;
-  padding: 12px 18px; display: flex; align-items: center; gap: 10px;
-  font-family: 'JetBrains Mono', monospace; font-size: .52rem; letter-spacing: .08em; color: var(--green);
-  transform: translateY(80px); opacity: 0;
-  transition: all .3s cubic-bezier(.22,1,.36,1); pointer-events: none;
-}
-.toast.show { transform: translateY(0); opacity: 1; }
-
-@keyframes fadeUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
-
-/* ─── RESPONSIVE ─── */
-@media (max-width: 900px) {
-  .hero { grid-template-columns: 1fr; gap: 40px; }
-  .hero-right { display: none; }
-  .topbar { padding: 0 20px; }
-  .hero, .filters-section, .catalog, .cta-section { padding-left: 20px; padding-right: 20px; }
-  .grid { grid-template-columns: 1fr; }
-  .cta-box { flex-direction: column; align-items: flex-start; padding: 28px 24px; }
-  .cta-right { flex-direction: column; width: 100%; }
-}
+@media(max-width:900px){nav{padding:0 20px}.nav-links{display:none}.resources-grid{grid-template-columns:1fr}.hero h1{font-size:2.8rem}.modal-features{grid-template-columns:1fr}}
+@media(max-width:540px){.section-inner{padding:70px 20px}.hero{padding:100px 20px 60px}footer{padding:20px;flex-direction:column;align-items:flex-start}.cart-bar{padding:12px 20px;flex-direction:column;gap:12px}}
 </style>
 </head>
 <body>
 
-<div id="cur"></div>
-<div id="cur-ring"></div>
+<div class="bg-grid"></div>
+<div class="bg-glow g1"></div>
+<div class="bg-glow g2"></div>
+<div id="pts"></div>
 
-<div class="bg-layer">
-  <div class="bg-grid"></div>
-  <div class="bg-glow"></div>
-</div>
-<div class="bg-noise"></div>
+<!-- NAV -->
+<nav id="nav">
+  <a href="#" class="nav-logo">
+    <svg class="nav-logo-icon" viewBox="0 0 80 80" fill="none">
+      <rect x="18" y="55" width="44" height="10" rx="2" fill="#1a3a4a"/>
+      <rect x="11" y="61" width="58" height="8" rx="2" fill="#0e2c3c"/>
+      <rect x="7" y="46" width="6" height="6" rx="1" fill="#00c9a7" opacity=".8"/>
+      <rect x="15" y="38" width="4" height="4" rx="1" fill="#00c9a7" opacity=".5"/>
+      <rect x="19" y="48" width="3" height="3" rx="1" fill="#00e5c8" opacity=".6"/>
+      <polygon points="34,8 41,27 37,27 37,53 31,53 31,27 27,27" fill="#0d4f6b"/>
+      <polygon points="44,14 51,32 47,32 47,53 41,53 41,32 37,32" fill="#0a6080"/>
+      <polygon points="54,20 61,36 57,36 57,53 51,53 51,36 47,36" fill="#007fa8"/>
+      <polygon points="29,6 35,24 32,24 32,51 26,51 26,24 23,24" fill="#00b8a0" opacity=".75"/>
+    </svg>
+    <div class="nav-brand">BYTE<span>FORGE</span></div>
+  </a>
+  <ul class="nav-links">
+    <li><a href="#resources">Resources</a></li>
+    <li><a href="#contacto">Contacto</a></li>
+    <li><a href="index.html">← Volver</a></li>
+  </ul>
+  <div class="nav-actions">
+    <button class="btn-ghost" id="cartNavBtn" onclick="scrollToCart()">🛒 Carrito: <span id="cartNavCount">0</span></button>
+    <a href="#resources" class="btn-solid">Explorar →</a>
+  </div>
+</nav>
 
-<!-- TOPBAR -->
-<header class="topbar">
-  <div class="tb-left">
-    <a href="index2.html" class="tb-back">
-      <svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
-      Volver
-    </a>
-    <div class="tb-sep"></div>
-    <div class="tb-logo">BYTE<em>·</em>FORGE</div>
-  </div>
-  <div class="tb-right">
-    <div class="tb-pill">
-      <div class="tb-dot"></div>
-      ⛏ Minecraft Scripts
-    </div>
-  </div>
-</header>
 
-<!-- HERO -->
-<section class="hero">
-  <div class="hero-left">
-    <div class="hero-tag">Catálogo de Scripts</div>
-    <h1 class="hero-title">
-      Minecraft<br><span class="accent">Systems</span>
-    </h1>
-    <p class="hero-sub">Plugins y scripts listos para producción. Java Edition, Spigot, Paper y BungeeCord. Entrega inmediata tras el pago.</p>
-    <div class="hero-actions">
-      <button class="btn-cta" onclick="document.querySelector('.catalog').scrollIntoView({behavior:'smooth'})">Ver Catálogo</button>
-      <button class="btn-ghost" onclick="openContact('Script personalizado')">Cotización Custom</button>
+
+
+<!-- RESOURCES -->
+<section id="resources">
+  <div class="section-inner">
+    <div class="reveal">
+      <div class="section-tag">Catálogo completo</div>
+      <h2 class="section-title">MTA <span>Resources</span></h2>
+      <p class="section-sub">Scripts probados en servidores reales. Instala, configura y listo.</p>
     </div>
-    <div class="hero-stats">
-      <div>
-        <div class="hstat-val">12</div>
-        <div class="hstat-lbl">Scripts</div>
-      </div>
-      <div class="hstat-sep"></div>
-      <div>
-        <div class="hstat-val">$5</div>
-        <div class="hstat-lbl">Desde</div>
-      </div>
-      <div class="hstat-sep"></div>
-      <div>
-        <div class="hstat-val">24h</div>
-        <div class="hstat-lbl">Soporte</div>
-      </div>
-      <div class="hstat-sep"></div>
-      <div>
-        <div class="hstat-val">100%</div>
-        <div class="hstat-lbl">Configurables</div>
-      </div>
-    </div>
-  </div>
-  <div class="hero-right">
-    <div class="hero-img-stack">
-      <div class="hi-main">
-        <img src="https://images.unsplash.com/photo-1542751110-97427bbecf20?w=700&q=80" alt="Minecraft Server" loading="lazy">
-      </div>
-      <div class="hi-badge-card">
-        <div class="hbc-icon">⚗️</div>
-        <div>
-          <div class="hbc-name">RPG Skills System</div>
-          <div class="hbc-sub">Paper · MySQL · GUI</div>
-        </div>
-        <div class="hbc-price">$25</div>
-      </div>
-    </div>
+    <div class="filters-row reveal" id="filtersRow"></div>
+    <div class="resources-grid" id="resourcesGrid"></div>
   </div>
 </section>
 
-<!-- FILTERS -->
-<div class="filters-section">
-  <button class="flt active" onclick="filterCards('all',this)">Todos</button>
-  <button class="flt g" onclick="filterCards('t5',this)"><div class="flt-dot" style="background:var(--green)"></div>$5 — Básicos</button>
-  <button class="flt a" onclick="filterCards('t10',this)"><div class="flt-dot" style="background:var(--amber)"></div>$10 — Intermedios</button>
-  <button class="flt v" onclick="filterCards('t25',this)"><div class="flt-dot" style="background:var(--violet)"></div>$25 — Premium</button>
-  <span class="flt-count" id="fltCount">12 scripts</span>
-</div>
+<footer>
+  <div class="footer-brand">BYTE<span>FORGE</span> <span style="font-size:.75rem;color:var(--muted);font-weight:400;letter-spacing:1px;">Software Studios</span></div>
+  <div class="footer-copy">© 2025 ByteForge Software Studios · MTA Resources Store</div>
+  <div class="footer-status"><span class="dot-live"></span> Todos los resources disponibles</div>
+</footer>
 
-<!-- CATALOG -->
-<div class="catalog">
-
-  <!-- TIER $5 -->
-  <div class="tier-block" id="sec-t5">
-    <div class="tier-head">
-      <div class="tier-name">Básicos</div>
-      <div class="tier-badge tb-g">$5 USD</div>
-      <div class="tier-n">5 scripts</div>
-    </div>
-    <div class="grid">
-
-      <!-- Economy -->
-      <div class="card" data-tier="t5" style="animation-delay:.05s">
-        <div class="card-line cl-g"></div>
-        <div class="card-img">
-          <img src="https://images.unsplash.com/photo-1607799279861-4dd421887fb3?w=500&q=75" alt="Economy" loading="lazy">
-          <div class="card-img-overlay"></div>
-          <div class="card-img-badge tb-g">Spigot · Vault</div>
-          <div class="card-img-icon">💰</div>
-          <div class="card-img-price">$5<small>USD</small></div>
-        </div>
-        <div class="card-body">
-          <div class="card-title">Economy Básica</div>
-          <div class="card-desc">Sistema de moneda virtual con comandos /balance, /pay y /top. Compatible con Vault y MySQL.</div>
-          <div class="card-tags"><span class="tag">Spigot</span><span class="tag">Vault</span><span class="tag">MySQL</span></div>
-          <div class="card-features">
-            <div class="feat"><div class="feat-check" style="background:var(--green-dim);color:var(--green)"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div>/balance /pay /top</div>
-            <div class="feat"><div class="feat-check" style="background:var(--green-dim);color:var(--green)"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div>Compatibilidad Vault</div>
-            <div class="feat"><div class="feat-check" style="background:var(--green-dim);color:var(--green)"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div>Config YAML completa</div>
-          </div>
-          <button class="card-btn cb-g" onclick="openContact('Economy Básica - $5')">
-            Adquirir
-            <svg viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
-          </button>
-        </div>
-      </div>
-
-      <!-- Home System -->
-      <div class="card" data-tier="t5" style="animation-delay:.1s">
-        <div class="card-line cl-g"></div>
-        <div class="card-img">
-          <img src="https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=500&q=75" alt="Home System" loading="lazy">
-          <div class="card-img-overlay"></div>
-          <div class="card-img-badge tb-g">Spigot · Paper</div>
-          <div class="card-img-icon">🏠</div>
-          <div class="card-img-price">$5<small>USD</small></div>
-        </div>
-        <div class="card-body">
-          <div class="card-title">Home System</div>
-          <div class="card-desc">Sistema de homes personalizable. Jugadores guardan y teletransportan a ubicaciones fácilmente.</div>
-          <div class="card-tags"><span class="tag">Spigot</span><span class="tag">Paper</span></div>
-          <div class="card-features">
-            <div class="feat"><div class="feat-check" style="background:var(--green-dim);color:var(--green)"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div>Múltiples homes por rango</div>
-            <div class="feat"><div class="feat-check" style="background:var(--green-dim);color:var(--green)"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div>Cooldown configurable</div>
-            <div class="feat"><div class="feat-check" style="background:var(--green-dim);color:var(--green)"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div>Soporte per-permission</div>
-          </div>
-          <button class="card-btn cb-g" onclick="openContact('Home System - $5')">
-            Adquirir
-            <svg viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
-          </button>
-        </div>
-      </div>
-
-      <!-- Chat Formatter -->
-      <div class="card" data-tier="t5" style="animation-delay:.15s">
-        <div class="card-line cl-g"></div>
-        <div class="card-img">
-          <img src="https://images.unsplash.com/photo-1611532736597-de2d4265fba3?w=500&q=75" alt="Chat" loading="lazy">
-          <div class="card-img-overlay"></div>
-          <div class="card-img-badge tb-g">Spigot · PAPI</div>
-          <div class="card-img-icon">💬</div>
-          <div class="card-img-price">$5<small>USD</small></div>
-        </div>
-        <div class="card-body">
-          <div class="card-title">Chat Formatter</div>
-          <div class="card-desc">Formatea el chat con prefijos, colores por rango y soporte completo de PlaceholderAPI.</div>
-          <div class="card-tags"><span class="tag">Spigot</span><span class="tag">PlaceholderAPI</span></div>
-          <div class="card-features">
-            <div class="feat"><div class="feat-check" style="background:var(--green-dim);color:var(--green)"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div>Formato por grupo/rango</div>
-            <div class="feat"><div class="feat-check" style="background:var(--green-dim);color:var(--green)"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div>Soporte PlaceholderAPI</div>
-            <div class="feat"><div class="feat-check" style="background:var(--green-dim);color:var(--green)"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div>Filtro de palabras</div>
-          </div>
-          <button class="card-btn cb-g" onclick="openContact('Chat Formatter - $5')">
-            Adquirir
-            <svg viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
-          </button>
-        </div>
-      </div>
-
-      <!-- KitPvP -->
-      <div class="card" data-tier="t5" style="animation-delay:.2s">
-        <div class="card-line cl-g"></div>
-        <div class="card-img">
-          <img src="https://images.unsplash.com/photo-1538481199705-c710c4e965fc?w=500&q=75" alt="PvP" loading="lazy">
-          <div class="card-img-overlay"></div>
-          <div class="card-img-badge tb-g">Spigot · PvP</div>
-          <div class="card-img-icon">⚔️</div>
-          <div class="card-img-price">$5<small>USD</small></div>
-        </div>
-        <div class="card-body">
-          <div class="card-title">KitPvP Básico</div>
-          <div class="card-desc">Sistema de kits para servidores PvP. Kits por rango con cooldown y efectos de partículas.</div>
-          <div class="card-tags"><span class="tag">Spigot</span><span class="tag">PvP</span></div>
-          <div class="card-features">
-            <div class="feat"><div class="feat-check" style="background:var(--green-dim);color:var(--green)"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div>Kits configurables en YAML</div>
-            <div class="feat"><div class="feat-check" style="background:var(--green-dim);color:var(--green)"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div>Cooldown por kit</div>
-            <div class="feat"><div class="feat-check" style="background:var(--green-dim);color:var(--green)"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div>Efectos de partículas</div>
-          </div>
-          <button class="card-btn cb-g" onclick="openContact('KitPvP Básico - $5')">
-            Adquirir
-            <svg viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
-          </button>
-        </div>
-      </div>
-
-      <!-- Tickets -->
-      <div class="card" data-tier="t5" style="animation-delay:.25s">
-        <div class="card-line cl-g"></div>
-        <div class="card-img">
-          <img src="https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=500&q=75" alt="Support" loading="lazy">
-          <div class="card-img-overlay"></div>
-          <div class="card-img-badge tb-g">Spigot · Staff</div>
-          <div class="card-img-icon">🎟️</div>
-          <div class="card-img-price">$5<small>USD</small></div>
-        </div>
-        <div class="card-body">
-          <div class="card-title">Sistema de Tickets</div>
-          <div class="card-desc">Plugin de soporte con tickets por chat. Jugadores abren tickets, el staff los gestiona.</div>
-          <div class="card-tags"><span class="tag">Spigot</span><span class="tag">Staff</span></div>
-          <div class="card-features">
-            <div class="feat"><div class="feat-check" style="background:var(--green-dim);color:var(--green)"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div>Tickets via comando</div>
-            <div class="feat"><div class="feat-check" style="background:var(--green-dim);color:var(--green)"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div>Notificación al staff</div>
-            <div class="feat"><div class="feat-check" style="background:var(--green-dim);color:var(--green)"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div>Log de historial completo</div>
-          </div>
-          <button class="card-btn cb-g" onclick="openContact('Sistema de Tickets - $5')">
-            Adquirir
-            <svg viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
-          </button>
-        </div>
-      </div>
-
-    </div>
+<!-- CART BAR -->
+<div class="cart-bar" id="cartBar">
+  <div class="cart-info">
+    <div class="cart-count"><span id="cartCount">0</span> RESOURCES SELECCIONADOS</div>
+    <div class="cart-total-label">Total: <span id="cartTotal">$0</span> <span style="font-size:.8rem;color:var(--muted);font-weight:400;">USD</span></div>
   </div>
-
-  <!-- TIER $10 -->
-  <div class="tier-block" id="sec-t10">
-    <div class="tier-head">
-      <div class="tier-name">Intermedios</div>
-      <div class="tier-badge tb-a">$10 USD</div>
-      <div class="tier-n">5 scripts</div>
-    </div>
-    <div class="grid">
-
-      <!-- Shop GUI -->
-      <div class="card" data-tier="t10" style="animation-delay:.05s">
-        <div class="card-line cl-a"></div>
-        <div class="card-img">
-          <img src="https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?w=500&q=75" alt="Shop" loading="lazy">
-          <div class="card-img-overlay"></div>
-          <div class="card-img-badge tb-a">Spigot · GUI</div>
-          <div class="card-img-icon">🏪</div>
-          <div class="card-img-price">$10<small>USD</small></div>
-        </div>
-        <div class="card-body">
-          <div class="card-title">Shop GUI</div>
-          <div class="card-desc">Tienda con interfaz gráfica personalizable. Categorías, precios y stock configurable por admin.</div>
-          <div class="card-tags"><span class="tag">Spigot</span><span class="tag">GUI</span><span class="tag">MySQL</span></div>
-          <div class="card-features">
-            <div class="feat"><div class="feat-check" style="background:var(--amber-dim);color:var(--amber)"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div>GUI con categorías</div>
-            <div class="feat"><div class="feat-check" style="background:var(--amber-dim);color:var(--amber)"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div>Comprar y vender</div>
-            <div class="feat"><div class="feat-check" style="background:var(--amber-dim);color:var(--amber)"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div>Stock limitado opcional</div>
-          </div>
-          <button class="card-btn cb-a" onclick="openContact('Shop GUI - $10')">
-            Adquirir
-            <svg viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
-          </button>
-        </div>
-      </div>
-
-      <!-- Leaderboard -->
-      <div class="card" data-tier="t10" style="animation-delay:.1s">
-        <div class="card-line cl-a"></div>
-        <div class="card-img">
-          <img src="https://images.unsplash.com/photo-1596495578065-6e0763fa1178?w=500&q=75" alt="Leaderboard" loading="lazy">
-          <div class="card-img-overlay"></div>
-          <div class="card-img-badge tb-a">Paper · MySQL</div>
-          <div class="card-img-icon">🏆</div>
-          <div class="card-img-price">$10<small>USD</small></div>
-        </div>
-        <div class="card-body">
-          <div class="card-title">Leaderboard System</div>
-          <div class="card-desc">Clasificaciones en tiempo real con hologramas en mundo, GUI y placeholders disponibles.</div>
-          <div class="card-tags"><span class="tag">Paper</span><span class="tag">Hologramas</span><span class="tag">MySQL</span></div>
-          <div class="card-features">
-            <div class="feat"><div class="feat-check" style="background:var(--amber-dim);color:var(--amber)"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div>Top por kills, monedas, etc.</div>
-            <div class="feat"><div class="feat-check" style="background:var(--amber-dim);color:var(--amber)"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div>Hologramas en mundo</div>
-            <div class="feat"><div class="feat-check" style="background:var(--amber-dim);color:var(--amber)"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div>Actualización automática</div>
-          </div>
-          <button class="card-btn cb-a" onclick="openContact('Leaderboard System - $10')">
-            Adquirir
-            <svg viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
-          </button>
-        </div>
-      </div>
-
-      <!-- Claim -->
-      <div class="card" data-tier="t10" style="animation-delay:.15s">
-        <div class="card-line cl-a"></div>
-        <div class="card-img">
-          <img src="https://images.unsplash.com/photo-1589309736404-2d9e0bf8c01d?w=500&q=75" alt="Claim" loading="lazy">
-          <div class="card-img-overlay"></div>
-          <div class="card-img-badge tb-a">Spigot</div>
-          <div class="card-img-icon">🏡</div>
-          <div class="card-img-price">$10<small>USD</small></div>
-        </div>
-        <div class="card-body">
-          <div class="card-title">Claim System</div>
-          <div class="card-desc">Sistema de reclamación de terrenos. Jugadores protegen su zona con bloques especiales.</div>
-          <div class="card-tags"><span class="tag">Spigot</span><span class="tag">Protección</span></div>
-          <div class="card-features">
-            <div class="feat"><div class="feat-check" style="background:var(--amber-dim);color:var(--amber)"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div>Claims por chunk o área</div>
-            <div class="feat"><div class="feat-check" style="background:var(--amber-dim);color:var(--amber)"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div>Permisos de trust</div>
-            <div class="feat"><div class="feat-check" style="background:var(--amber-dim);color:var(--amber)"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div>Visualización de bordes</div>
-          </div>
-          <button class="card-btn cb-a" onclick="openContact('Claim System - $10')">
-            Adquirir
-            <svg viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
-          </button>
-        </div>
-      </div>
-
-      <!-- Quests -->
-      <div class="card" data-tier="t10" style="animation-delay:.2s">
-        <div class="card-line cl-a"></div>
-        <div class="card-img">
-          <img src="https://images.unsplash.com/photo-1612287230202-1ff1d85d1bdf?w=500&q=75" alt="Quests" loading="lazy">
-          <div class="card-img-overlay"></div>
-          <div class="card-img-badge tb-a">Spigot · GUI</div>
-          <div class="card-img-icon">🎯</div>
-          <div class="card-img-price">$10<small>USD</small></div>
-        </div>
-        <div class="card-body">
-          <div class="card-title">Quests System</div>
-          <div class="card-desc">Misiones con objetivos, recompensas y seguimiento por barra de progreso en GUI.</div>
-          <div class="card-tags"><span class="tag">Spigot</span><span class="tag">GUI</span><span class="tag">YAML</span></div>
-          <div class="card-features">
-            <div class="feat"><div class="feat-check" style="background:var(--amber-dim);color:var(--amber)"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div>Quests definidas en YAML</div>
-            <div class="feat"><div class="feat-check" style="background:var(--amber-dim);color:var(--amber)"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div>Recompensas configurables</div>
-            <div class="feat"><div class="feat-check" style="background:var(--amber-dim);color:var(--amber)"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div>GUI de seguimiento</div>
-          </div>
-          <button class="card-btn cb-a" onclick="openContact('Quests System - $10')">
-            Adquirir
-            <svg viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
-          </button>
-        </div>
-      </div>
-
-      <!-- BungeeCord -->
-      <div class="card" data-tier="t10" style="animation-delay:.25s">
-        <div class="card-line cl-a"></div>
-        <div class="card-img">
-          <img src="https://images.unsplash.com/photo-1544197150-b99a580bb7a8?w=500&q=75" alt="Network" loading="lazy">
-          <div class="card-img-overlay"></div>
-          <div class="card-img-badge tb-a">BungeeCord</div>
-          <div class="card-img-icon">🌐</div>
-          <div class="card-img-price">$10<small>USD</small></div>
-        </div>
-        <div class="card-body">
-          <div class="card-title">BungeeCord Lobby</div>
-          <div class="card-desc">Plugin de lobby para redes BungeeCord. Selector de servidores, MOTD dinámico y balanceo de carga.</div>
-          <div class="card-tags"><span class="tag">BungeeCord</span><span class="tag">Lobby</span></div>
-          <div class="card-features">
-            <div class="feat"><div class="feat-check" style="background:var(--amber-dim);color:var(--amber)"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div>Compass selector</div>
-            <div class="feat"><div class="feat-check" style="background:var(--amber-dim);color:var(--amber)"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div>MOTD dinámico</div>
-            <div class="feat"><div class="feat-check" style="background:var(--amber-dim);color:var(--amber)"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div>Balanceo de carga</div>
-          </div>
-          <button class="card-btn cb-a" onclick="openContact('BungeeCord Lobby - $10')">
-            Adquirir
-            <svg viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
-          </button>
-        </div>
-      </div>
-
-    </div>
-  </div>
-
-  <!-- TIER $25 -->
-  <div class="tier-block" id="sec-t25">
-    <div class="tier-head">
-      <div class="tier-name">Premium</div>
-      <div class="tier-badge tb-v">$25 USD</div>
-      <div class="tier-n">2 scripts</div>
-    </div>
-    <div class="grid">
-
-      <!-- RPG -->
-      <div class="card" data-tier="t25" style="animation-delay:.05s">
-        <div class="card-line cl-v"></div>
-        <div class="card-img">
-          <img src="https://images.unsplash.com/photo-1585620385456-4759f9b5c7d9?w=500&q=75" alt="RPG" loading="lazy">
-          <div class="card-img-overlay"></div>
-          <div class="card-img-badge tb-v">Paper · RPG</div>
-          <div class="card-img-icon">⚗️</div>
-          <div class="card-img-price">$25<small>USD</small></div>
-        </div>
-        <div class="card-body">
-          <div class="card-title">RPG Skills System</div>
-          <div class="card-desc">Sistema completo de habilidades RPG. Clases, niveles, árbol de habilidades y partículas custom.</div>
-          <div class="card-tags"><span class="tag">Paper</span><span class="tag">RPG</span><span class="tag">MySQL</span><span class="tag">GUI</span></div>
-          <div class="card-features">
-            <div class="feat"><div class="feat-check" style="background:var(--violet-dim);color:var(--violet)"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div>4 clases base incluidas</div>
-            <div class="feat"><div class="feat-check" style="background:var(--violet-dim);color:var(--violet)"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div>Árbol de habilidades GUI</div>
-            <div class="feat"><div class="feat-check" style="background:var(--violet-dim);color:var(--violet)"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div>Partículas y efectos custom</div>
-            <div class="feat"><div class="feat-check" style="background:var(--violet-dim);color:var(--violet)"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div>Sistema de XP y niveles</div>
-          </div>
-          <button class="card-btn cb-v" onclick="openContact('RPG Skills System - $25')">
-            Adquirir
-            <svg viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
-          </button>
-        </div>
-      </div>
-
-      <!-- Economy Suite -->
-      <div class="card" data-tier="t25" style="animation-delay:.1s">
-        <div class="card-line cl-v"></div>
-        <div class="card-img">
-          <img src="https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?w=500&q=75" alt="Economy Suite" loading="lazy">
-          <div class="card-img-overlay"></div>
-          <div class="card-img-badge tb-v">Spigot · Vault</div>
-          <div class="card-img-icon">🏦</div>
-          <div class="card-img-price">$25<small>USD</small></div>
-        </div>
-        <div class="card-body">
-          <div class="card-title">Economy Full Suite</div>
-          <div class="card-desc">Suite completa: banco con intereses, inversiones, impuestos, tienda P2P y mercado de subastas.</div>
-          <div class="card-tags"><span class="tag">Spigot</span><span class="tag">MySQL</span><span class="tag">Vault</span><span class="tag">GUI</span></div>
-          <div class="card-features">
-            <div class="feat"><div class="feat-check" style="background:var(--violet-dim);color:var(--violet)"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div>Banco con intereses</div>
-            <div class="feat"><div class="feat-check" style="background:var(--violet-dim);color:var(--violet)"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div>Mercado de subastas</div>
-            <div class="feat"><div class="feat-check" style="background:var(--violet-dim);color:var(--violet)"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div>Tienda player-to-player</div>
-            <div class="feat"><div class="feat-check" style="background:var(--violet-dim);color:var(--violet)"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div>Historial de transacciones</div>
-          </div>
-          <button class="card-btn cb-v" onclick="openContact('Economy Full Suite - $25')">
-            Adquirir
-            <svg viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
-          </button>
-        </div>
-      </div>
-
-    </div>
+  <div class="cart-actions">
+    <button class="cart-clear" onclick="clearCart()">Vaciar carrito</button>
+    <button class="cart-checkout" onclick="checkout()">COMPRAR AHORA →</button>
   </div>
 </div>
 
-<!-- CTA -->
-<div class="cta-section">
-  <div class="cta-box">
-    <div>
-      <div class="cta-label">¿Algo más específico?</div>
-      <div class="cta-title">Desarrollo a medida</div>
-      <div class="cta-sub">Cotizamos cualquier plugin o sistema personalizado. Consultas sin costo adicional.</div>
+<!-- TOAST -->
+<div id="toast"></div>
+
+<!-- MODAL -->
+<div class="modal-overlay" id="modalOverlay" onclick="closeModal(event)">
+  <div class="modal" id="modalBox" style="position:relative;">
+    <button class="modal-close-btn" onclick="document.getElementById('modalOverlay').classList.remove('open')">✕</button>
+    <div class="modal-gallery" id="modalGallery">
+      <div class="modal-gallery-slides" id="modalSlides"></div>
+      <div class="modal-overlay-grad"></div>
+      <div class="modal-gallery-dots" id="modalDots"></div>
+      <div class="modal-gallery-arrows">
+        <button class="arrow-btn" onclick="modalArrow(-1)">‹</button>
+        <button class="arrow-btn" onclick="modalArrow(1)">›</button>
+      </div>
     </div>
-    <div class="cta-right">
-      <button class="btn-cta" onclick="openContact('Script personalizado')">Solicitar Cotización</button>
-      <button class="btn-ghost" onclick="window.location.href='index2.html'">Todos los servicios</button>
+    <div class="modal-body">
+      <div class="modal-cat" id="modalCat"></div>
+      <div class="modal-title" id="modalTitle"></div>
+      <div class="modal-desc" id="modalDesc"></div>
+      <div class="modal-features" id="modalFeatures"></div>
+      <div class="modal-footer">
+        <div class="modal-price">
+          <span class="modal-price-sym">$</span>
+          <span class="modal-price-num">6</span>
+          <span class="modal-price-usd">USD</span>
+        </div>
+        <button class="modal-buy-btn" id="modalBuyBtn">AGREGAR AL CARRITO</button>
+      </div>
     </div>
   </div>
-</div>
-
-<div class="toast" id="toast">
-  <div class="tb-dot" style="animation:pulse 2s infinite"></div>
-  <span id="toastMsg">Redirigiendo...</span>
 </div>
 
 <script>
-// CURSOR
-const cur = document.getElementById('cur'), ring = document.getElementById('cur-ring');
-let mx = 0, my = 0, rx = 0, ry = 0;
-document.addEventListener('mousemove', e => {
-  mx = e.clientX; my = e.clientY;
-  cur.style.left = mx + 'px'; cur.style.top = my + 'px';
-});
-(function animRing() {
-  rx += (mx - rx) * .12; ry += (my - ry) * .12;
-  ring.style.left = rx + 'px'; ring.style.top = ry + 'px';
-  requestAnimationFrame(animRing);
+// ── DATA ──────────────────────────────────────────────────────────────────
+const resources = [
+  {
+    id:'players', cat:'Sistema', name:'Manager de Players',
+    desc:'Sistema completo de gestión de jugadores, personajes, dinero, trabajos e idiomas. El núcleo de tu servidor.',
+    tags:['Players','Economía','BD','Nametags'],
+    features:['Múltiples personajes','Economía integrada','Sistema de idiomas','Nametags dinámicos','Trabajos y rangos','Exportaciones Lua'],
+    imgs:[
+      'https://www.gtaall.com/uploads/posts/2013-08/1377185248_gta-sa-multiplayer-mod-multi-theft-auto-0-5-screenshot-3.jpg',
+      'https://i.ytimg.com/vi/OJkm0JJVPxs/maxresdefault.jpg',
+      'https://www.gtaall.com/uploads/posts/2013-06/1370368826_screen.jpg'
+    ]
+  },
+  {
+    id:'MTA_spartans', cat:'Combate', name:'Spartans OVST Soldados',
+    desc:'Gamemode militar principal. Sistema de clases, rangos y bandos (Rusia vs Terroristas) con combate táctico completo.',
+    tags:['Gamemode','Clases','Bandos','Rangos'], hot:true,
+    features:['Clases militares','Sistema de rangos','Rusia vs Terroristas','Armas modificadas','Spawn por bando','Estadísticas'],
+    imgs:[
+      'https://www.gtaall.com/uploads/posts/2013-07/1375186490_1_nfo.jpg',
+      'https://i.ytimg.com/vi/7tYzU1S5Kcc/maxresdefault.jpg',
+      'https://www.gtaall.com/uploads/posts/2016-03/1457562498_army-clothes-for-cj.jpg'
+    ]
+  },
+  {
+    id:'capture_zones', cat:'Sistema', name:'Capture Zones',
+    desc:'Sistema estratégico de captura de zonas con persistencia en BD. Genera puntos por control territorial en tiempo real.',
+    tags:['Zonas','Estrategia','Persistencia','Puntos'],
+    features:['Zonas configurables','Persistencia en BD','Puntuación territorial','Eventos en tiempo real','HUD de captura','Anti-exploit'],
+    imgs:[
+      'https://i.ytimg.com/vi/OJkm0JJVPxs/maxresdefault.jpg',
+      'https://www.gtaall.com/uploads/posts/2013-06/1370368826_screen.jpg',
+      'https://i.ytimg.com/vi/7tYzU1S5Kcc/maxresdefault.jpg'
+    ]
+  },
+  {
+    id:'admin38', cat:'Admin', name:'Admin Panel Español',
+    desc:'Panel de administración completo en español. 66 scripts, GUI completa y sistema de banderas IP para servidores MTA.',
+    tags:['Admin','GUI','Ban','Banderas IP'],
+    features:['Ban / Mute / Kick','Screenshots remotas','Gestión de recursos','Banderas IP','Espectador','66 scripts'],
+    imgs:[
+      'https://i.ytimg.com/vi/ZjvxlZHa5W4/maxresdefault.jpg',
+      'https://i.ytimg.com/vi/OJkm0JJVPxs/maxresdefault.jpg',
+      'https://www.gtaall.com/uploads/posts/2013-07/1375186490_1_nfo.jpg'
+    ]
+  },
+  {
+    id:'GlobalMilitaryConflict', cat:'HUD', name:'GMC HUD Militar',
+    desc:'HUD militar completo. Sistema de salud, munición, brújula, killstreaks y XP. Diseñado para combate intenso.',
+    tags:['HUD','Killstreaks','Brújula','XP'], hot:true,
+    features:['Brújula táctica','Sistema de KillStreaks','Barra de XP y nivel','20 scripts cliente','Contador de munición','Minimapa táctico'],
+    imgs:[
+      'https://i.ytimg.com/vi/OBuQ4VYfpz8/maxresdefault.jpg',
+      'https://www.planetmods.com.br/wp-content/uploads/2022/05/capa-hud-mta.jpg',
+      'https://i.ytimg.com/vi/5k2u04Zbnqc/maxresdefault.jpg'
+    ]
+  },
+  {
+    id:'armas', cat:'Combate', name:'Sistema de Armas DCRP',
+    desc:'Gestión de armas con sonidos y modelos 3D personalizados. 31 armas con sonidos realistas y efectos visuales.',
+    tags:['Armas','3D','Sonido','Realista'],
+    features:['31 armas únicas','Modelos 3D custom','Sonidos realistas','Efectos de impacto','Recarga animada','Sistema de balística'],
+    imgs:[
+      'https://www.gtaall.com/uploads/posts/2016-10/1477244048_mods-armas-gta-sa.jpg',
+      'https://www.gtaall.com/uploads/posts/2013-08/1377185248_gta-sa-multiplayer-mod-multi-theft-auto-0-5-screenshot-3.jpg',
+      'https://www.gtaall.com/uploads/posts/2016-03/1457562498_army-clothes-for-cj.jpg'
+    ]
+  },
+  {
+    id:'aero_missile', cat:'Combate', name:'Aero Tactical System',
+    desc:'HUD táctico militar para aeronaves con sistema de misiles. Compatible con Shamal, Hydra y Leviathan.',
+    tags:['Aéreo','Misiles','HUD','Radar'],
+    features:['HUD táctico aéreo','Sistema de misiles','Radar de bloqueo','Sonidos de combate','Compatible con 3 naves','Lock-on system'],
+    imgs:[
+      'https://www.gtaall.com/uploads/posts/2013-07/1375186490_1_nfo.jpg',
+      'https://i.ytimg.com/vi/7tYzU1S5Kcc/maxresdefault.jpg',
+      'https://www.gtaall.com/uploads/posts/2013-08/1377185248_gta-sa-multiplayer-mod-multi-theft-auto-0-5-screenshot-3.jpg'
+    ]
+  },
+  {
+    id:'military_tank', cat:'Combate', name:'Military Tank System',
+    desc:'Sistema completo para manejo y combate con tanques militares. 12 scripts servidor/cliente con física mejorada.',
+    tags:['Tanque','Militar','Física','Armamento'],
+    features:['Control de tanques','Física mejorada','Cámara de torreta','Armamento pesado','HUD de tanque','12 scripts'],
+    imgs:[
+      'https://www.gtaall.com/uploads/posts/2015-09/1442430090_oshkosh-m1070-het-tank-transporter-for-gta-san-andreas.jpg',
+      'https://www.gtaall.com/uploads/posts/2014-06/1402855743_jgsdf-type90-tank.jpg',
+      'https://www.gtaall.com/uploads/posts/2013-07/1375186490_1_nfo.jpg'
+    ]
+  },
+  {
+    id:'vehicles_auxiliar', cat:'Vehículos', name:'Sistema Auxiliar Vehículos',
+    desc:'Tuning, precios, sonido, cambio manual y vinilos. 21 scripts con más de 100 archivos de vinilos personalizados.',
+    tags:['Tuning','Vinilos','Sonido','Precios'],
+    features:['Sistema de tuning','100+ vinilos','Cambio manual de marchas','Precios por modelo','Shader de vinilos','Exportaciones'],
+    imgs:[
+      'https://www.gtaall.com/uploads/posts/2013-06/1370368826_screen.jpg',
+      'https://i.ytimg.com/vi/OJkm0JJVPxs/maxresdefault.jpg',
+      'https://www.gtaall.com/uploads/posts/2013-08/1377185248_gta-sa-multiplayer-mod-multi-theft-auto-0-5-screenshot-3.jpg'
+    ]
+  },
+  {
+    id:'SonidoAutosSdrp', cat:'Vehículos', name:'Sonido de Autos SDRP',
+    desc:'158 archivos de sonido personalizados para vehículos. Muscle, sport, trucks, motos, turbo — realismo total.',
+    tags:['Sonido','158 archivos','RPM','Turbo'],
+    features:['158 sonidos únicos','RPM dinámico','Sistema de engranajes','Turbo realista','Motos y trucks','Cada categoría de auto'],
+    imgs:[
+      'https://www.gtaall.com/uploads/posts/2013-06/1370368826_screen.jpg',
+      'https://www.gtaall.com/uploads/posts/2013-07/1375186490_1_nfo.jpg',
+      'https://i.ytimg.com/vi/OJkm0JJVPxs/maxresdefault.jpg'
+    ]
+  },
+  {
+    id:'military_tank_veh', cat:'Vehículos', name:'Humvees Militares Pack',
+    desc:'Pack completo: Humvee Ruso + Humvee Terrorista con skins personalizados para cada bando. Listo para instalar.',
+    tags:['Humvee','Ruso','Terrorista','Pack'],
+    features:['Humvee ruso custom','Humvee terrorista custom','8 scripts total','Skins por bando','Armamento opcional','Alta calidad visual'],
+    imgs:[
+      'https://www.gtaall.com/uploads/posts/2015-09/1442430090_oshkosh-m1070-het-tank-transporter-for-gta-san-andreas.jpg',
+      'https://www.gtaall.com/uploads/posts/2014-06/1402855743_jgsdf-type90-tank.jpg',
+      'https://www.gtaall.com/uploads/posts/2013-08/1377185248_gta-sa-multiplayer-mod-multi-theft-auto-0-5-screenshot-3.jpg'
+    ]
+  },
+  {
+    id:'Mapa_2', cat:'Mapas', name:'Shader System Pro',
+    desc:'Sistema avanzado de reemplazo de texturas con shaders. 167 archivos de texturas personalizadas de alta calidad.',
+    tags:['Shaders','167 texturas','Visual','FX'],
+    features:['167 texturas custom','Shader FX avanzado','Texturas de edificios','Texturas genéricas','Sin impacto en FPS','Fácil instalación'],
+    imgs:[
+      'https://www.gtaall.com/uploads/posts/2013-08/1377185248_gta-sa-multiplayer-mod-multi-theft-auto-0-5-screenshot-3.jpg',
+      'https://www.gtaall.com/uploads/posts/2013-07/1375186490_1_nfo.jpg',
+      'https://www.gtaall.com/uploads/posts/2013-06/1370368826_screen.jpg'
+    ]
+  },
+  {
+    id:'LSHospital', cat:'Mapas', name:'Hospital Los Santos',
+    desc:'Mapa completo del hospital con objetos 3D personalizados, texturas propias y scripts de extensión incluidos.',
+    tags:['Hospital','3D','Mapa','Objetos'],
+    features:['Objetos 3D únicos','Texturas personalizadas','Interior completo','Script de extensión','Salas equipadas','Alta calidad visual'],
+    imgs:[
+      'https://www.gtaall.com/uploads/posts/2016-03/1457562498_army-clothes-for-cj.jpg',
+      'https://www.gtaall.com/uploads/posts/2013-08/1377185248_gta-sa-multiplayer-mod-multi-theft-auto-0-5-screenshot-3.jpg',
+      'https://www.gtaall.com/uploads/posts/2013-07/1375186490_1_nfo.jpg'
+    ]
+  },
+  {
+    id:'cobjects', cat:'Mapas', name:'Custom Objects DayZ Pack',
+    desc:'Colección masiva de 1314 archivos de objetos estilo DayZ/militar. Zombies, edificios destruidos, vehículos y más.',
+    tags:['1314 objetos','DayZ','Militar','3D'], hot:true,
+    features:['1314 objetos únicos','Estilo DayZ militar','Vehículos dañados','Modelos de zombies','Edificios destruidos','Optimizados'],
+    imgs:[
+      'https://www.gtaall.com/uploads/posts/2014-06/1402855743_jgsdf-type90-tank.jpg',
+      'https://www.gtaall.com/uploads/posts/2015-09/1442430090_oshkosh-m1070-het-tank-transporter-for-gta-san-andreas.jpg',
+      'https://www.gtaall.com/uploads/posts/2013-07/1375186490_1_nfo.jpg'
+    ]
+  },
+  {
+    id:'items_system', cat:'Economía', name:'Sistema de Items Completo',
+    desc:'Inventario con 335+ objetos. Drogas, comida, vehículos e imágenes para cada item. El sistema de items más completo.',
+    tags:['335 items','Inventario','Drogas','Comida'], hot:true,
+    features:['335+ objetos únicos','Imagen por cada item','Sistema de drogas','Comida y bebidas','Stacking y peso','API de exportaciones'],
+    imgs:[
+      'https://i.ytimg.com/vi/OJkm0JJVPxs/maxresdefault.jpg',
+      'https://www.gtaall.com/uploads/posts/2013-06/1370368826_screen.jpg',
+      'https://i.ytimg.com/vi/7tYzU1S5Kcc/maxresdefault.jpg'
+    ]
+  },
+  {
+    id:'pescador', cat:'Economía', name:'Trabajo de Pescador',
+    desc:'Sistema de pesca como empleo con animaciones, caña 3D y sonido ambiental realista. Totalmente configurable.',
+    tags:['Trabajo','Pesca','Animaciones','Sonido'],
+    features:['Caña 3D personalizada','Animaciones de pesca','Sonido ambiental','Sistema de salario','Niveles de pesca','Tipos de peces'],
+    imgs:[
+      'https://www.gtaall.com/uploads/posts/2013-08/1377185248_gta-sa-multiplayer-mod-multi-theft-auto-0-5-screenshot-3.jpg',
+      'https://i.ytimg.com/vi/OJkm0JJVPxs/maxresdefault.jpg',
+      'https://www.gtaall.com/uploads/posts/2013-06/1370368826_screen.jpg'
+    ]
+  },
+  {
+    id:'downed_system', cat:'Jugadores', name:'Downed System + EpiPen',
+    desc:'Jugadores caen heridos y pueden ser reanimados con EpiPen. Añade tensión táctica y trabajo en equipo real.',
+    tags:['Heridos','EpiPen','Reanimación','Táctica'],
+    features:['Estado de herido','Reanimación con EpiPen','Animaciones de caída','Timer de muerte','HUD de estado','Sin mods extras'],
+    imgs:[
+      'https://www.gtaall.com/uploads/posts/2016-03/1457562498_army-clothes-for-cj.jpg',
+      'https://www.gtaall.com/uploads/posts/2013-07/1375186490_1_nfo.jpg',
+      'https://www.gtaall.com/uploads/posts/2013-08/1377185248_gta-sa-multiplayer-mod-multi-theft-auto-0-5-screenshot-3.jpg'
+    ]
+  },
+  {
+    id:'painelanimacion', cat:'Jugadores', name:'Panel de Animaciones Pro',
+    desc:'Panel completo con cientos de animaciones, objetos 3D y sonidos. 32 scripts y 13 archivos IFP personalizados.',
+    tags:['Animaciones','IFP','GUI','Sonido'],
+    features:['Cientos de animaciones','13 archivos IFP','Objetos 3D','Sonidos de ambiente','GUI intuitiva','32 scripts'],
+    imgs:[
+      'https://www.gtaall.com/uploads/posts/2013-06/1370368826_screen.jpg',
+      'https://www.gtaall.com/uploads/posts/2016-03/1457562498_army-clothes-for-cj.jpg',
+      'https://i.ytimg.com/vi/OJkm0JJVPxs/maxresdefault.jpg'
+    ]
+  },
+  {
+    id:'gui', cat:'HUD', name:'GUI System Completo',
+    desc:'Sistema GUI completo: inventario visual, shops interactivos, interface de facciones y menú de mecánico. 38 scripts.',
+    tags:['GUI','Inventario','Shops','Facciones'],
+    features:['Inventario visual','Sistema de shops','Interface facciones','Menú mecánico','38 scripts','Exportaciones'],
+    imgs:[
+      'https://i.ytimg.com/vi/OBuQ4VYfpz8/maxresdefault.jpg',
+      'https://www.planetmods.com.br/wp-content/uploads/2022/05/capa-hud-mta.jpg',
+      'https://i.ytimg.com/vi/5k2u04Zbnqc/maxresdefault.jpg'
+    ]
+  },
+  {
+    id:'military_tags', cat:'HUD', name:'Military Tags Pro',
+    desc:'Tags militares horizontales flotantes sobre jugadores. Muestra rango, bando y nombre con distancia dinámica.',
+    tags:['Tags','Militar','HUD','Identificación'],
+    features:['Tags flotantes','Rango y bando','Distancia dinámica','Personalizable','Sin lag','Scripts compartidos'],
+    imgs:[
+      'https://i.ytimg.com/vi/OBuQ4VYfpz8/maxresdefault.jpg',
+      'https://www.gtaall.com/uploads/posts/2013-07/1375186490_1_nfo.jpg',
+      'https://i.ytimg.com/vi/5k2u04Zbnqc/maxresdefault.jpg'
+    ]
+  },
+  {
+    id:'factions', cat:'Sistema', name:'Sistema de Facciones',
+    desc:'Gestión completa de facciones y miembros. Chat privado, presupuesto, rangos internos y exportaciones Lua.',
+    tags:['Facciones','Rangos','Chat','Presupuesto'],
+    features:['Crear facciones','Chat de facción','Presupuesto propio','Rangos internos','Exportaciones Lua','BD integrada'],
+    imgs:[
+      'https://www.gtaall.com/uploads/posts/2013-08/1377185248_gta-sa-multiplayer-mod-multi-theft-auto-0-5-screenshot-3.jpg',
+      'https://i.ytimg.com/vi/OJkm0JJVPxs/maxresdefault.jpg',
+      'https://www.gtaall.com/uploads/posts/2013-07/1375186490_1_nfo.jpg'
+    ]
+  },
+  {
+    id:'anticheat', cat:'Admin', name:'Anticheat System',
+    desc:'Sistema fundamental de protección contra trampas en tiempo real con baneos automáticos y logs detallados.',
+    tags:['Anticheat','Seguridad','Baneos','Logs'],
+    features:['Detección activa','Baneos automáticos','Logs de infracciones','Configurable','Sin falsos positivos','Ligero'],
+    imgs:[
+      'https://i.ytimg.com/vi/ZjvxlZHa5W4/maxresdefault.jpg',
+      'https://i.ytimg.com/vi/OJkm0JJVPxs/maxresdefault.jpg',
+      'https://www.gtaall.com/uploads/posts/2013-07/1375186490_1_nfo.jpg'
+    ]
+  },
+  {
+    id:'gmc_antilag', cat:'Sistema', name:'GMC Antilag Pro',
+    desc:'Sistema profesional anti-lag client-side con 12 scripts de optimización. Mejora el rendimiento visiblemente.',
+    tags:['Anti-lag','Performance','Optimización','12 scripts'],
+    features:['12 scripts cliente','Optimización avanzada','Sin lag visual','Configurable','Fácil instalación','Compatible con todos'],
+    imgs:[
+      'https://i.ytimg.com/vi/OJkm0JJVPxs/maxresdefault.jpg',
+      'https://www.gtaall.com/uploads/posts/2013-06/1370368826_screen.jpg',
+      'https://i.ytimg.com/vi/7tYzU1S5Kcc/maxresdefault.jpg'
+    ]
+  }
+];
+
+// ── CART STATE ──────────────────────────────────────────────────────────
+let cart = [];
+let modalCurrent = null;
+let modalSlideIdx = 0;
+
+function updateCartUI() {
+  const count = cart.length;
+  const total = count * 6;
+  document.getElementById('cartCount').textContent = count;
+  document.getElementById('cartTotal').textContent = '$' + total;
+  document.getElementById('cartNavCount').textContent = count;
+  const bar = document.getElementById('cartBar');
+  if (count > 0) bar.classList.add('show');
+  else bar.classList.remove('show');
+}
+
+function addToCart(id) {
+  const r = resources.find(x => x.id === id);
+  if (!r) return;
+  if (cart.find(x => x.id === id)) {
+    showToast('⚠ Ya está en tu carrito');
+    return;
+  }
+  cart.push(r);
+  updateCartUI();
+  showToast('✓ ' + r.name + ' agregado al carrito');
+}
+
+function clearCart() {
+  cart = [];
+  updateCartUI();
+  showToast('Carrito vaciado');
+}
+
+function checkout() {
+  if (cart.length === 0) return;
+  const list = cart.map(r => '• ' + r.name).join('\n');
+  showToast('✓ Redirigiendo al pago... Total: $' + (cart.length * 6));
+}
+
+function scrollToCart() {
+  document.getElementById('resources').scrollIntoView({ behavior: 'smooth' });
+}
+
+// ── TOAST ────────────────────────────────────────────────────────────────
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.style.transform = 'translateY(0)';
+  t.style.opacity = '1';
+  clearTimeout(t._t);
+  t._t = setTimeout(() => {
+    t.style.transform = 'translateY(-80px)';
+    t.style.opacity = '0';
+  }, 3000);
+}
+
+// ── FILTERS ──────────────────────────────────────────────────────────────
+const cats = ['Todos', 'Combate', 'Sistema', 'HUD', 'Admin', 'Vehículos', 'Mapas', 'Economía', 'Jugadores'];
+let activeFilter = 'Todos';
+
+function buildFilters() {
+  const row = document.getElementById('filtersRow');
+  row.innerHTML = '';
+  cats.forEach(c => {
+    const btn = document.createElement('button');
+    btn.className = 'filter-btn' + (c === activeFilter ? ' active' : '');
+    btn.textContent = c;
+    btn.onclick = () => {
+      activeFilter = c;
+      document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      renderGrid();
+    };
+    row.appendChild(btn);
+  });
+}
+
+// ── CARD IMAGE SLIDER ────────────────────────────────────────────────────
+function createCardSlider(card, imgs, idPrefix) {
+  const wrap = card.querySelector('.res-img-wrap');
+  const slidesEl = wrap.querySelector('.res-img-slides');
+  const dotsEl = wrap.querySelector('.res-img-dots');
+  let idx = 0;
+  let interval = null;
+
+  imgs.forEach((src, i) => {
+    const slide = document.createElement('div');
+    slide.className = 'res-img-slide';
+    const img = document.createElement('img');
+    img.src = src;
+    img.alt = '';
+    img.onerror = () => { img.src = 'https://via.placeholder.com/400x200/0e1f2f/00c9a7?text=ByteForge'; };
+    slide.appendChild(img);
+    slidesEl.appendChild(slide);
+
+    const dot = document.createElement('div');
+    dot.className = 'dot' + (i === 0 ? ' active' : '');
+    dot.onclick = (e) => { e.stopPropagation(); goTo(i); };
+    dotsEl.appendChild(dot);
+  });
+
+  function goTo(n) {
+    idx = (n + imgs.length) % imgs.length;
+    slidesEl.style.transform = `translateX(-${idx * 100}%)`;
+    dotsEl.querySelectorAll('.dot').forEach((d, i) => d.classList.toggle('active', i === idx));
+  }
+
+  wrap.querySelector('.arrow-left').onclick = (e) => { e.stopPropagation(); goTo(idx - 1); };
+  wrap.querySelector('.arrow-right').onclick = (e) => { e.stopPropagation(); goTo(idx + 1); };
+
+  card.addEventListener('mouseenter', () => { interval = setInterval(() => goTo(idx + 1), 2200); });
+  card.addEventListener('mouseleave', () => { clearInterval(interval); });
+}
+
+// ── RENDER GRID ───────────────────────────────────────────────────────────
+function renderGrid() {
+  const grid = document.getElementById('resourcesGrid');
+  grid.innerHTML = '';
+  const filtered = activeFilter === 'Todos' ? resources : resources.filter(r => r.cat === activeFilter);
+
+  filtered.forEach(r => {
+    const card = document.createElement('div');
+    card.className = 'res-card reveal';
+
+    card.innerHTML = `
+      <div class="res-img-wrap">
+        <div class="res-img-slides"></div>
+        <div class="res-img-overlay"></div>
+        <div class="res-img-dots"></div>
+        <div class="res-img-arrows">
+          <button class="arrow-btn arrow-left">‹</button>
+          <button class="arrow-btn arrow-right">›</button>
+        </div>
+        <div class="res-badge ${r.hot ? 'hot' : ''}">${r.hot ? '★ HOT' : r.cat.toUpperCase()}</div>
+      </div>
+      <div class="res-card-body">
+        <div class="res-card-cat">${r.cat} · MTA:SA Resource</div>
+        <div class="res-card-title">${r.name}</div>
+        <div class="res-card-desc">${r.desc}</div>
+        <div class="res-tags">${r.tags.map(t => `<span class="res-tag">${t}</span>`).join('')}</div>
+      </div>
+      <div class="res-price-row">
+        <div class="res-price">
+          <span class="res-price-currency">$</span>
+          <span class="res-price-num">6</span>
+          <span class="res-price-usd">USD</span>
+        </div>
+        <button class="res-btn" onclick="event.stopPropagation();addToCart('${r.id}')"><span>+ Agregar →</span></button>
+      </div>
+    `;
+
+    card.addEventListener('click', () => openModal(r));
+    createCardSlider(card, r.imgs, r.id);
+    grid.appendChild(card);
+  });
+
+  // Re-observe for reveal animations
+  document.querySelectorAll('.res-card.reveal').forEach(el => revObs.observe(el));
+}
+
+// ── MODAL ─────────────────────────────────────────────────────────────────
+function openModal(r) {
+  modalCurrent = r;
+  modalSlideIdx = 0;
+  document.getElementById('modalCat').textContent = r.cat + ' · MTA:SA Resource';
+  document.getElementById('modalTitle').textContent = r.name;
+  document.getElementById('modalDesc').textContent = r.desc;
+
+  const features = document.getElementById('modalFeatures');
+  features.innerHTML = r.features.map(f => `<div class="modal-feat">${f}</div>`).join('');
+
+  const slides = document.getElementById('modalSlides');
+  slides.innerHTML = '';
+  const dots = document.getElementById('modalDots');
+  dots.innerHTML = '';
+
+  r.imgs.forEach((src, i) => {
+    const slide = document.createElement('div');
+    slide.className = 'modal-gallery-slide';
+    const img = document.createElement('img');
+    img.src = src;
+    img.alt = '';
+    img.onerror = () => { img.src = 'https://via.placeholder.com/620x260/0e1f2f/00c9a7?text=ByteForge'; };
+    slide.appendChild(img);
+    slides.appendChild(slide);
+
+    const dot = document.createElement('div');
+    dot.className = 'dot' + (i === 0 ? ' active' : '');
+    dot.onclick = () => goModalSlide(i);
+    dots.appendChild(dot);
+  });
+
+  document.getElementById('modalBuyBtn').onclick = () => {
+    addToCart(r.id);
+    document.getElementById('modalOverlay').classList.remove('open');
+  };
+
+  document.getElementById('modalOverlay').classList.add('open');
+}
+
+function goModalSlide(n) {
+  if (!modalCurrent) return;
+  modalSlideIdx = (n + modalCurrent.imgs.length) % modalCurrent.imgs.length;
+  document.getElementById('modalSlides').style.transform = `translateX(-${modalSlideIdx * 100}%)`;
+  document.querySelectorAll('#modalDots .dot').forEach((d, i) => d.classList.toggle('active', i === modalSlideIdx));
+}
+
+function modalArrow(dir) {
+  goModalSlide(modalSlideIdx + dir);
+}
+
+function closeModal(e) {
+  if (e.target.id === 'modalOverlay') document.getElementById('modalOverlay').classList.remove('open');
+}
+
+// ── REVEAL OBSERVER ───────────────────────────────────────────────────────
+const revObs = new IntersectionObserver(entries => {
+  entries.forEach((e, i) => {
+    if (e.isIntersecting) {
+      setTimeout(() => e.target.classList.add('visible'), i * 60);
+      revObs.unobserve(e.target);
+    }
+  });
+}, { threshold: 0.08 });
+
+document.querySelectorAll('.reveal').forEach(el => revObs.observe(el));
+
+// ── PARTICLES ──────────────────────────────────────────────────────────────
+(function(){
+  const c = document.getElementById('pts');
+  const cols = ['rgba(0,201,167,.6)','rgba(0,127,168,.5)','rgba(0,229,200,.4)','rgba(255,255,255,.08)'];
+  for (let i = 0; i < 20; i++) {
+    const p = document.createElement('div');
+    p.className = 'pt';
+    const s = Math.random() * 3 + 1;
+    p.style.cssText = `width:${s}px;height:${s}px;left:${Math.random()*100}%;background:${cols[Math.floor(Math.random()*cols.length)]};border-radius:${Math.random()>.5?'50%':'2px'};animation-duration:${Math.random()*20+14}s;animation-delay:${Math.random()*20}s;`;
+    c.appendChild(p);
+  }
 })();
-document.querySelectorAll('button, a, .card').forEach(el => {
-  el.addEventListener('mouseenter', () => { ring.style.width = '46px'; ring.style.height = '46px'; ring.style.borderColor = 'rgba(255,255,255,.25)'; });
-  el.addEventListener('mouseleave', () => { ring.style.width = '30px'; ring.style.height = '30px'; ring.style.borderColor = 'rgba(255,255,255,.18)'; });
+
+window.addEventListener('scroll', () => document.getElementById('nav').classList.toggle('scrolled', window.scrollY > 40));
+
+// ── COUNTER ANIM ───────────────────────────────────────────────────────────
+window.addEventListener('DOMContentLoaded', () => {
+  buildFilters();
+  renderGrid();
 });
-
-// FILTER
-function filterCards(tier, btn) {
-  document.querySelectorAll('.flt').forEach(b => b.classList.remove('active'));
-  btn.classList.add('active');
-  const cards = document.querySelectorAll('.card');
-  let visible = 0;
-  cards.forEach(c => {
-    const show = tier === 'all' || c.dataset.tier === tier;
-    c.classList.toggle('hidden', !show);
-    if (show) visible++;
-  });
-  ['t5','t10','t25'].forEach(t => {
-    const sec = document.getElementById('sec-' + t);
-    if (sec) sec.style.display = (tier === 'all' || tier === t) ? '' : 'none';
-  });
-  document.getElementById('fltCount').textContent = visible + ' script' + (visible !== 1 ? 's' : '');
-}
-
-// CONTACT
-function openContact(name) {
-  const toast = document.getElementById('toast');
-  document.getElementById('toastMsg').textContent = name;
-  toast.classList.add('show');
-  setTimeout(() => toast.classList.remove('show'), 3000);
-  setTimeout(() => { window.location.href = 'index2.html#contacto'; }, 800);
-}
 </script>
 </body>
 </html>
