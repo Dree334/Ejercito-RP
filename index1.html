@@ -77,7 +77,6 @@ body{
 }
 @keyframes cardIn{from{opacity:0;transform:translateY(24px) scale(.97);}to{opacity:1;transform:none;}}
 
-/* teal top bar */
 .card-topbar{
   height:3px;
   background:linear-gradient(90deg,var(--teal-dim),var(--blue-lt),var(--teal));
@@ -86,7 +85,7 @@ body{
 }
 @keyframes barSlide{from{background-position:0%;}to{background-position:200%;}}
 
-/* ─── MODE SWITCHER (pill) ─── */
+/* ─── MODE SWITCHER ─── */
 .mode-switcher{
   display:flex;align-items:center;justify-content:center;
   padding:24px 32px 0;
@@ -122,10 +121,8 @@ body{
 /* ─── BODY DEL CARD ─── */
 .card-body{padding:28px 32px 32px;}
 
-/* ─── STEP PROGRESS (solo registro) ─── */
-.step-progress{
-  display:none;margin-bottom:24px;
-}
+/* ─── STEP PROGRESS ─── */
+.step-progress{display:none;margin-bottom:24px;}
 .step-progress.show{display:block;}
 .steps-row{display:flex;align-items:center;gap:0;margin-bottom:8px;}
 .step-dot{
@@ -200,7 +197,7 @@ body{
 .str-fill{height:100%;width:0;border-radius:2px;transition:width .4s,background .4s;}
 .str-hint{font-size:.68rem;margin-top:4px;min-height:13px;transition:color .3s;}
 
-/* INTERESTS grid */
+/* INTERESTS */
 .interests-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px;}
 .interest-item{
   display:flex;align-items:center;gap:9px;
@@ -290,14 +287,6 @@ body{
 .soc-btn.discord:hover{background:rgba(114,137,218,.1);border-color:rgba(114,137,218,.35);}
 .soc-btn.github{color:var(--white);}
 .soc-btn.github:hover{background:rgba(255,255,255,.07);border-color:rgba(255,255,255,.2);}
-
-/* ─── SWITCH LINK ─── */
-.switch-link{
-  text-align:center;font-size:.8rem;color:var(--muted);
-  margin-top:20px;
-}
-.switch-link a{color:var(--teal);text-decoration:none;font-weight:500;}
-.switch-link a:hover{text-decoration:underline;}
 
 /* ─── PANTALLA ÉXITO ─── */
 .success-screen{display:none;text-align:center;padding:20px 0 8px;}
@@ -419,7 +408,7 @@ body{
       </div>
     </div>
 
-    <!-- STEP PROGRESS (registro) -->
+    <!-- STEP PROGRESS -->
     <div class="step-progress" id="step-progress">
       <div class="steps-row">
         <div class="step-dot active" id="sd1"><span>1</span></div>
@@ -486,7 +475,7 @@ body{
       </div>
     </div>
 
-    <!-- ══ REGISTRO PASO 1 — Cuenta ══ -->
+    <!-- ══ REGISTRO PASO 1 ══ -->
     <div id="view-r1" style="display:none;">
       <div class="form-title">
         <h2>Crea tu cuenta</h2>
@@ -525,7 +514,7 @@ body{
       </div>
     </div>
 
-    <!-- ══ REGISTRO PASO 2 — Perfil ══ -->
+    <!-- ══ REGISTRO PASO 2 ══ -->
     <div id="view-r2" style="display:none;">
       <div class="form-title">
         <h2>Tu perfil</h2>
@@ -565,7 +554,7 @@ body{
       </div>
     </div>
 
-    <!-- ══ REGISTRO PASO 3 — Confirmar ══ -->
+    <!-- ══ REGISTRO PASO 3 ══ -->
     <div id="view-r3" style="display:none;">
       <div class="form-title">
         <h2>Casi listo</h2>
@@ -673,11 +662,8 @@ function setMode(m){
   document.getElementById('mb-login').classList.toggle('active',m==='login');
   document.getElementById('mb-reg').classList.toggle('active',m==='register');
   document.getElementById('pill-thumb').classList.toggle('right',m==='register');
-
-  // mostrar vistas
   hide('view-login');hide('view-r1');hide('view-r2');hide('view-r3');hide('view-ok');
   document.getElementById('step-progress').classList.toggle('show', m==='register');
-
   if(m==='login') show('view-login');
   else{ currentStep=1; renderStep(); show('view-r1'); }
 }
@@ -703,15 +689,11 @@ function renderStep(){
 }
 
 function goStep(n){
-  // simple validation
   if(n===2 && currentStep===1){
     const u=document.getElementById('r-user').value;
     const e=document.getElementById('r-email').value;
     const p=document.getElementById('r-pass').value;
     if(!u||!e||p.length<8){toast('Completa todos los campos correctamente','err');return;}
-  }
-  if(n===3 && currentStep===2){
-    // ok
   }
   hide('view-r'+currentStep);
   currentStep=n;
@@ -723,10 +705,12 @@ function goStep(n){
 function doLogin(e){
   e.preventDefault();
   const btn=e.target.querySelector('.btn-main');
-  btn.disabled=true;btn.querySelector('.btn-text').textContent='VERIFICANDO...';
+  btn.disabled=true;
+  btn.querySelector('.btn-text').textContent='VERIFICANDO...';
   setTimeout(()=>{
-    btn.disabled=false;btn.querySelector('.btn-text').textContent='INGRESAR';
-    showOk('¡Acceso concedido!','Bienvenido de vuelta. Redirigiendo al dashboard...');
+    btn.disabled=false;
+    btn.querySelector('.btn-text').textContent='INGRESAR';
+    showOk('¡Acceso concedido!','Bienvenido de vuelta. Redirigiendo...');
     toast('✓ Sesión iniciada correctamente','ok');
   },1800);
 }
@@ -739,22 +723,29 @@ function doRegister(){
   if(p!==c){toast('✗ Las contraseñas no coinciden','err');return;}
   if(!t){toast('Debes aceptar los términos','err');return;}
   const btn=document.querySelector('#view-r3 .btn-main');
-  btn.disabled=true;btn.querySelector('.btn-text').textContent='CREANDO...';
+  btn.disabled=true;
+  btn.querySelector('.btn-text').textContent='CREANDO...';
   setTimeout(()=>{
-    btn.disabled=false;btn.querySelector('.btn-text').textContent='CREAR CUENTA';
+    btn.disabled=false;
+    btn.querySelector('.btn-text').textContent='CREAR CUENTA';
     showOk('¡Cuenta creada!','Revisa tu email para confirmar tu cuenta ByteForge.');
     toast('✓ Registro exitoso. ¡Bienvenido!','ok');
   },2000);
 }
 
-// ── SUCCESS ──
+// ── SUCCESS + REDIRECCIÓN ──
 function showOk(title,msg){
   hide('view-login');hide('view-r1');hide('view-r2');hide('view-r3');
   document.getElementById('step-progress').classList.remove('show');
   document.getElementById('ok-title').textContent=title;
   document.getElementById('ok-msg').textContent=msg;
   const sc=document.getElementById('view-ok');
-  sc.classList.add('show');sc.style.display='block';
+  sc.classList.add('show');
+  sc.style.display='block';
+  // Redirige a Index.0 al terminar la barra de progreso (2.2s)
+  setTimeout(()=>{
+    window.location.href='Index.0';
+  }, 2200);
 }
 
 // ── UTIL ──
